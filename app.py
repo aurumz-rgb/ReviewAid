@@ -4,6 +4,7 @@ import time
 import os 
 import re
 import json
+import json5
 import plotly.express as px
 import pandas as pd
 import cohere
@@ -302,39 +303,88 @@ def extract_text_from_pdf(pdf_file):
     doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
     return "".join(page.get_text() for page in doc)
 
-def preprocess_text_for_ai(text, max_tokens=3500):
+def preprocess_text_for_ai(text, max_tokens=1024):
     """Clean and truncate text."""
     text = " ".join(text.split())
     return text[:max_tokens * 4]  
 
 def query_cohere(prompt):
-    response = co.generate(model="command", prompt=prompt, max_tokens=3500, temperature=0.3)
+    response = co.generate(model="command", prompt=prompt, max_tokens=1024, temperature=0.2)
     return response.generations[0].text.strip()
 
-def parse_result(result_str):
+
+
+
+def extract_json_substring(text):
+    start = text.find("{")
+    end = text.rfind("}")
+    if start == -1 or end == -1 or end < start:
+        return text  # no clear JSON braces found, return as is
+    return text[start:end+1]
+
+def repair_json_via_ai(broken_json_str):
+    fix_prompt = f"""
+The following JSON output is invalid or malformed. Please fix it and return ONLY valid JSON, no extra text:
+
+{broken_json_str}
+"""
+    fixed_raw = query_cohere(fix_prompt)  # reuse your existing AI call
+    return fixed_raw
+
+
+
+
+def parse_result(raw_result):
+    """Parse AI output with pre-cleanup, json5 advanced repair + retry + fallback."""
     try:
-        start = result_str.find('{')
-        if start == -1:
-            st.error("No JSON object found in API response.")
-            return None
+        # Pre-clean raw output to extract JSON substring
+        cleaned = extract_json_substring(raw_result)
 
-        brace_count = 0
-        end = start
-        for i, char in enumerate(result_str[start:], start):
-            if char == '{':
-                brace_count += 1
-            elif char == '}':
-                brace_count -= 1
-                if brace_count == 0:
-                    end = i
-                    break
+        # First, try to parse as standard JSON
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        print("⚠️ JSON parsing failed on cleaned string. Trying json5 parser...")
 
-        json_str = result_str[start:end + 1]
-        return json.loads(json_str)
+        try:
+            # Try lenient json5 parser to handle more malformed JSON
+            return json5.loads(cleaned)
+        except Exception as e:
+            print(f"⚠️ json5 parser failed: {e}. Attempting manual repair...")
 
-    except Exception as e:
-        st.error(f"JSON parsing error: {e}")
-        return None
+            repaired = cleaned.strip()
+
+            # Ensure it starts and ends with braces
+            if not repaired.startswith("{"):
+                repaired = "{" + repaired
+            if not repaired.endswith("}"):
+                repaired += "}"
+
+            # Add quotes around unquoted keys (e.g., key: -> "key":)
+            repaired = re.sub(r'(\s*)([a-zA-Z0-9_]+):', r'\1"\2":', repaired)
+
+            try:
+                return json.loads(repaired)
+            except json.JSONDecodeError:
+                print("⚠️ Manual repair failed. Trying AI fix retry...")
+
+                # Retry fix via AI
+                fixed_raw = repair_json_via_ai(raw_result)
+
+                # Extract JSON substring again
+                fixed_cleaned = extract_json_substring(fixed_raw)
+
+                try:
+                    return json.loads(fixed_cleaned)
+                except json.JSONDecodeError:
+                    print("⚠️ AI fix retry failed. Using fallback response.")
+                    return {
+                        "status": "Error",
+                        "reason": "Invalid or unparseable JSON response after retries.",
+                        "extracted": {}
+                    }
+
+
+
     
 def estimate_confidence(text):
     if not text or len(text.strip()) < 30:
@@ -511,7 +561,7 @@ if st.button("Screen & Extract"):
                 continue
 
             # Preprocess text 
-            text = preprocess_text_for_ai(text, max_tokens=3500)
+            text = preprocess_text_for_ai(text, max_tokens=1024)
             confidence = estimate_confidence(text)
 
             # PRE-AI EXCLUSION CHECK 
@@ -543,8 +593,6 @@ if st.button("Screen & Extract"):
 
             #AI-BASED CONFIGURATION
             prompt = f"""
-You are an expert researcher.
-Apply these criteria strictly.
 
 **Population**
 Inclusion: {population_inclusion}
@@ -565,23 +613,22 @@ Fields to extract: {', '.join(fields_list)}
 For each extracted field, please provide a detailed answer consisting of **3 - 4 complete sentences**, explaining the relevant information in context from the paper.
 Also, provide a detailed reason for your classification.
 
-Here is the full text of the paper:
+Paper text:
 \"\"\"
 {text}
 \"\"\"
+For each field, provide 3-4 complete sentences with detailed, non-empty answers.
+Give a detailed reason for classification ("Include", "Exclude", or "Maybe").
 
-Return ONLY a single valid JSON object EXACTLY in this format, with no extra text, whitespace, or multiple JSON objects:
-
+Return exactly one valid JSON object with this format, no extra text or comments:
 
 {{
-  "status": "Include",  // or "Exclude" or "Maybe"
-  "reason": "Your detailed reason for this classification",
+  "status": "Include",
+  "reason": "Detailed classification reason.",
   "extracted": {{
-  {', '.join(f'"{field}": "..."' for field in fields_list)}
+    {', '.join(f'"{field}": "Detailed answer for {field}."' for field in fields_list)}
   }}
 }}
-
-IMPORTANT: Return exactly one JSON object ONLY, with no additional text, whitespace, or multiple JSON objects.
 """
             with st.spinner(f"Sending '{pdf.name}' to AI..."):
                 raw_result = query_cohere(prompt)
@@ -589,11 +636,8 @@ IMPORTANT: Return exactly one JSON object ONLY, with no additional text, whitesp
            
 
             result = parse_result(raw_result)
-            if not result:
-                st.error(f"Could not parse result for {pdf.name}. Raw output:")
-                st.code(raw_result)
-                progress_bar.progress(idx / total_pdfs)
-                continue
+            if result.get("status") == "Error":
+              st.warning(f"⚠️ Parsing failed for {pdf.name}. Using fallback response.")
 
             # Add metadata
             result["filename"] = pdf.name
