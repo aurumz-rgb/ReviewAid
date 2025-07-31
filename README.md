@@ -23,24 +23,6 @@
 - **Use:**  
    A maximum of 20 papers can be uploaded at a single time.
    
----
-
-## 📸 Screenshots
-
-
-![User Interface](screenshots/screenshot1.png)  
-*User Interface.*
-
-![Upload PDFs](screenshots/screenshot2.png)  
-*Upload pdfs to Screen & Extract.*
-
-
-![Extraction results](screenshots/screenshot3.png)
-*Extracted results, Can download in the available formats.*
-
-![Result](screenshots/screenshot4.png)  
-*Extracted result*
-
 
 ---
 
@@ -59,3 +41,23 @@ Contributions are always welcome!
 
 Upload your PDFs, enter your screening criteria, and start your review! 
 Happy reviewing! :))
+
+
+---
+
+
+
+## 📸 Screenshots
+
+
+![User Interface](screenshots/screenshot1.png)  
+*User Interface.*
+
+![Upload PDFs](screenshots/screenshot2.png)  
+*Upload pdfs to Screen & Extract.*
+
+
+![Result](screenshots/screenshot4.png)  
+*Extracted results (example), Can be downloaded in the available formats.*
+
+
