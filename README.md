@@ -24,7 +24,7 @@
 - **Use:**  
    A maximum of 20 papers can be uploaded at a single time.
 
-- **Use:**  
+- **Limitations:**  
   The web is hosted on Render and hence users may face **cold starts** wherin the user has to wait **30 seconds** for the web to initialise. 
   As per tool usage, the developer may decide to host it on better sources to avoid such **cold starts**.
 
