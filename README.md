@@ -39,7 +39,7 @@ This project is licensed under the AGPL-3.0 License.
 
 
 📬 Contact
-Questions, feedback, or collaboration ideas? Reach out at [aurumzgg@hotmail.com] or open an issue on GitHub.
+Questions, feedback, or collaboration ideas? Reach out at [aurumz.gg@hotmail.com] or open an issue on GitHub.
 Contributions are always welcome!
 
 ---
