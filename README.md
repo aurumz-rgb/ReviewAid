@@ -1,4 +1,4 @@
-V# ReviewAid
+# ReviewAid
 
 **ReviewAid** is an AI-powered Research article full-text Screener and Extractor designed to streamline the systematic review process. Upload research papers, automatically screen for relevance, extract key data fields, and accelerate your literature review workflow — all in one intuitive, easy-to-use web tool.
 
@@ -23,6 +23,11 @@ V# ReviewAid
 
 - **Use:**  
    A maximum of 20 papers can be uploaded at a single time.
+
+- **Use:**  
+  The web is hosted on Render and hence users may face **cold starts** wherin the user has to wait **30 seconds** for the web to initialise. 
+  As per tool usage, the developer may decide to host it on better sources to avoid such **cold starts**.
+
    
 
 ---
