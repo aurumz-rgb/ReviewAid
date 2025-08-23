@@ -798,7 +798,7 @@ import os
 from datetime import datetime
 
 
-version = "1.0.1"
+version = "1.0.2"
 try:
     current_file = __file__
     last_modified_timestamp = os.path.getmtime(current_file)
