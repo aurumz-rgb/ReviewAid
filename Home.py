@@ -298,6 +298,7 @@ else:
 
 
 
+# FUNCTIONS 
 def extract_text_from_pdf(pdf_file):
     doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
     return "".join(page.get_text() for page in doc)
@@ -308,14 +309,17 @@ def preprocess_text_for_ai(text, max_tokens=1024):
     return text[:max_tokens * 4]  
 
 def query_cohere(prompt):
-    response = co.generate(model="command", prompt=prompt, max_tokens=1024, temperature=1)
+    response = co.generate(model="command", prompt=prompt, max_tokens=1024, temperature=0.2)
     return response.generations[0].text.strip()
+
+
+
 
 def extract_json_substring(text):
     start = text.find("{")
     end = text.rfind("}")
     if start == -1 or end == -1 or end < start:
-        return text
+        return text  # no clear JSON braces found, return as is
     return text[start:end+1]
 
 def repair_json_via_ai(broken_json_str):
@@ -324,45 +328,69 @@ The following JSON output is invalid or malformed. Please fix it and return ONLY
 
 {broken_json_str}
 """
-    fixed_raw = query_cohere(fix_prompt)
+    fixed_raw = query_cohere(fix_prompt)  # reuse your existing AI call
     return fixed_raw
+
+
+
 
 def parse_result(raw_result):
     """Parse AI output with pre-cleanup, json5 advanced repair + retry + fallback."""
     try:
+        # Pre-clean raw output to extract JSON substring
         cleaned = extract_json_substring(raw_result)
+
+        # First, try to parse as standard JSON
         return json.loads(cleaned)
     except json.JSONDecodeError:
+        print("⚠️ JSON parsing failed on cleaned string. Trying json5 parser...")
+
         try:
+            # Try lenient json5 parser to handle more malformed JSON
             return json5.loads(cleaned)
-        except Exception:
+        except Exception as e:
+            print(f"⚠️ json5 parser failed: {e}. Attempting manual repair...")
+
             repaired = cleaned.strip()
+
+            # Ensure it starts and ends with braces
             if not repaired.startswith("{"):
                 repaired = "{" + repaired
             if not repaired.endswith("}"):
                 repaired += "}"
+
+            # Add quotes around unquoted keys (e.g., key: -> "key":)
             repaired = re.sub(r'(\s*)([a-zA-Z0-9_]+):', r'\1"\2":', repaired)
+
             try:
                 return json.loads(repaired)
             except json.JSONDecodeError:
+                print("⚠️ Manual repair failed. Trying AI fix retry...")
+
+                # Retry fix via AI
                 fixed_raw = repair_json_via_ai(raw_result)
+
+                # Extract JSON substring again
                 fixed_cleaned = extract_json_substring(fixed_raw)
+
                 try:
                     return json.loads(fixed_cleaned)
                 except json.JSONDecodeError:
+                    print("⚠️ AI fix retry failed. Using fallback response.")
                     return {
                         "status": "Error",
                         "reason": "Invalid or unparseable JSON response after retries.",
                         "extracted": {}
                     }
 
+
+
+    
 def estimate_confidence(text):
     if not text or len(text.strip()) < 30:
         return 0.2
-    if "randomized" in text.lower() or "clinical trial" in text.lower():
+    if "randomized" in text.lower():
         return 0.9
-    if "retrospective" in text.lower():
-        return 0.5
     return 0.6
 
 def df_from_results(results):
@@ -373,18 +401,12 @@ def df_from_results(results):
             "Status": r.get("status", "").capitalize(),
             "Confidence": r.get("confidence", "")
         }
-        extracted = r.get("extracted", {})
-        if extracted:
-            formatted_table = []
-            for k, v in extracted.items():
-                formatted_table.append(f"**{k}**\n{v}")
-            row["Summary Table"] = "\n\n".join(formatted_table)
+        row.update(r.get("extracted", {}))
         if r.get("status", "").lower() == "exclude":
             row["Reason for Exclusion"] = r.get("reason", "")
-        if r.get("status", "").lower() == "maybe":
-            row["Reason for Maybe"] = r.get("reason", "")
         rows.append(row)
     return pd.DataFrame(rows)
+
 
 # Export helper functions
 def to_docx(df):
@@ -441,8 +463,15 @@ def to_excel(df):
     buffer.seek(0)
     return buffer.getvalue()
 
+
+
+
 # Helper function for exclusion criteria matching 
 def find_exclusion_matches(text, exclusion_lists):
+    """
+    Returns a list of exclusion criteria strings that are found in the given text.
+    Simple substring matching (case-insensitive).
+    """
     matches = []
     for criteria in exclusion_lists:
         criteria = criteria.strip()
@@ -451,6 +480,7 @@ def find_exclusion_matches(text, exclusion_lists):
     return matches
 
 #  UI 
+
 st.subheader("Population Criteria")
 population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18–65 with MS")
 population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases")
@@ -470,6 +500,10 @@ fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. 
 fields_list = [f.strip() for f in fields.split(",") if f.strip()]
 uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
 
+
+
+
+
 # STREAMLIT BUTTON ACTION 
 if st.button("Screen & Extract"):
 
@@ -482,12 +516,15 @@ if st.button("Screen & Extract"):
 
     st.session_state.papers_screened += min(len(uploaded_pdfs), 20)   
 
+# Track current user
     if st.session_state.user_api_key:
        st.session_state.unique_users.add(st.session_state.user_api_key)
        st.session_state.user_api_keys.add(st.session_state.user_api_key)
     elif st.session_state.use_admin_key:
        st.session_state.unique_users.add("admin")
 
+
+    # validations
     if not fields.strip():
         st.warning("Please enter at least one field to be extracted!")
         st.stop()
@@ -503,31 +540,42 @@ if st.button("Screen & Extract"):
         st.warning("Please enter at least one inclusion or exclusion criterion.")
         st.stop()
 
+    # Reset previous results
     st.session_state.included_results, st.session_state.excluded_results, st.session_state.maybe_results = [], [], []
+
 
     max_papers = 20
     total_pdfs = min(len(uploaded_pdfs), max_papers)
     progress_bar = st.progress(0)
 
+    # Process uploaded PDFs
     for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
         st.info(f"Processing: {pdf.name}")
         try:
             pdf.seek(0)
             text = extract_text_from_pdf(pdf)
+
             if not text.strip():
                 st.warning(f"PDF '{pdf.name}' appears empty or unreadable. Skipping.")
                 progress_bar.progress(idx / total_pdfs)
                 continue
+
+            # Preprocess text 
             text = preprocess_text_for_ai(text, max_tokens=1024)
             confidence = estimate_confidence(text)
 
+            # PRE-AI EXCLUSION CHECK 
+            # Collect all exclusion criteria into a list
             all_exclusions = []
             for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
                 if block.strip():
                     all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
+
+            # Find matches
             matches = find_exclusion_matches(text, all_exclusions)
 
             if len(matches) >= 1:
+                # Auto-exclude without sending to AI
                 exclusion_reason = (
                     f"Auto-excluded because {len(matches)} exclusion criteria matched: {', '.join(matches)}"
                 )
@@ -541,83 +589,76 @@ if st.button("Screen & Extract"):
                 st.session_state.excluded_results.append(result)
                 st.warning(f"Auto-excluded {pdf.name}: {len(matches)} exclusion criteria matched")
                 progress_bar.progress(idx / total_pdfs)
-                continue
+                continue  # Skip AI step
 
-            # AI PROMPT – updated for detailed PICO fields
+            #AI-BASED CONFIGURATION
             prompt = f"""
 
 **Population**
-Inclusion: {population_inclusion if population_inclusion.strip() else "Not explicitly stated in the paper. Based on context, likely adults with RRMS."}
-Exclusion: {population_exclusion if population_exclusion.strip() else "Not explicitly stated in the paper. No specific exclusion criteria mentioned."}
+Inclusion: {population_inclusion}
+Exclusion: {population_exclusion}
 
 **Intervention**
-Inclusion: {intervention_inclusion if intervention_inclusion.strip() else "Not explicitly stated in the paper. Intervention details inferred from study design."}
-Exclusion: {intervention_exclusion if intervention_exclusion.strip() else "Not explicitly stated in the paper. No intervention exclusions provided."}
+Inclusion: {intervention_inclusion}
+Exclusion: {intervention_exclusion}
 
 **Comparison**
-Inclusion: {comparison_inclusion if comparison_inclusion.strip() else "Not explicitly stated in the paper. Comparator likely includes standard care or other DMTs."}
-Exclusion: {comparison_exclusion if comparison_exclusion.strip() else "Not explicitly stated in the paper. No comparator exclusions provided."}
+Inclusion: {comparison_inclusion}
+Exclusion: {comparison_exclusion}
 
-**Outcomes (if relevant)**: {outcome_criteria if outcome_criteria.strip() else "Not explicitly stated in the paper. Outcomes inferred from clinical context."}
+**Outcomes (if relevant)**: {outcome_criteria}
 
 Fields to extract: {', '.join(fields_list)}
 
-For each extracted field, provide a **detailed description of at least 2–3 complete sentences** (preferably 3–4) that explains the context clearly. 
-Avoid short phrases or one-liners. If the paper doesn’t specify directly, clearly state that and infer from context.
-
-Also provide a detailed reason for your classification decision, written in **at least 2–3 sentences**.
+For each extracted field, please provide a detailed answer consisting of **3 - 4 complete sentences**, explaining the relevant information in context from the paper.
+Also, provide a detailed reason for your classification.
 
 Paper text:
 \"\"\"
 {text}
 \"\"\"
+For each field, provide 3-4 complete sentences with detailed, non-empty answers.
+Give a detailed reason for classification ("Include", "Exclude", or "Maybe").
 
-Return exactly one valid JSON object in this format:
+Return exactly one valid JSON object with this format, no extra text or comments:
 
 {{
   "status": "Include",
-  "reason": "Detailed classification reason in 2–3+ sentences.",
+  "reason": "Detailed classification reason.",
   "extracted": {{
-    {', '.join(f'"{field}": "Detailed multi-sentence answer for {field}."' for field in fields_list)}
+    {', '.join(f'"{field}": "Detailed answer for {field}."' for field in fields_list)}
   }}
 }}
 """
-
             with st.spinner(f"Sending '{pdf.name}' to AI..."):
                 raw_result = query_cohere(prompt)
+
+           
 
             result = parse_result(raw_result)
             if result.get("status") == "Error":
               st.warning(f"⚠️ Parsing failed for {pdf.name}. Using fallback response.")
 
+            # Add metadata
             result["filename"] = pdf.name
             result["confidence"] = confidence
             if confidence < 0.5:
                 result["flags"] = ["low_confidence"]
 
-            # ---- Decision Logic Upgrade ----
+            # Fix: assign status variable for use below
             status = result.get("status", "").strip().lower()
-            reason = result.get("reason", "")
-
-            if status == "exclude" and confidence < 0.5:
-                status = "maybe"
-                reason += " (Reclassified to Maybe due to low confidence.)"
-            elif status == "include" and "uncertain" in reason.lower():
-                status = "maybe"
-                reason += " (Reclassified to Maybe due to uncertainty in reasoning.)"
-            elif status not in {"include", "exclude", "maybe"}:
-                status = "maybe"
-                reason += " (Fallback to Maybe because status was unclear.)"
-
-            result["status"] = status
-            result["reason"] = reason
-
+            if status not in {"include", "exclude", "maybe"}:
+                 status = "exclude"
+           
+            # Sort into appropriate result bucket
             if status == "include":
                 st.session_state.included_results.append(result)
             elif status == "exclude":
                 st.session_state.excluded_results.append(result)
-            else:
+            elif status == "maybe":
                 st.session_state.maybe_results.append(result)
+            else:
+                st.session_state.excluded_results.append(result)
 
             st.success(f"Processed: {pdf.name} — {status.capitalize()}")
 
@@ -629,7 +670,8 @@ Return exactly one valid JSON object in this format:
 
     st.info("All files processed!")
 
-# ---- Results Dashboard ----
+
+
 included = len(st.session_state.included_results)
 excluded = len(st.session_state.excluded_results)
 maybe = len(st.session_state.maybe_results)
@@ -638,8 +680,12 @@ total = included + excluded + maybe
 session_duration = time.time() - st.session_state.start_time
 avg_speed = session_duration / total if total > 0 else 0
 
+
+
+
 with st.expander("Screening Dashboard", expanded=True):
      st.metric("Papers Screened", total)
+
      fig = px.pie(
         names=["Included", "Excluded", "Maybe"],
         values=[included, excluded, maybe],
@@ -647,7 +693,9 @@ with st.expander("Screening Dashboard", expanded=True):
     )
      st.plotly_chart(fig, use_container_width=True)
 
-# ---- Results Display ----
+                
+
+    # Show summary tables
 included_results = st.session_state.included_results
 excluded_results = st.session_state.excluded_results
 maybe_results = st.session_state.maybe_results 
@@ -666,6 +714,8 @@ if excluded_results:
 else:
     st.info("No Excluded papers found.")
 
+    maybe_results = st.session_state.maybe_results
+
 if maybe_results:
     st.header("Maybe Papers")
     df_maybe = df_from_results(maybe_results)
@@ -673,7 +723,7 @@ if maybe_results:
 else:
     st.info("No Maybe papers found.")
 
-# ---- Export options ----
+# Export options # Export options (DOCX, CSV, XLSX)
 if included_results or excluded_results or maybe_results:
     st.header("Export Results")
 
@@ -706,6 +756,7 @@ if included_results or excluded_results or maybe_results:
         st.subheader("Maybe Papers")
         df_maybe = df_from_results(maybe_results)
         export_buttons(df_maybe, "Maybe")
+
 
 
 
@@ -747,7 +798,7 @@ import os
 from datetime import datetime
 
 
-version = "1.0.2"
+version = "1.0.1"
 try:
     current_file = __file__
     last_modified_timestamp = os.path.getmtime(current_file)
