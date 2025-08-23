@@ -148,7 +148,7 @@ def test_api_key(api_key):
     if not api_key: return False
     try:
         client = cohere.Client(api_key)
-        client.generate(model="command", prompt="Hello", max_tokens=5)
+        client.generate(model="command-r-08-2024", prompt="Hello", max_tokens=5)
         return True
     except Exception:
         return False
@@ -309,7 +309,7 @@ def preprocess_text_for_ai(text, max_tokens=1024):
     return text[:max_tokens * 4]  
 
 def query_cohere(prompt):
-    response = co.generate(model="command", prompt=prompt, max_tokens=1024, temperature=0.2)
+    response = co.generate(model="command-r-08-2024", prompt=prompt, max_tokens=1024, temperature=0.2)
     return response.generations[0].text.strip()
 
 
@@ -610,7 +610,7 @@ Exclusion: {comparison_exclusion}
 
 Fields to extract: {', '.join(fields_list)}
 
-For each extracted field, please provide a detailed answer consisting of **3 - 4 complete sentences**, explaining the relevant information in context from the paper.
+For each extracted field, please provide a detailed answer consisting of **1-2 complete sentences**, explaining the relevant information in context from the paper.
 Also, provide a detailed reason for your classification.
 
 Paper text:
