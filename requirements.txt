@@ -7,6 +7,6 @@ cohere>=4.32.0
 python-dotenv>=1.0.0
 cryptography>=41.0.0
 fpdf2>=2.7.6
-streamlit-lottie>=0.1.0
+streamlit-lottie==0.0.5
 Pillow>=10.0.0
 pytesseract>=0.3.10
