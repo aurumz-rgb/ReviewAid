@@ -148,7 +148,8 @@ def test_api_key(api_key):
     if not api_key: return False
     try:
         client = cohere.Client(api_key)
-        client.generate(model="command-r-08-2024", prompt="Hello", max_tokens=5)
+        # Migrated to Chat API
+        client.chat(model="command-r-08-2024", message="Hello", max_tokens=5)
         return True
     except Exception:
         return False
@@ -309,8 +310,14 @@ def preprocess_text_for_ai(text, max_tokens=1024):
     return text[:max_tokens * 4]  
 
 def query_cohere(prompt):
-    response = co.generate(model="command-r-08-2024", prompt=prompt, max_tokens=1024, temperature=0.2)
-    return response.generations[0].text.strip()
+    # Migrated to Chat API
+    response = co.chat(
+        model="command-r-08-2024",
+        message=prompt,
+        max_tokens=1024,
+        temperature=0.2
+    )
+    return response.text
 
 
 
