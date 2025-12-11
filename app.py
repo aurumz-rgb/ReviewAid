@@ -7,7 +7,6 @@ import json
 import json5
 import plotly.express as px
 import pandas as pd
-import cohere
 from dotenv import load_dotenv
 from datetime import datetime
 from cryptography.fernet import Fernet
@@ -16,6 +15,7 @@ from streamlit_lottie import st_lottie
 import streamlit.components.v1 as components
 import base64
 import html
+from zai import ZaiClient
 
 st.set_page_config(
     page_title="ReviewAid",
@@ -286,8 +286,34 @@ if "page_load_count" not in st.session_state:
 
 st.session_state.page_load_count += 1
 
-def init_cohere_client(api_key):
-    return cohere.Client(api_key)
+def query_zai(prompt, api_key, temperature=0.8, max_tokens=1024):
+    
+    if not api_key:
+        st.error("API key is missing. Please check your environment variables.")
+        return None
+    
+    try:
+        
+        client = ZaiClient(api_key=api_key)
+        
+        
+        response = client.chat.completions.create(
+            model="GLM-4.5-Flash",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=temperature,
+            max_tokens=max_tokens
+        )
+        
+        
+        return response.choices[0].message.content
+    except Exception as e:
+        st.error(f"Error calling Z.AI API: {str(e)}")
+        return None
 
 def display_citation_section():
     st.markdown("---")
@@ -504,8 +530,17 @@ if not st.session_state.disclaimer_acknowledged:
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-ADMIN_API_KEY = os.getenv("ADMIN_API_KEY") or os.getenv("COHERE_API_KEY")
-co = init_cohere_client(ADMIN_API_KEY)
+# API Keys 
+SCREENER_API_KEY = os.getenv("SCREENER_API_KEY")
+EXTRACTOR_API_KEY = os.getenv("EXTRACTOR_API_KEY")
+
+
+if st.session_state.app_mode == "screener":
+    if not SCREENER_API_KEY:
+        st.error("Screener API key is not set. Please set the SCREENER_API_KEY environment variable.")
+elif st.session_state.app_mode == "extractor":
+    if not EXTRACTOR_API_KEY:
+        st.error("Extractor API key is not set. Please set the EXTRACTOR_API_KEY environment variable.")
 
 if st.session_state.app_mode is None:
     st.markdown("<div class='mode-selection'>", unsafe_allow_html=True)
@@ -586,36 +621,71 @@ def extract_text_from_pdf(pdf_file):
     doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
     return "".join(page.get_text() for page in doc)
 
+def extract_pdf_metadata(pdf_file):
+    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
+    metadata = doc.metadata
+    title = metadata.get('title', '')
+    author = metadata.get('author', '')
+    
+    
+    year = ''
+    if not year:
+        first_page_text = doc[0].get_text()
+        year_match = re.search(r'\b(19|20)\d{2}\b', first_page_text)
+        if year_match:
+            year = year_match.group()
+    
+   
+    if not year and metadata.get('creationDate'):
+        creation_date = metadata['creationDate']
+        year_match = re.search(r'\b(19|20)\d{2}\b', creation_date)
+        if year_match:
+            year = year_match.group()
+    
+    return title, author, year
+
 def preprocess_text_for_ai(text, max_tokens=1024):
     text = " ".join(text.split())
     return text[:max_tokens * 4]  
 
-def query_cohere(prompt):
-    response = co.chat(
-        model="command-r-08-2024",
-        message=prompt,
-        max_tokens=1024,
-        temperature=0.2
-    )
-    return response.text
-
 def extract_json_substring(text):
+   
+    text = re.sub(r'```json\n?', '', text)
+    text = re.sub(r'\n?```', '', text)
+    
+   
     start = text.find("{")
     end = text.rfind("}")
+    
     if start == -1 or end == -1 or end < start:
         return text
+    
     return text[start:end+1]
 
-def repair_json_via_ai(broken_json_str):
+def repair_json_via_ai(broken_json_str, api_key):
     fix_prompt = f"""
 The following JSON output is invalid or malformed. Please fix it and return ONLY valid JSON, no extra text:
 
 {broken_json_str}
 """
-    fixed_raw = query_cohere(fix_prompt)
+    fixed_raw = query_zai(fix_prompt, api_key)
     return fixed_raw
 
-def parse_result(raw_result):
+def parse_result(raw_result, api_key, mode="screener", fields_list=None):
+   
+    if not raw_result or not raw_result.strip():
+        if mode == "screener":
+            return {
+                "status": "Error",
+                "reason": "Empty response from AI",
+            }
+        else:
+            result = {"extracted": {}}
+            if fields_list:
+                for field in fields_list:
+                    result["extracted"][field] = None
+            return result
+    
     try:
         cleaned = extract_json_substring(raw_result)
         return json.loads(cleaned)
@@ -629,11 +699,16 @@ def parse_result(raw_result):
 
             repaired = cleaned.strip()
 
+            
+            repaired = re.sub(r'^[^{]*', '', repaired)
+            repaired = re.sub(r'[^}]*$', '', repaired)
+
             if not repaired.startswith("{"):
                 repaired = "{" + repaired
             if not repaired.endswith("}"):
                 repaired += "}"
 
+           
             repaired = re.sub(r'(\s*)([a-zA-Z0-9_]+):', r'\1"\2":', repaired)
 
             try:
@@ -641,18 +716,41 @@ def parse_result(raw_result):
             except json.JSONDecodeError:
                 print("⚠️ Manual repair failed. Trying AI fix retry...")
 
-                fixed_raw = repair_json_via_ai(raw_result)
-                fixed_cleaned = extract_json_substring(fixed_raw)
+                fixed_raw = repair_json_via_ai(raw_result, api_key)
+                if not fixed_raw:
+                    print("⚠️ AI fix returned empty response")
+                else:
+                    fixed_cleaned = extract_json_substring(fixed_raw)
 
-                try:
-                    return json.loads(fixed_cleaned)
-                except json.JSONDecodeError:
-                    print("⚠️ AI fix retry failed. Using fallback response.")
+                    try:
+                        return json.loads(fixed_cleaned)
+                    except json.JSONDecodeError:
+                        print("⚠️ AI fix retry failed. Using fallback response.")
+                
+               
+                if mode == "screener":
                     return {
                         "status": "Error",
                         "reason": "Invalid or unparseable JSON response after retries.",
-                        "extracted": {}
                     }
+                else:
+                    result = {"extracted": {}}
+                    if fields_list:
+                        for field in fields_list:
+                           
+                            pattern = rf'"{field}"\s*:\s*"([^"]*)"'
+                            match = re.search(pattern, raw_result, re.IGNORECASE)
+                            if match:
+                                result["extracted"][field] = match.group(1).strip()
+                            else:
+                              
+                                simple_pattern = rf'{field}[:\s]+(.*?)(?=\n|"|\}})'
+                                simple_match = re.search(simple_pattern, raw_result, re.IGNORECASE | re.DOTALL)
+                                if simple_match:
+                                    result["extracted"][field] = simple_match.group(1).strip()
+                                else:
+                                    result["extracted"][field] = None
+                    return result
     
 def estimate_confidence(text):
     if not text or len(text.strip()) < 30:
@@ -666,12 +764,22 @@ def df_from_results(results):
     for r in results:
         row = {
             "Filename": r.get("filename", ""),
+            "Title": r.get("title", ""),
+            "Author": r.get("author", ""),
+            "Year": r.get("year", ""),
             "Status": r.get("status", "").capitalize(),
             "Confidence": r.get("confidence", "")
         }
-        row.update(r.get("extracted", {}))
-        if r.get("status", "").lower() == "exclude":
+        
+       
+        status = r.get("status", "").lower()
+        if status == "include":
+            row["Reason for Inclusion"] = r.get("reason", "")
+        elif status == "exclude":
             row["Reason for Exclusion"] = r.get("reason", "")
+        elif status == "maybe":
+            row["Reason for Maybe"] = r.get("reason", "")
+            
         rows.append(row)
     return pd.DataFrame(rows)
 
@@ -766,8 +874,6 @@ if st.session_state.app_mode == "screener":
     st.subheader("Outcome Criteria (Optional)")
     outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
 
-    fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. Type of Study, Year, Population, Outcome")
-    fields_list = [f.strip() for f in fields.split(",") if f.strip()]
     uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
 
 elif st.session_state.app_mode == "extractor":
@@ -775,6 +881,15 @@ elif st.session_state.app_mode == "extractor":
     
     fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. Author, Year, Study Design, Sample Size, Conclusion")
     fields_list = [f.strip() for f in fields.split(",") if f.strip()]
+    
+   
+    if "Paper Title" not in fields_list:
+        fields_list.insert(0, "Paper Title")
+    
+   
+    if len(fields_list) == 1 and fields_list[0] == "Paper Title":
+        st.info("Only Paper Title will be extracted. Add more fields to extract additional information.")
+    
     uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
     
     population_inclusion = ""
@@ -785,7 +900,7 @@ elif st.session_state.app_mode == "extractor":
     comparison_exclusion = ""
     outcome_criteria = ""
 
-if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "Screen & Extract"):
+if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "Screen Papers"):
 
     if "unique_users" not in st.session_state:
        st.session_state.unique_users = set()
@@ -798,9 +913,6 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
 
     st.session_state.unique_users.add("admin")
 
-    if not fields.strip():
-        st.warning("Please enter at least one field to be extracted!")
-        st.stop()
     if not uploaded_pdfs:
         st.warning("Please upload at least one PDF file.")
         st.stop()
@@ -813,6 +925,18 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
     ]):
         st.warning("Please enter at least one inclusion or exclusion criterion.")
         st.stop()
+
+
+    if st.session_state.app_mode == "screener":
+        if not SCREENER_API_KEY:
+            st.error("Screener API key is not set. Please set the SCREENER_API_KEY environment variable.")
+            st.stop()
+        api_key = SCREENER_API_KEY
+    else:
+        if not EXTRACTOR_API_KEY:
+            st.error("Extractor API key is not set. Please set the EXTRACTOR_API_KEY environment variable.")
+            st.stop()
+        api_key = EXTRACTOR_API_KEY
 
     if st.session_state.app_mode == "screener":
         st.session_state.included_results, st.session_state.excluded_results, st.session_state.maybe_results = [], [], []
@@ -838,6 +962,10 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
             confidence = estimate_confidence(text)
 
             if st.session_state.app_mode == "screener":
+             
+                pdf.seek(0)
+                title, author, year = extract_pdf_metadata(pdf)
+                
                 all_exclusions = []
                 for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
                     if block.strip():
@@ -854,7 +982,9 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         "status": "Exclude",
                         "reason": exclusion_reason,
                         "confidence": confidence,
-                        "extracted": {}
+                        "title": title,
+                        "author": author,
+                        "year": year
                     }
                     st.session_state.excluded_results.append(result)
                     st.warning(f"Auto-excluded {pdf.name}: {len(matches)} exclusion criteria matched")
@@ -877,59 +1007,125 @@ Exclusion: {comparison_exclusion}
 
 **Outcomes (if relevant)**: {outcome_criteria}
 
-Fields to extract: {', '.join(fields_list)}
-
-For each extracted field, please provide a detailed answer consisting of **1-2 complete sentences**, explaining the relevant information in context from the paper.
-Also, provide a detailed reason for your classification.
-
 Paper text:
 \"\"\"
 {text}
 \"\"\"
-For each field, provide 3-4 complete sentences with detailed, non-empty answers.
-Give a detailed reason for classification ("Include", "Exclude", or "Maybe").
+
+Based on the criteria above, classify this paper as "Include", "Exclude", or "Maybe".
+Provide a detailed reason for your classification.
+
+Also extract the following information:
+- Paper Title: The full title of the paper
+- Main Author: The first author or corresponding author
+- Publication Year: The year the paper was published
 
 Return exactly one valid JSON object with this format, no extra text or comments:
 
 {{
   "status": "Include",
   "reason": "Detailed classification reason.",
-  "extracted": {{
-    {', '.join(f'"{field}": "Detailed answer for {field}."' for field in fields_list)}
-  }}
+  "title": "Full paper title",
+  "author": "Main author name",
+  "year": "2023"
 }}
 """
             else:
-                prompt = f"""
-Fields to extract: {', '.join(fields_list)}
-
-For each extracted field, please provide a detailed answer consisting of **3-4 complete sentences**, explaining the relevant information in context from the paper.
-
+               
+                field_descriptions = {
+                    "Paper Title": "The full title of the research paper",
+                    "Author": "The main author(s) of the paper",
+                    "Year": "The publication year of the paper",
+                    "Journal": "The journal where the paper was published",
+                    "DOI": "The Digital Object Identifier of the paper",
+                    "Abstract": "A brief summary of the paper's content",
+                    "Keywords": "Key terms associated with the paper",
+                    "Study Design": "The methodology used in the study (e.g., randomized controlled trial, cohort study)",
+                    "Sample Size": "The number of participants in the study",
+                    "Intervention": "The treatment or intervention being studied",
+                    "Comparison": "The control or comparison group",
+                    "Outcome": "The main results or findings of the study",
+                    "Conclusion": "The authors' conclusion based on the findings",
+                    "Funding": "Information about who funded the research",
+                    "Conflicts of Interest": "Any declared conflicts of interest by the authors"
+                }
+                
+                prompt = "Extract the following information from the research paper:\n\n"
+                
+               
+                for field in fields_list:
+                    description = field_descriptions.get(field, f"Information about {field}")
+                    prompt += f"- {field}: {description}\n"
+                
+                prompt += f"""
 Paper text:
 \"\"\"
 {text}
 \"\"\"
 
-Return exactly one valid JSON object with this format, no extra text or comments:
-
+Return your response as a valid JSON object with this exact structure:
 {{
   "extracted": {{
-    {', '.join(f'"{field}": "Detailed answer for {field}."' for field in fields_list)}
-  }}
-}}
+"""
+
+                
+                for field in fields_list:
+                    prompt += f'    "{field}": "",\n'
+                
+               
+                prompt = prompt.rstrip(",\n") + "\n  }\n}"
+                
+               
+                prompt += """
+
+IMPORTANT: 
+1. Return ONLY the JSON object with no additional text, explanations, or formatting.
+2. Fill in the extracted information for each field in the quotes.
+3. If information for a field is not found in the paper, leave it as an empty string ("").
+4. Ensure the JSON is valid and properly formatted.
 """
             
-            with st.spinner(f"Sending '{pdf.name}' to AI..."):
-                raw_result = query_cohere(prompt)
+            with st.spinner(f"Analysing '{pdf.name}' using AI..."):
+              
+                if st.session_state.app_mode == "extractor":
+                    raw_result = query_zai(prompt, api_key, temperature=0.3, max_tokens=1024)
+                else:
+                    raw_result = query_zai(prompt, api_key)
 
-            result = parse_result(raw_result)
-            if result.get("status") == "Error":
-              st.warning(f"⚠️ Parsing failed for {pdf.name}. Using fallback response.")
+            if raw_result is None:
+                st.error(f"Failed to analyse using AI for {pdf.name}")
+                progress_bar.progress(idx / total_pdfs)
+                continue
+
+           
+            if st.session_state.app_mode == "screener":
+                result = parse_result(raw_result, api_key, mode="screener")
+            else:
+                result = parse_result(raw_result, api_key, mode="extractor", fields_list=fields_list)
+                
+              
+                if "extracted" not in result:
+                    result["extracted"] = {}
+                
+               
+                for field in fields_list:
+                    if field not in result["extracted"]:
+                        result["extracted"][field] = None
 
             result["filename"] = pdf.name
             result["confidence"] = confidence
             if confidence < 0.5:
                 result["flags"] = ["low_confidence"]
+
+         
+            if st.session_state.app_mode == "screener":
+                
+                if "title" not in result or not result["title"]:
+                    result["title"] = title
+                if "author" not in result or not result["author"]:
+                    result["author"] = author
+                if "year" not in result or not result["year"]:
+                    result["year"] = year
 
             if st.session_state.app_mode == "screener":
                 status = result.get("status", "").strip().lower()
