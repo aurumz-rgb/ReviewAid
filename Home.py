@@ -14,42 +14,173 @@ from cryptography.fernet import Fernet
 from fpdf import FPDF
 from streamlit_lottie import st_lottie
 import streamlit.components.v1 as components
-
-
+import base64
+import html
 
 st.set_page_config(
     page_title="ReviewAid",
     page_icon=os.path.abspath("favicon.ico"),
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
-
-
-
-
 
 hide_streamlit_style = """
     <style>
-    /* Hide hamburger menu */
     #MainMenu {visibility: hidden;}
-    /* Hide footer */
     footer {visibility: hidden;}
+    
+    [data-testid="stSidebar"] {display: none;}
+    
+    .main .block-container {
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+        padding-top: 0 !important;
+        margin-top: -30px !important;
+    }
+    
+    div[data-testid="stVerticalBlock"] > div:empty {
+        display: none !important;
+    }
+    
+    div[data-testid="stVerticalBlock"]:empty {
+        display: none !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    .citation-box {
+        background-color: rgba(65, 137, 220, 0.1);
+        border-left: 4px solid #4189DC;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+    }
+    
+    .citation-box p {
+        white-space: pre-line;
+    }
+    
+    .support-links {
+        display: flex;
+        gap: 30px;
+        margin: 20px 0;
+    }
+    
+    .support-link-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .support-link-item a {
+        color: #4189DC;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+    }
+    
+    .support-link-item a:hover {
+        color: #174D8B;
+    }
+    
+    .support-link-item p {
+        color: #d1d5db;
+        margin-top: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .custom-button {
+        background-color: #4189DC !important;
+        color: white !important;
+        text-decoration: none !important;
+        padding: 0.5rem 1rem !important;
+        font-size: 1rem !important;
+        border-radius: 5px !important;
+        display: inline-block !important;
+        margin: 0 !important;
+        transition: background-color 0.3s ease !important;
+        border: none !important;
+        cursor: pointer !important;
+    }
+    
+    .custom-button:hover {
+        background-color: #174D8B !important;
+    }
+    
+    .bold-white-link {
+        color: #F0F4F8 !important;
+        font-weight: bold !important;
+        text-decoration: none !important;
+        transition: color 0.3s ease !important;
+    }
+    
+    .bold-white-link:hover {
+        color: #45a4f3 !important;
+    }
+    
+    .support-section {
+        margin-top: 40px;
+        margin-bottom: 30px;
+    }
+    
+    .support-description {
+        color: #d1d5db;
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+        line-height: 1.6;
+    }
+    
+    .support-description a {
+        color: #4189DC !important;
+        text-decoration: none;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+    
+    .support-description a:hover {
+        color: #174D8B !important;
+        text-decoration: underline;
+    }
+    
+    .disclaimer-warning {
+        background-color: #ccd0d9;
+        color: #000000;
+        border-left: 5px solid #174D8B;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 15px 0;
+    }
+    
+    .disclaimer-warning h3 {
+        margin-top: 0;
+        color: #000000;
+    }
+    
+    .disclaimer-warning p {
+        margin-bottom: 10px;
+        color: #000000;
+    }
+    
+    .disclaimer-warning ul {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding-left: 20px;
+    }
+    
+    .disclaimer-warning li {
+        margin-bottom: 8px;
+        color: #000000;
+    }
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+color = "#4189DC"
+hover_color = "#174D8B"
 
-
-
-
-# Define your button colors (adjust as you want)
-color = "#4189DC"  # blue
-hover_color = "#174D8B"  # darker blue
-
-# Put this CSS **after** your button is rendered (or just once at the top)
 st.markdown(f"""
     <style>
-    /* Target all Streamlit buttons */
     div.stButton > button:first-child {{
         background-color: {color} !important;
         color: white !important;
@@ -59,59 +190,74 @@ st.markdown(f"""
     div.stButton > button:first-child:hover {{
         background-color: {hover_color} !important;
     }}
+    
+    .mode-card {{
+        background-color: #1f2937;
+        border-radius: 10px;
+        padding: 30px;
+        margin: 15px;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }}
+    
+    .mode-card:hover {{
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }}
+    
+    .mode-title {{
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #F0F4F8;
+    }}
+    
+    .mode-description {{
+        color: #d1d5db;
+        margin-bottom: 20px;
+    }}
+    
+    .mode-selection-footer {{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: rgba(8, 25, 45, 0.95);
+        color: #d1d5db;
+        font-size: 0.95rem;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(5px);
+    }}
+    
+    .mode-selection-footer a {{
+        color: #F0F4F8;
+        text-decoration: none;
+        font-weight: normal;
+    }}
+    
+    .mode-selection-footer a:hover {{
+        text-decoration: underline;
+    }}
+    
+    .mode-selection-footer .center-text {{
+        font-weight: normal;
+    }}
+    
+    .mode-selection-footer .right-text {{
+        font-weight: normal;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
-
-
-
-
-
 load_dotenv()
 
-# Developer access controls
-DEV_PASSWORD = os.getenv("DEV_PASSWORD", "defaultpassword")
-
-if "dev_authenticated" not in st.session_state:
-    st.session_state.dev_authenticated = False
-if "show_dev_login" not in st.session_state:
-    st.session_state.show_dev_login = False
-
-with st.sidebar:
-    if not st.session_state.dev_authenticated:
-        if st.button("Developer Login"):
-            st.session_state.show_dev_login = True
-
-    if st.session_state.show_dev_login and not st.session_state.dev_authenticated:
-        dev_pass = st.text_input("Enter developer password:", type="password")
-        if st.button("Login as Developer"):
-            if dev_pass == DEV_PASSWORD:
-                st.session_state.dev_authenticated = True
-                st.session_state.show_dev_login = False
-                st.success("Developer access granted!")
-                st.rerun()
-            else:
-                st.error("Incorrect password!")
-
-    if st.session_state.dev_authenticated:
-        st.markdown("### Developer Panel")
-
-        unique_users = st.session_state.get("unique_users", set())
-        user_api_keys = st.session_state.get("user_api_keys", set())
-        papers_screened = st.session_state.get("papers_screened", 0)
-
-        st.write(f"**Total unique users:** {len(unique_users)}")
-        st.write(f"**Unique user API keys used:** {len(user_api_keys)}")
-        st.write(f"**Total papers screened:** {papers_screened}")
-
-        if st.button("Logout Developer"):
-            st.session_state.dev_authenticated = False
-            st.rerun()
-
-
-ADMIN_API_KEY = os.getenv("ADMIN_API_KEY") or os.getenv("COHERE_API_KEY")
-
-# --- Load Lottie ---
+@st.cache_resource
 def load_lottiefile(filepath: str):
     try:
         with open(filepath, "r") as f:
@@ -121,64 +267,150 @@ def load_lottiefile(filepath: str):
 
 lottie_animation = load_lottiefile("animation.json")
 
-# --- Session state ---
-if "user_api_key" not in st.session_state:
-    st.session_state.user_api_key = None
-if "use_admin_key" not in st.session_state:
-    st.session_state.use_admin_key = True
 if "included_results" not in st.session_state:
     st.session_state.included_results = []
 if "excluded_results" not in st.session_state:
     st.session_state.excluded_results = []
 if "maybe_results" not in st.session_state:
     st.session_state.maybe_results = []
+if "extracted_results" not in st.session_state:
+    st.session_state.extracted_results = []
 if "start_time" not in st.session_state:
     st.session_state.start_time = time.time()
-if "note_acknowledged" not in st.session_state:
-    st.session_state.note_acknowledged = False
 if "disclaimer_acknowledged" not in st.session_state:
     st.session_state.disclaimer_acknowledged = False
+if "app_mode" not in st.session_state:
+    st.session_state.app_mode = None
+if "page_load_count" not in st.session_state:
+    st.session_state.page_load_count = 0
 
+st.session_state.page_load_count += 1
 
-# --- Helper ---
 def init_cohere_client(api_key):
     return cohere.Client(api_key)
 
-def test_api_key(api_key):
-    if not api_key: return False
-    try:
-        client = cohere.Client(api_key)
-        # Migrated to Chat API
-        client.chat(model="command-r-08-2024", message="Hello", max_tokens=5)
-        return True
-    except Exception:
-        return False
+def display_citation_section():
+    st.markdown("---")
+    st.markdown("## Citation")
 
-# ---------------- STAGE 1: Initial Note ----------------
-if not st.session_state.note_acknowledged:
-    st.markdown("""⚠️ **Note:**
+    apa_citation = (
+        "Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
+        "Zenodo. https://doi.org/10.5281/zenodo.17236600"
+    )
 
-- Upload limit is 20 papers maximum in a single session.  
-- Do not re-screen the paper as it will consume 2x tokens.  
-- This tool is in its **TRIAL** phase.  
-- Confidence scores indicate text readability (max: 0.9).  
+    harvard_citation = (
+        "Sahu, V., 2025. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
+        "Zenodo. Available at: https://doi.org/10.5281/zenodo.17236600"
+    )
 
-""")
-    if st.button("Got it!"):
-        st.session_state.note_acknowledged = True
+    mla_citation = (
+        "Sahu, Vihaan. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0).\" "
+        "2025, Zenodo, https://doi.org/10.5281/zenodo.17236600."
+    )
+
+    chicago_citation = (
+        "Sahu, Vihaan. 2025. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0).\" "
+        "Zenodo. https://doi.org/10.5281/zenodo.17236600."
+    )
+
+    ieee_citation = (
+        "V. Sahu, \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0),\" "
+        "Zenodo, 2025. doi: 10.5281/zenodo.17236600."
+    )
+
+    vancouver_citation = (
+        "Sahu V. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
+        "Zenodo. 2025. doi:10.5281/zenodo.17236600"
+    )
+
+    ris_data = """TY  - JOUR
+AU  - Sahu, V
+TI  - ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0)
+PY  - 2025
+DO  - 10.5281/zenodo.17236600
+ER  -"""
+
+    bib_data = """@misc{Sahu2025,
+  author={Sahu, V.},
+  title={ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0)},
+  year={2025},
+  doi={10.5281/zenodo.17236600}
+}"""
+
+    citation_style = st.selectbox(
+        "Select citation style",
+        ["APA", "Harvard", "MLA", "Chicago", "IEEE", "Vancouver"]
+    )
+
+    if citation_style == "APA":
+        citation_text = apa_citation
+    elif citation_style == "Harvard":
+        citation_text = harvard_citation
+    elif citation_style == "MLA":
+        citation_text = mla_citation
+    elif citation_style == "Chicago":
+        citation_text = chicago_citation
+    elif citation_style == "IEEE":
+        citation_text = ieee_citation
+    elif citation_style == "Vancouver":
+        citation_text = vancouver_citation
+
+    escaped_citation = html.escape(citation_text)
+    
+    st.markdown(f'<p style="margin:0; color:#ffff; font-size:1.1rem;">A lot of Researchers use ReviewAid & do not disclose the use of A.i. in their Research. I would request Researchers to be transparent and to cite ReviewAid if they were to use it, even if just as a third person validator or just for Reference.</p>', unsafe_allow_html=True)
+    st.markdown(f'<div class="citation-box"><p style="margin:0; color: #F0F4F8;">{escaped_citation}</p></div>', unsafe_allow_html=True)
+
+    js_citation_text = json.dumps(citation_text)
+    
+    st.markdown(f"""
+    <div style="display:flex; gap:10px; margin-top:10px; margin-bottom:10px; position:relative;" id="button-container">
+        <button id="copy-btn" class="custom-button">Copy</button>
+        <a download="ReviewAid_citation.ris" href="data:application/x-research-info-systems;base64,{base64.b64encode(ris_data.encode()).decode()}" class="custom-button">RIS Format</a>
+        <a download="ReviewAid_citation.bib" href="data:application/x-bibtex;base64,{base64.b64encode(bib_data.encode()).decode()}" class="custom-button">BibTeX Format</a>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <script>
+    function copyCitation() {{
+        const citationText = {js_citation_text};
+        navigator.clipboard.writeText(citationText).then(() => {{
+            const btn = document.getElementById('copy-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Copied!";
+            setTimeout(() => {{ 
+                btn.innerText = originalText; 
+            }}, 2000);
+        }}).catch(err => {{
+            console.error('Failed to copy text: ', err);
+        }});
+    }}
+    
+    document.addEventListener('DOMContentLoaded', function() {{
+        const copyBtn = document.getElementById('copy-btn');
+        if (copyBtn) {{
+            copyBtn.addEventListener('click', copyCitation);
+        }}
+    }});
+    </script>
+    """, unsafe_allow_html=True)
+
+if st.session_state.app_mode is not None:
+    st.markdown("""
+    <div class="return-button">
+    """, unsafe_allow_html=True)
+    if st.button("← Return to Mode Selection"):
+        st.session_state.app_mode = None
         st.rerun()
-    st.stop()  # Stop here if note not acknowledged
-
-# ---------------- STAGE 2: Main App ----------------
-# --- Show Lottie ABOVE heading ---
-if lottie_animation:
-    st.markdown("<div style='display:flex; justify-content:center;'>", unsafe_allow_html=True)
-    st_lottie(lottie_animation, height=250, key="lottie_top")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Heading ---
+st.markdown("<div class='content-wrapper'>", unsafe_allow_html=True)
 
-   
+if lottie_animation:
+    st.markdown("<div class='lottie-container' style='display:flex; justify-content:center;'>", unsafe_allow_html=True)
+    st_lottie(lottie_animation, height=250, key=f"lottie_top_{st.session_state.page_load_count}")
+    st.markdown("</div>", unsafe_allow_html=True)
+
 st.markdown(
     """
     <style>
@@ -196,7 +428,6 @@ st.markdown(
         font-weight: 700;
         font-size: 3.5rem;
         color: #F0F4F8;
-        margin-top: 10px;
     }
 
     .typewriter .typing {
@@ -237,34 +468,35 @@ st.markdown(
         <span class="typing">Review<span class="gold">Aid</span>.</span>
     </div>
 
-    <h3 style='text-align: center; color: #F0F4F8; margin-top: 10px;'>
+    <h3 class="subheading" style='text-align: center; color: #F0F4F8; margin-top: 0; margin-bottom: 5px;'>
         An Ai based Full-text Research Article Screener & Extractor
     </h3>
     """,
     unsafe_allow_html=True
 )
 
-# --- STEP 2: Check Admin Key ---
-admin_key_valid = False
-if st.session_state.use_admin_key:
-    if test_api_key(ADMIN_API_KEY):
-        admin_key_valid = True
-    else:
-        st.session_state.use_admin_key = False
-        st.rerun()
-
-# --- STEP 3: Disclaimer ---
-if (st.session_state.user_api_key is None and not admin_key_valid) and not st.session_state.disclaimer_acknowledged:
+if not st.session_state.disclaimer_acknowledged:
     st.markdown("<div style='margin-top: 80px;'>", unsafe_allow_html=True)
-    st.warning("""
-    **Disclaimer:**  
-    This tool is an independent educational resource and is **not affiliated with, endorsed by, or officially connected to Cohere**.  
-    - You must use your **own Cohere API key** to access this tool.  
-    - **Your API key is never stored, shared, or logged** by this tool.  
-    - **You are solely responsible for securing and managing your API key**. Make sure to keep your API key safe and do not share it publicly.  
-    - I do not take any responsibility for the use or misuse of the API key you obtain. Please use it responsibly and comply with Cohere’s policies.
-    - By using this tool, you agree to comply with [Cohere's Terms of Service](https://cohere.com/terms-of-use) and [Acceptable Use Policy](https://docs.cohere.com/docs/cohere-labs-acceptable-use-policy).  
-    """)
+    
+    st.markdown("""
+    <div class="disclaimer-warning">
+        <h3>ReviewAid Disclaimer:</h3>
+<p>By using ReviewAid, you acknowledge and agree to the following:</p>
+<ul>
+    <li><strong>Researcher Responsibility:</strong> ReviewAid is an AI-assisted tool intended to support, not replace, the researcher's own judgment. All screening decisions, extracted data, and interpretations generated by the system must be independently verified by the user. The developer is not responsible for inaccuracies, omissions, or misclassifications arising from AI-generated outputs.</li>
+    <li><strong>No Guarantee of Completeness or Accuracy:</strong> While ReviewAid aims to improve efficiency during the literature review and evidence synthesis process, the tool does not guarantee the completeness, correctness, or reliability of its results. Users should exercise critical evaluation and cross-check all information before including it in their research.</li>
+    <li><strong>Data Responsibility & Privacy:</strong> Uploaded PDFs are processed only within the session and are not stored or collected by the developer. However, users remain responsible for ensuring that they have the legal and ethical right to upload and process the documents they submit.</li>
+    <li><strong>Non-Liability:</strong> The developer is not liable for any direct, indirect, or consequential damages resulting from the use of this tool, including but not limited to errors in screening, extraction, data interpretation, or research outcomes.</li>
+    <li><strong>Academic & Ethical Use:</strong> ReviewAid is intended solely for lawful academic and research purposes. Users must ensure compliance with all relevant institutional guidelines, copyright laws, and ethical standards.</li>
+    <li><strong>AI Limitations:</strong> ReviewAid uses AI algorithms to assist with literature screening and data extraction. Outputs may contain errors, omissions, or biases, and should not be considered a substitute for expert review or professional judgment.</li>
+    <li><strong>No Warranty:</strong> ReviewAid is provided "as is" without any warranty of any kind, either expressed or implied, including but not limited to accuracy, completeness, or fitness for a particular purpose.</li>
+    <li><strong>Transparency & Citation:</strong> Many researchers use ReviewAid during their review process without disclosing the involvement of AI tools. Users are strongly encouraged to maintain transparency by acknowledging the use of ReviewAid in their methodology. Citation is appreciated whenever ReviewAid contributes to the research workflow, whether as a primary screener, a secondary/third-person validator, or simply as a reference tool.</li>
+</ul>
+<p>Proper attribution supports ethical research practices and helps sustain ongoing development and improvement of the tool for the academic community.</p>
+
+
+    """, unsafe_allow_html=True)
+    
     agree = st.checkbox("I have read and agree to the above disclaimer.")
     if agree and st.button("I Agree & Continue"):
         st.session_state.disclaimer_acknowledged = True
@@ -272,45 +504,93 @@ if (st.session_state.user_api_key is None and not admin_key_valid) and not st.se
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# --- STEP 4: Initialize Client ---
-if st.session_state.user_api_key:
-    co = init_cohere_client(st.session_state.user_api_key)
-elif admin_key_valid:
-    co = init_cohere_client(ADMIN_API_KEY)
-else:
-    st.markdown("<div style='height:80px;'></div>", unsafe_allow_html=True)
-    st.markdown("""
-    **Admin's Cohere API key has expired or is invalid.**  
-    Please enter your own free Cohere API key below to continue. (https://cohere.com)  
-    [How to get a free Cohere API key](./API_tutorial)
-    """, unsafe_allow_html=True)
-    user_key = st.text_input("Enter your free Cohere API key:", type="password")
-    if user_key:
-        if test_api_key(user_key):
-            st.session_state.user_api_key = user_key
-            st.success("Your API key is valid! You can continue.")
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY") or os.getenv("COHERE_API_KEY")
+co = init_cohere_client(ADMIN_API_KEY)
+
+if st.session_state.app_mode is None:
+    st.markdown("<div class='mode-selection'>", unsafe_allow_html=True)
+    
+    st.markdown("## Select Application Mode")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div class="mode-card">
+            <div class="mode-title">Full-text Paper Screener</div>
+            <div class="mode-description">
+            Screen research papers based on PICO (Population, Intervention, Comparison, Outcome) criteria.
+            <ul>
+                <li>Define inclusion/exclusion criteria</li>
+                <li>Upload PDF papers</li>
+                <li>Get AI-powered screening decisions</li>
+                <li>Export results</li>
+            </ul>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Select Screener", key="screener_btn"):
+            st.session_state.app_mode = "screener"
             st.rerun()
-        else:
-            st.error("Invalid API key, please try again.")
-            st.stop()
-    else:
-        st.info("Please enter your API key to continue.")
-        st.stop()
+    
+    with col2:
+        st.markdown("""
+        <div class="mode-card">
+            <div class="mode-title">Full-text Data Extractor</div>
+            <div class="mode-description">
+            Extract specific data fields from research papers.
+            <ul>
+                <li>Define fields to extract</li>
+                <li>Upload PDF papers</li>
+                <li>Get AI-powered data extraction</li>
+                <li>Export results</li>
+            </ul>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Select Extractor", key="extractor_btn"):
+            st.session_state.app_mode = "extractor"
+            st.rerun()
+    
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("<div class='citation-section'>", unsafe_allow_html=True)
+    display_citation_section()
+    st.markdown("</div>", unsafe_allow_html=True)
 
+    st.markdown("---")
+    
+    st.markdown("<div class='support-section'>", unsafe_allow_html=True)
+    st.markdown("## Support")
+    st.markdown("""
+    <div class="support-description">
+        ReviewAid is an open-source academic tool designed to streamline the literature review and evidence synthesis process. If this tool benefits your research, your support is greatly appreciated. I will be adding links to the <a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub repository</a> — please check it out to explore the source code, contribute, or support ongoing development.
+    </div>
+    <div class="support-description">
+        I will also include my personal link to my other projects, where you can discover additional research-focused tools and resources. Check out my personal link <a href="https://aurumz-rgb.github.io" target="_blank">here</a>. If you have questions, or are interested in collaborating, feel free to reach out. I am always happy to connect with fellow researchers.
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="mode-selection-footer">
+        <div>© 2025 Vihaan Sahu – Licensed under Apache 2.0</div>
+        <div class="center-text"><a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub Repository</a></div>
+        <div class="right-text">Open-source</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.stop()
 
-
-# FUNCTIONS 
 def extract_text_from_pdf(pdf_file):
     doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
     return "".join(page.get_text() for page in doc)
 
 def preprocess_text_for_ai(text, max_tokens=1024):
-    """Clean and truncate text."""
     text = " ".join(text.split())
     return text[:max_tokens * 4]  
 
 def query_cohere(prompt):
-    # Migrated to Chat API
     response = co.chat(
         model="command-r-08-2024",
         message=prompt,
@@ -319,14 +599,11 @@ def query_cohere(prompt):
     )
     return response.text
 
-
-
-
 def extract_json_substring(text):
     start = text.find("{")
     end = text.rfind("}")
     if start == -1 or end == -1 or end < start:
-        return text  # no clear JSON braces found, return as is
+        return text
     return text[start:end+1]
 
 def repair_json_via_ai(broken_json_str):
@@ -335,38 +612,28 @@ The following JSON output is invalid or malformed. Please fix it and return ONLY
 
 {broken_json_str}
 """
-    fixed_raw = query_cohere(fix_prompt)  # reuse your existing AI call
+    fixed_raw = query_cohere(fix_prompt)
     return fixed_raw
 
-
-
-
 def parse_result(raw_result):
-    """Parse AI output with pre-cleanup, json5 advanced repair + retry + fallback."""
     try:
-        # Pre-clean raw output to extract JSON substring
         cleaned = extract_json_substring(raw_result)
-
-        # First, try to parse as standard JSON
         return json.loads(cleaned)
     except json.JSONDecodeError:
         print("⚠️ JSON parsing failed on cleaned string. Trying json5 parser...")
 
         try:
-            # Try lenient json5 parser to handle more malformed JSON
             return json5.loads(cleaned)
         except Exception as e:
             print(f"⚠️ json5 parser failed: {e}. Attempting manual repair...")
 
             repaired = cleaned.strip()
 
-            # Ensure it starts and ends with braces
             if not repaired.startswith("{"):
                 repaired = "{" + repaired
             if not repaired.endswith("}"):
                 repaired += "}"
 
-            # Add quotes around unquoted keys (e.g., key: -> "key":)
             repaired = re.sub(r'(\s*)([a-zA-Z0-9_]+):', r'\1"\2":', repaired)
 
             try:
@@ -374,10 +641,7 @@ def parse_result(raw_result):
             except json.JSONDecodeError:
                 print("⚠️ Manual repair failed. Trying AI fix retry...")
 
-                # Retry fix via AI
                 fixed_raw = repair_json_via_ai(raw_result)
-
-                # Extract JSON substring again
                 fixed_cleaned = extract_json_substring(fixed_raw)
 
                 try:
@@ -389,9 +653,6 @@ def parse_result(raw_result):
                         "reason": "Invalid or unparseable JSON response after retries.",
                         "extracted": {}
                     }
-
-
-
     
 def estimate_confidence(text):
     if not text or len(text.strip()) < 30:
@@ -414,8 +675,17 @@ def df_from_results(results):
         rows.append(row)
     return pd.DataFrame(rows)
 
+def df_from_extracted_results(results):
+    rows = []
+    for r in results:
+        row = {
+            "Filename": r.get("filename", ""),
+            "Confidence": r.get("confidence", "")
+        }
+        row.update(r.get("extracted", {}))
+        rows.append(row)
+    return pd.DataFrame(rows)
 
-# Export helper functions
 def to_docx(df):
     from docx import Document
     from docx.shared import Inches
@@ -470,15 +740,7 @@ def to_excel(df):
     buffer.seek(0)
     return buffer.getvalue()
 
-
-
-
-# Helper function for exclusion criteria matching 
 def find_exclusion_matches(text, exclusion_lists):
-    """
-    Returns a list of exclusion criteria strings that are found in the given text.
-    Simple substring matching (case-insensitive).
-    """
     matches = []
     for criteria in exclusion_lists:
         criteria = criteria.strip()
@@ -486,33 +748,44 @@ def find_exclusion_matches(text, exclusion_lists):
             matches.append(criteria)
     return matches
 
-#  UI 
+if st.session_state.app_mode == "screener":
+    st.markdown("## Full-text Paper Screener")
+    
+    st.subheader("Population Criteria")
+    population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18–65 with MS")
+    population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases")
 
-st.subheader("Population Criteria")
-population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18–65 with MS")
-population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases")
+    st.subheader("Intervention Criteria")
+    intervention_inclusion = st.text_area("Intervention Inclusion Criteria", placeholder="e.g. Natalizumab treatment ≥ 6 months")
+    intervention_exclusion = st.text_area("Intervention Exclusion Criteria", placeholder="e.g. Dose outside approved range")
 
-st.subheader("Intervention Criteria")
-intervention_inclusion = st.text_area("Intervention Inclusion Criteria", placeholder="e.g. Natalizumab treatment ≥ 6 months")
-intervention_exclusion = st.text_area("Intervention Exclusion Criteria", placeholder="e.g. Dose outside approved range")
+    st.subheader("Comparison Criteria")
+    comparison_inclusion = st.text_area("Comparison Inclusion Criteria", placeholder="e.g. Placebo or no treatment")
+    comparison_exclusion = st.text_area("Comparison Exclusion Criteria", placeholder="e.g. Active comparator like interferon beta")
 
-st.subheader("Comparison Criteria")
-comparison_inclusion = st.text_area("Comparison Inclusion Criteria", placeholder="e.g. Placebo or no treatment")
-comparison_exclusion = st.text_area("Comparison Exclusion Criteria", placeholder="e.g. Active comparator like interferon beta")
+    st.subheader("Outcome Criteria (Optional)")
+    outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
 
-st.subheader("Outcome Criteria (Optional)")
-outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
+    fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. Type of Study, Year, Population, Outcome")
+    fields_list = [f.strip() for f in fields.split(",") if f.strip()]
+    uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
 
-fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. Type of Study, Year, Population, Outcome")
-fields_list = [f.strip() for f in fields.split(",") if f.strip()]
-uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
+elif st.session_state.app_mode == "extractor":
+    st.markdown("## Full-text Data Extractor")
+    
+    fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. Author, Year, Study Design, Sample Size, Conclusion")
+    fields_list = [f.strip() for f in fields.split(",") if f.strip()]
+    uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
+    
+    population_inclusion = ""
+    population_exclusion = ""
+    intervention_inclusion = ""
+    intervention_exclusion = ""
+    comparison_inclusion = ""
+    comparison_exclusion = ""
+    outcome_criteria = ""
 
-
-
-
-
-# STREAMLIT BUTTON ACTION 
-if st.button("Screen & Extract"):
+if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "Screen & Extract"):
 
     if "unique_users" not in st.session_state:
        st.session_state.unique_users = set()
@@ -523,22 +796,16 @@ if st.button("Screen & Extract"):
 
     st.session_state.papers_screened += min(len(uploaded_pdfs), 20)   
 
-# Track current user
-    if st.session_state.user_api_key:
-       st.session_state.unique_users.add(st.session_state.user_api_key)
-       st.session_state.user_api_keys.add(st.session_state.user_api_key)
-    elif st.session_state.use_admin_key:
-       st.session_state.unique_users.add("admin")
+    st.session_state.unique_users.add("admin")
 
-
-    # validations
     if not fields.strip():
         st.warning("Please enter at least one field to be extracted!")
         st.stop()
     if not uploaded_pdfs:
         st.warning("Please upload at least one PDF file.")
         st.stop()
-    if not any([
+    
+    if st.session_state.app_mode == "screener" and not any([
         population_inclusion.strip(), population_exclusion.strip(),
         intervention_inclusion.strip(), intervention_exclusion.strip(),
         comparison_inclusion.strip(), comparison_exclusion.strip(),
@@ -547,15 +814,15 @@ if st.button("Screen & Extract"):
         st.warning("Please enter at least one inclusion or exclusion criterion.")
         st.stop()
 
-    # Reset previous results
-    st.session_state.included_results, st.session_state.excluded_results, st.session_state.maybe_results = [], [], []
-
+    if st.session_state.app_mode == "screener":
+        st.session_state.included_results, st.session_state.excluded_results, st.session_state.maybe_results = [], [], []
+    else:
+        st.session_state.extracted_results = []
 
     max_papers = 20
     total_pdfs = min(len(uploaded_pdfs), max_papers)
     progress_bar = st.progress(0)
 
-    # Process uploaded PDFs
     for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
         st.info(f"Processing: {pdf.name}")
         try:
@@ -567,39 +834,34 @@ if st.button("Screen & Extract"):
                 progress_bar.progress(idx / total_pdfs)
                 continue
 
-            # Preprocess text 
             text = preprocess_text_for_ai(text, max_tokens=1024)
             confidence = estimate_confidence(text)
 
-            # PRE-AI EXCLUSION CHECK 
-            # Collect all exclusion criteria into a list
-            all_exclusions = []
-            for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
-                if block.strip():
-                    all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
+            if st.session_state.app_mode == "screener":
+                all_exclusions = []
+                for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
+                    if block.strip():
+                        all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
 
-            # Find matches
-            matches = find_exclusion_matches(text, all_exclusions)
+                matches = find_exclusion_matches(text, all_exclusions)
 
-            if len(matches) >= 1:
-                # Auto-exclude without sending to AI
-                exclusion_reason = (
-                    f"Auto-excluded because {len(matches)} exclusion criteria matched: {', '.join(matches)}"
-                )
-                result = {
-                    "filename": pdf.name,
-                    "status": "Exclude",
-                    "reason": exclusion_reason,
-                    "confidence": confidence,
-                    "extracted": {}
-                }
-                st.session_state.excluded_results.append(result)
-                st.warning(f"Auto-excluded {pdf.name}: {len(matches)} exclusion criteria matched")
-                progress_bar.progress(idx / total_pdfs)
-                continue  # Skip AI step
+                if len(matches) >= 1:
+                    exclusion_reason = (
+                        f"Auto-excluded because {len(matches)} exclusion criteria matched: {', '.join(matches)}"
+                    )
+                    result = {
+                        "filename": pdf.name,
+                        "status": "Exclude",
+                        "reason": exclusion_reason,
+                        "confidence": confidence,
+                        "extracted": {}
+                    }
+                    st.session_state.excluded_results.append(result)
+                    st.warning(f"Auto-excluded {pdf.name}: {len(matches)} exclusion criteria matched")
+                    progress_bar.progress(idx / total_pdfs)
+                    continue
 
-            #AI-BASED CONFIGURATION
-            prompt = f"""
+                prompt = f"""
 
 **Population**
 Inclusion: {population_inclusion}
@@ -637,37 +899,56 @@ Return exactly one valid JSON object with this format, no extra text or comments
   }}
 }}
 """
+            else:
+                prompt = f"""
+Fields to extract: {', '.join(fields_list)}
+
+For each extracted field, please provide a detailed answer consisting of **3-4 complete sentences**, explaining the relevant information in context from the paper.
+
+Paper text:
+\"\"\"
+{text}
+\"\"\"
+
+Return exactly one valid JSON object with this format, no extra text or comments:
+
+{{
+  "extracted": {{
+    {', '.join(f'"{field}": "Detailed answer for {field}."' for field in fields_list)}
+  }}
+}}
+"""
+            
             with st.spinner(f"Sending '{pdf.name}' to AI..."):
                 raw_result = query_cohere(prompt)
-
-           
 
             result = parse_result(raw_result)
             if result.get("status") == "Error":
               st.warning(f"⚠️ Parsing failed for {pdf.name}. Using fallback response.")
 
-            # Add metadata
             result["filename"] = pdf.name
             result["confidence"] = confidence
             if confidence < 0.5:
                 result["flags"] = ["low_confidence"]
 
-            # Fix: assign status variable for use below
-            status = result.get("status", "").strip().lower()
-            if status not in {"include", "exclude", "maybe"}:
-                 status = "exclude"
-           
-            # Sort into appropriate result bucket
-            if status == "include":
-                st.session_state.included_results.append(result)
-            elif status == "exclude":
-                st.session_state.excluded_results.append(result)
-            elif status == "maybe":
-                st.session_state.maybe_results.append(result)
-            else:
-                st.session_state.excluded_results.append(result)
+            if st.session_state.app_mode == "screener":
+                status = result.get("status", "").strip().lower()
+                if status not in {"include", "exclude", "maybe"}:
+                     status = "exclude"
+               
+                if status == "include":
+                    st.session_state.included_results.append(result)
+                elif status == "exclude":
+                    st.session_state.excluded_results.append(result)
+                elif status == "maybe":
+                    st.session_state.maybe_results.append(result)
+                else:
+                    st.session_state.excluded_results.append(result)
 
-            st.success(f"Processed: {pdf.name} — {status.capitalize()}")
+                st.success(f"Processed: {pdf.name} — {status.capitalize()}")
+            else:
+                st.session_state.extracted_results.append(result)
+                st.success(f"Processed: {pdf.name}")
 
         except Exception as e:
             st.error(f"Error processing {pdf.name}: {str(e)}")
@@ -677,95 +958,115 @@ Return exactly one valid JSON object with this format, no extra text or comments
 
     st.info("All files processed!")
 
+if st.session_state.app_mode == "screener":
+    included = len(st.session_state.included_results)
+    excluded = len(st.session_state.excluded_results)
+    maybe = len(st.session_state.maybe_results)
+    total = included + excluded + maybe
 
+    session_duration = time.time() - st.session_state.start_time
+    avg_speed = session_duration / total if total > 0 else 0
 
-included = len(st.session_state.included_results)
-excluded = len(st.session_state.excluded_results)
-maybe = len(st.session_state.maybe_results)
-total = included + excluded + maybe
+    with st.expander("Screening Dashboard", expanded=True):
+         st.metric("Papers Screened", total)
 
-session_duration = time.time() - st.session_state.start_time
-avg_speed = session_duration / total if total > 0 else 0
+         fig = px.pie(
+            names=["Included", "Excluded", "Maybe"],
+            values=[included, excluded, maybe],
+            title="Screening Decisions"
+        )
+         st.plotly_chart(fig, use_container_width=True)
 
-
-
-
-with st.expander("Screening Dashboard", expanded=True):
-     st.metric("Papers Screened", total)
-
-     fig = px.pie(
-        names=["Included", "Excluded", "Maybe"],
-        values=[included, excluded, maybe],
-        title="Screening Decisions"
-    )
-     st.plotly_chart(fig, use_container_width=True)
-
-                
-
-    # Show summary tables
-included_results = st.session_state.included_results
-excluded_results = st.session_state.excluded_results
-maybe_results = st.session_state.maybe_results 
-
-if included_results:
-    st.header("Included Papers")
-    df_inc = df_from_results(included_results)
-    st.dataframe(df_inc)
-else:
-    st.info("No Included papers found.")
-
-if excluded_results:
-    st.header("Excluded Papers")
-    df_exc = df_from_results(excluded_results)
-    st.dataframe(df_exc)
-else:
-    st.info("No Excluded papers found.")
-
-    maybe_results = st.session_state.maybe_results
-
-if maybe_results:
-    st.header("Maybe Papers")
-    df_maybe = df_from_results(maybe_results)
-    st.dataframe(df_maybe)
-else:
-    st.info("No Maybe papers found.")
-
-# Export options # Export options (DOCX, CSV, XLSX)
-if included_results or excluded_results or maybe_results:
-    st.header("Export Results")
-
-    def export_buttons(df, label_prefix):
-        formats = {
-            "DOCX": ("application/vnd.openxmlformats-officedocument.wordprocessingml.document", to_docx(df), f"{label_prefix.lower()}_papers.docx"),
-            "CSV":  ("text/csv", to_csv(df), f"{label_prefix.lower()}_papers.csv"),
-            "XLSX": ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", to_excel(df), f"{label_prefix.lower()}_papers.xlsx")
-        }
-
-        for fmt, (mime, data, filename) in formats.items():
-            st.download_button(
-                label=f"Download {label_prefix} as {fmt}",
-                data=data,
-                file_name=filename,
-                mime=mime
-            )
+    included_results = st.session_state.included_results
+    excluded_results = st.session_state.excluded_results
+    maybe_results = st.session_state.maybe_results 
 
     if included_results:
-        st.subheader("Included Papers")
+        st.header("Included Papers")
         df_inc = df_from_results(included_results)
-        export_buttons(df_inc, "Included")
+        st.dataframe(df_inc)
+    else:
+        st.info("No Included papers found.")
 
     if excluded_results:
-        st.subheader("Excluded Papers")
+        st.header("Excluded Papers")
         df_exc = df_from_results(excluded_results)
-        export_buttons(df_exc, "Excluded")
+        st.dataframe(df_exc)
+    else:
+        st.info("No Excluded papers found.")
 
     if maybe_results:
-        st.subheader("Maybe Papers")
+        st.header("Maybe Papers")
         df_maybe = df_from_results(maybe_results)
-        export_buttons(df_maybe, "Maybe")
+        st.dataframe(df_maybe)
+    else:
+        st.info("No Maybe papers found.")
 
+    if included_results or excluded_results or maybe_results:
+        st.header("Export Results")
 
+        def export_buttons(df, label_prefix):
+            formats = {
+                "DOCX": ("application/vnd.openxmlformats-officedocument.wordprocessingml.document", to_docx(df), f"{label_prefix.lower()}_papers.docx"),
+                "CSV":  ("text/csv", to_csv(df), f"{label_prefix.lower()}_papers.csv"),
+                "XLSX": ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", to_excel(df), f"{label_prefix.lower()}_papers.xlsx")
+            }
 
+            for fmt, (mime, data, filename) in formats.items():
+                st.download_button(
+                    label=f"Download {label_prefix} as {fmt}",
+                    data=data,
+                    file_name=filename,
+                    mime=mime
+                )
+
+        if included_results:
+            st.subheader("Included Papers")
+            df_inc = df_from_results(included_results)
+            export_buttons(df_inc, "Included")
+
+        if excluded_results:
+            st.subheader("Excluded Papers")
+            df_exc = df_from_results(excluded_results)
+            export_buttons(df_exc, "Excluded")
+
+        if maybe_results:
+            st.subheader("Maybe Papers")
+            df_maybe = df_from_results(maybe_results)
+            export_buttons(df_maybe, "Maybe")
+
+else:
+    extracted_results = st.session_state.extracted_results
+    total = len(extracted_results)
+    
+    with st.expander("Extraction Dashboard", expanded=True):
+         st.metric("Papers Processed", total)
+
+    if extracted_results:
+        st.header("Extracted Data")
+        df_ext = df_from_extracted_results(extracted_results)
+        st.dataframe(df_ext)
+        
+        st.header("Export Results")
+        
+        def export_buttons(df, label_prefix):
+            formats = {
+                "DOCX": ("application/vnd.openxmlformats-officedocument.wordprocessingml.document", to_docx(df), f"{label_prefix.lower()}_data.docx"),
+                "CSV":  ("text/csv", to_csv(df), f"{label_prefix.lower()}_data.csv"),
+                "XLSX": ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", to_excel(df), f"{label_prefix.lower()}_data.xlsx")
+            }
+
+            for fmt, (mime, data, filename) in formats.items():
+                st.download_button(
+                    label=f"Download {label_prefix} as {fmt}",
+                    data=data,
+                    file_name=filename,
+                    mime=mime
+                )
+        
+        export_buttons(df_ext, "Extracted")
+    else:
+        st.info("No extracted data available. Upload and process papers to see results here.")
 
 st.markdown(
     """
@@ -782,30 +1083,20 @@ st.markdown(
         .github-link:hover {
             color: #174D8B;
         }
-        .github-container {
-            text-align: right;
-            margin-top: 100px;
-            margin-bottom: 80px;
-        }
     </style>
-    <div class="github-container">
-        <a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank" class="github-link">
-             GitHub Source Code
-        </a>
-    </div>
+   
     """,
     unsafe_allow_html=True
 )
 
+st.markdown("</div>", unsafe_allow_html=True)
 
+if st.session_state.app_mode is not None:
+    st.markdown("<div class='citation-section'>", unsafe_allow_html=True)
+    display_citation_section()
+    st.markdown("</div>", unsafe_allow_html=True)
 
-
-
-import os
-from datetime import datetime
-
-
-version = "1.0.2"
+version = "2.0.0"
 try:
     current_file = __file__
     last_modified_timestamp = os.path.getmtime(current_file)
@@ -813,34 +1104,34 @@ try:
 except Exception:
     last_updated = "Unknown"
 
-# Footer
 st.markdown(
     f"""
     <style>
     .custom-footer-container {{
         width: 100%;
         font-family: 'Times New Roman', Times, serif;
-        font-size: 11px;  /* thinner font */
+        font-size: 13.5px;
         color: #F0F4F8;
-        opacity: 0.8;
-        padding: 3px 6px;  /* less padding for thinner footer */
+        opacity: 0.9;
+        padding: 8px 20px;
         position: fixed;
         bottom: 0;
         left: 0;
-        background-color: #1f2937;
+        background-color: rgba(31, 41, 55, 1);
         display: flex;
-        justify-content: space-between;  /* spread left & right */
+        justify-content: space-between;
         align-items: center;
         z-index: 9999;
+        backdrop-filter: blur(5px);
     }}
     </style>
 
     <div class="custom-footer-container">
         <div style="white-space: nowrap; letter-spacing: 1px;">
-            Version {version}
+            Made with 💙 by its Creator.
         </div>
         <div style="white-space: nowrap; letter-spacing: 1px;">
-            Made with 💙 by its Creator.
+            Version {version}  
         </div>
     </div>
     """,
