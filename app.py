@@ -15,7 +15,7 @@ from streamlit_lottie import st_lottie
 import streamlit.components.v1 as components
 import base64
 import html
-from zai import ZaiClient
+from zhipuai import ZhipuAI as ZaiClient
 import gc 
 
 st.set_page_config(
