@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://aurumz-rgb.github.io/ReviewAid/sitemap.xml

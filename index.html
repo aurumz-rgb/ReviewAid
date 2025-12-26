@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta name="google-site-verification" content="" />
+ 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReviewAid / Ai Screener & Extractor</title>
+  <meta name="description" content="ReviewAid is an open-source AI-driven tool for full-text screening and data extraction for systematic reviews, featuring PICO analysis and publication-ready exports.">
+  <meta name="keywords" content="ReviewAid, Ai Screener, Data Extractor, Systematic Review, PICO, Data Extraction, AI Screening, Literature Review, Research-articles">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="author" content="Vihaan Sahu">
+  <meta name="copyright" content="© 2025 Vihaan Sahu">
+  <meta name="language" content="en">
+  <link rel="canonical" href="https://aurumz-rgb.github.io/ReviewAid/">
+  <link rel="icon" href="favicon.ico" type="image/png">
+  <meta name="theme-color" content="#4189DC">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ReviewAid | AI-Driven Full-Text Screening & Extraction">
+  <meta property="og:description" content="Open-source AI tool for automating full-text screening and data extraction in systematic reviews using PICO criteria.">
+  <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner2.png">
+  <meta property="og:image:alt" content="ReviewAid Banner">
+  <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/screenshots/screenshot1.png">
+  <meta property="og:image:alt" content="ReviewAid Use">
+  <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/screenshorts/screenshot2.png">
+  <meta property="og:image:alt" content="ReviewAid Interface">
+    <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/screenshorts/screenshot4.png">
+  <meta property="og:image:alt" content="ReviewAid Output">
+  <meta property="og:url" content="https://aurumz-rgb.github.io/ReviewAid/">
+  <meta property="og:site_name" content="ReviewAid">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ReviewAid | AI Screening for Systematic Reviews">
+  <meta name="twitter:description" content="Automate your systematic review workflow with AI-powered PICO screening and custom data extraction.">
+  <meta name="twitter:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner1.png">
+  <meta name="twitter:image:alt" content="ReviewAid Banner">
+  <meta name="twitter:creator" content="@Vihaan">
+
+  <meta name="citation_title" content="ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis">
+  <meta name="citation_author" content="Vihaan Sahu">
+  <meta name="citation_publication_date" content="2025">
+  <meta name="citation_doi" content="10.5281/zenodo.18060973">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ReviewAid",
+    "alternateName": "AI Systematic Review Tool",
+    "operatingSystem": "Web, Python",
+    "applicationCategory": "Research Tool",
+    "description": "ReviewAid is an open-source AI-driven tool for full-text screening and data extraction for systematic reviews. It automates PICO-based screening and custom field extraction from PDFs.",
+    "url": "https://aurumz-rgb.github.io/ReviewAid/",
+    "creator": {
+      "@type": "Person",
+      "name": "Vihaan Sahu",
+      "affiliation": "ReviewAid Project"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "ReviewAid Project",
+      "url": "https://aurumz-rgb.github.io/ReviewAid/"
+    },
+    "license": "https://www.apache.org/licenses/LICENSE-2.0",
+    "sameAs": [
+      "https://github.com/aurumz-rgb/ReviewAid",
+      "https://doi.org/10.5281/zenodo.18060973"
+    ],
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "applicationSubCategory": "Systematic Review Automation",
+    "featureList": [
+      "PICO Screening",
+      "Custom Data Extraction",
+      "Batch PDF Processing",
+      "Publication-ready Exports",
+      "Free and open-source"
+    ],
+    "image": [
+      "https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner1.png",
+      "https://aurumz-rgb.github.io/ReviewAid/screenshots/screenshot1.png",
+      "https://aurumz-rgb.github.io/ReviewAid/screenshots/screenshot2.png",
+      "https://aurumz-rgb.github.io/ReviewAid/screenshots/screenshot4.png"
+    ]
+  }
+  </script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f8f9fa;
+      overflow-x: hidden;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #0c1117 0%, #111827 100%);
+      color: white;
+      padding: 40px 0;
+      text-align: center;
+      border-bottom: 5px solid #4189DC;
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    h1 {
+      font-size: 3.5rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    
+    .tagline {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+      color: #e2e8f0;
+      font-weight: 300;
+    }
+
+    .banner-img {
+        width: 100%;
+        max-width: 1000px;
+        height: auto;
+        border-radius: 12px;
+        margin: 20px auto;
+        display: block;
+    }
+    
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 15px;
+      backdrop-filter: blur(5px);
+    }
+    
+    .badges img {
+      height: 20px;
+    }
+    
+    .main-content {
+      background: white;
+      padding: 40px 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .section {
+      margin-bottom: 50px;
+    }
+    
+    h2 {
+      font-size: 2.2rem;
+      color: #1f2937;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #4189DC;
+    }
+    
+    p {
+      margin-bottom: 20px;
+      color: #4b5563;
+      font-size: 1.1rem;
+    }
+    
+    .main-links {
+      text-align: center;
+      margin: 40px 0;
+    }
+    
+    .main-links a {
+      display: inline-block;
+      background: #4189DC;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 8px;
+      transition: all 0.3s ease;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 15px rgba(65, 137, 220, 0.3);
+    }
+    
+    .main-links a:hover {
+      background: #174D8B;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(65, 137, 220, 0.4);
+    }
+    
+    .main-links a.primary {
+      background: #174D8B;
+    }
+    
+    .main-links a.primary:hover {
+      background: #0f3560;
+    }
+    
+    .tools {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .tool {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      background: #f9fafb;
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .tool:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border-color: #4189DC;
+    }
+    
+    .tool h4 {
+      color: #1f2937;
+      margin-bottom: 10px;
+      font-size: 1.2rem;
+    }
+    
+    .tool p {
+      color: #6b7280;
+      margin-bottom: 0;
+      font-size: 1rem;
+    }
+    
+    .highlight-section {
+      background: #ebf8ff;
+      padding: 40px;
+      border-radius: 10px;
+      margin-bottom: 50px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border-left: 5px solid #4189DC;
+    }
+    
+    .highlight-section h2 {
+      color: #1f2937;
+      border-bottom: 3px solid #4189DC;
+    }
+    
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      margin: 30px 0;
+    }
+    
+    .gallery-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      background: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .gallery-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .gallery-item img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      display: block;
+      background-color: #f3f4f6; 
+    }
+    
+    .gallery-item .caption {
+      padding: 15px;
+      text-align: center;
+      color: #1f2937;
+      font-weight: 500;
+    }
+    
+    footer {
+      background: #1f2937;
+      color: white;
+      padding: 20px 0;
+      margin-top: 0;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .footer-left {
+      text-align: left;
+      flex: 1;
+    }
+    
+    .footer-center {
+      text-align: center;
+      flex: 1;
+    }
+    
+    .footer-right {
+      text-align: right;
+      flex: 1;
+    }
+    
+    footer p {
+      color: #e5e7eb;
+      margin-bottom: 0;
+      font-size: 1rem;
+    }
+    
+    footer a {
+      color: #60a5fa;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    footer a:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+    
+    .heart {
+      color: #e53e3e;
+    }
+    
+    .maroon {
+      color: #e14242;
+    }
+    
+    .motivation {
+      background: #f0f9ff;
+      padding: 25px;
+      border-radius: 10px;
+      margin: 25px 0;
+      border-left: 5px solid #4189DC;
+      font-style: italic;
+      color: #374151;
+    }
+
+    /* New style for the Disclaimer Note */
+    .disclaimer-note {
+      background: #fff7ed; /* Light orange/amber background for notice */
+      padding: 25px;
+      border-radius: 10px;
+      margin: 25px 0;
+      border-left: 5px solid #f97316; /* Orange border */
+      color: #374151;
+      font-size: 1.05rem;
+    }
+
+    .disclaimer-note strong {
+      color: #c2410c; /* Darker orange text */
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.8rem;
+      }
+      
+      .tagline {
+        font-size: 1.2rem;
+      }
+      
+      .tools {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      }
+      
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+      
+      .header {
+        padding: 40px 0;
+      }
+      
+      .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+      }
+      
+      .footer-left, .footer-center, .footer-right {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="header-content">
+      
+
+      <img src="assets/RA_banner1.png" alt="ReviewAid Banner" class="banner-img">
+
+      <div class="badges">
+        <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.12%2B-blue" alt="Python Version"></a>
+        <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License"></a>
+        <a href="https://doi.org/10.5281/zenodo.18060973"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.18060973.svg" alt="DOI"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/issues"><img src="https://img.shields.io/github/issues/aurumz-rgb/ReviewAid" alt="GitHub Issues"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/releases"><img src="https://img.shields.io/github/v/release/aurumz-rgb/ReviewAid" alt="Version"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/commits/main"><img src="https://img.shields.io/github/last-commit/aurumz-rgb/ReviewAid" alt="Last Commit"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/graphs/contributors"><img src="https://img.shields.io/github/contributors/aurumz-rgb/ReviewAid" alt="Contributors"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid"><img src="https://img.shields.io/badge/uses-streamlit-red.svg" alt="Uses streamlit"></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="container">
+      <div class="section">
+        <h2>About</h2>
+        <p>
+          ReviewAid is an open-source AI-driven tool designed to streamline the full-text screening and data extraction phases of systematic reviews. It leverages advanced large language models to classify papers based on PICO criteria and extract custom data fields, drastically reducing the manual workload for researchers.
+        </p>
+        
+        <div class="motivation">
+          <h3 style="margin-bottom: 15px; color: #1f2937;">Why did I make this?</h3>
+          <p>
+            I built ReviewAid after spending countless hours staring at PDF screens, manually checking inclusion/exclusion criteria for hundreds of papers. It was tedious, prone to error, and burned me out. I needed an assistant that understood context, could handle messy PDF text, and gave me reproducible data I could export directly to Excel. ReviewAid is that assistant -fast, accurate, and completely free.
+          </p>
+        </div>
+
+        <div class="disclaimer-note">
+          <strong>Note:</strong> 
+          Please do not replace manual done screening and data extraction completely with ReviewAid. The main aim of this tool is to use it as a 3rd person reference to minimise any errors done manually and to make the research as precise as possible.
+        </div>
+      </div>
+
+      <div class="main-links">
+        <a href="https://github.com/aurumz-rgb/ReviewAid" class="primary" target="_blank">GitHub Repository</a>
+        <a href="https://reviewaid.github.io" class="primary" target="_blank">Main-Website</a>
+      </div>
+
+      <div class="highlight-section">
+        <h2>Key Features</h2>
+        <div class="tools">
+          <div class="tool">
+            <h4>1. PICO Screening</h4>
+            <p>AI-based inclusion/exclusion classification</p>
+          </div>
+          <div class="tool">
+            <h4>2. Data Extraction</h4>
+            <p>Custom field extraction from text</p>
+          </div>
+          <div class="tool">
+            <h4>3. Batch Processing</h4>
+            <p>Process up to 20 papers at once</p>
+          </div>
+          <div class="tool">
+            <h4>4. Multiple Exports</h4>
+            <p>CSV, Excel, and Word formats</p>
+          </div>
+          <div class="tool">
+            <h4>5. Live Terminal</h4>
+            <p>Real-time processing logs</p>
+          </div>
+          <div class="tool">
+            <h4>6. Confidence Scoring</h4>
+            <p>Estimates reliability of extraction</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Interface Previews</h2>
+        <div class="gallery">
+          <div class="gallery-item">
+            <img src="screenshots/screenshot1.png" alt="ReviewAid Interface">
+            <div class="caption">Main Dashboard</div>
+          </div>
+          <div class="gallery-item">
+            <img src="screenshots/screenshot2.png" alt="Data Extraction Interface">
+            <div class="caption">Data Extraction Mode</div>
+          </div>
+          <div class="gallery-item">
+            <img src="screenshots/screenshot4.png" alt="Results View">
+            <div class="caption">Results & Export Options</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-left">
+        <p>© 2025 Vihaan Sahu – Licensed under Apache 2.0</p>
+      </div>
+      <div class="footer-center">
+        <p><a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub</a></p>
+      </div>
+      <div class="footer-right">
+        <p>Made with <span class="heart">❤️</span> by <span class="maroon">V.S.</span></p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -16,9 +16,10 @@ import streamlit.components.v1 as components
 import base64
 import html
 from zai import ZaiClient
+import gc 
 
 st.set_page_config(
-    page_title="ReviewAid",
+    page_title="ReviewAid / AI Screener & Extractor",
     page_icon=os.path.abspath("favicon.ico"),
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -172,6 +173,69 @@ hide_streamlit_style = """
         margin-bottom: 8px;
         color: #000000;
     }
+
+
+    .terminal-container {
+        background-color: #0d1117; 
+        color: #c9d1d9;
+        font-family: 'Courier New', Courier, monospace;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #30363d;
+        height: 400px; 
+        overflow-y: auto;
+        font-size: 13px;
+        line-height: 1.4;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+    }
+    
+    .terminal-line {
+        margin-bottom: 2px;
+        padding-bottom: 1px;
+        display: block;
+        white-space: pre-wrap;
+    }
+    
+    .terminal-timestamp {
+        color: #8b949e;
+        margin-right: 10px;
+        font-weight: bold;
+        min-width: 70px;
+        display: inline-block;
+    }
+    
+    .log-info { color: #58a6ff; }
+    .log-success { color: #3fb950; }
+    .log-warn { color: #d29922; }
+    .log-error { color: #f85149; }
+    .log-system { color: #a371f7; font-weight: bold;}
+    .log-debug { color: #6e7681; font-style: italic; font-size: 12px; }
+    
+    .terminal-container::-webkit-scrollbar {
+        width: 10px;
+    }
+    .terminal-container::-webkit-scrollbar-track {
+        background: #0d1117;
+    }
+    .terminal-container::-webkit-scrollbar-thumb {
+        background: #30363d;
+        border-radius: 5px;
+    }
+    .terminal-container::-webkit-scrollbar-thumb:hover {
+        background: #484f58;
+    }
+
+    
+    .important-note-box {
+        background-color: rgba(65, 137, 220, 0.15);
+        border-left: 5px solid #e64d43;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        color: #F0F4F8;
+        font-size: 1rem;
+        line-height: 1.5;
+    }
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -267,6 +331,7 @@ def load_lottiefile(filepath: str):
 
 lottie_animation = load_lottiefile("animation.json")
 
+
 if "included_results" not in st.session_state:
     st.session_state.included_results = []
 if "excluded_results" not in st.session_state:
@@ -283,37 +348,361 @@ if "app_mode" not in st.session_state:
     st.session_state.app_mode = None
 if "page_load_count" not in st.session_state:
     st.session_state.page_load_count = 0
+if "terminal_logs" not in st.session_state:
+    st.session_state.terminal_logs = []
+
+
+MAX_LOG_ENTRIES = 200
+
+
+MAX_INPUT_TOKENS = 12000 
+
+MAX_OUTPUT_TOKENS = 4096
 
 st.session_state.page_load_count += 1
 
-def query_zai(prompt, api_key, temperature=0.8, max_tokens=1024):
+img_src = ""
+try:
+    img_path = os.path.join("assets", "RA.png")
+    if os.path.exists(img_path):
+        with open(img_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode()
+        img_src = f"data:image/png;base64,{encoded_string}"
+    else:
+       
+        img_path_root = "RA.png"
+        if os.path.exists(img_path_root):
+             with open(img_path_root, "rb") as image_file:
+                encoded_string = base64.b64encode(image_file.read()).decode()
+             img_src = f"data:image/png;base64,{encoded_string}"
+except Exception as e:
+    pass 
+
+
+if img_src:
+    st.markdown(
+        f"""
+        <img src="{img_src}" style="position: fixed; bottom: 38px; right: 5px; width: 80px; height: 80px; z-index: 10000; opacity: 0.6; pointer-events: none;">
+        """, unsafe_allow_html=True
+    )
+
+
+
+def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
     
     if not api_key:
         st.error("API key is missing. Please check your environment variables.")
         return None
     
+    update_terminal_log(f"Initializing ZAI Client...", "DEBUG")
+    
+    max_retries = 3
+    retry_delay_base = 2
+    
+    for attempt in range(max_retries):
+        try:
+            update_terminal_log(f"API Call Attempt {attempt + 1}/{max_retries}...", "DEBUG")
+            update_terminal_log(f"Payload size: {len(prompt)} chars. Temp: {temperature}.", "DEBUG")
+            
+            client = ZaiClient(api_key=api_key)
+            
+            response = client.chat.completions.create(
+                model="GLM-4.6V-Flash",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            result_content = response.choices[0].message.content
+            update_terminal_log("Response received successfully.", "SUCCESS")
+            return result_content
+            
+        except Exception as e:
+            error_str = str(e)
+            is_rate_limit = False
+            if "429" in error_str or "rate limit" in error_str.lower() or "too many requests" in error_str.lower() or "quota" in error_str.lower():
+                is_rate_limit = True
+            
+            if is_rate_limit:
+                update_terminal_log(f"Rate Limit / Quota Exceeded detected.", "ERROR")
+                if attempt < max_retries - 1:
+                    wait_time = retry_delay_base ** (attempt + 1) 
+                    update_terminal_log(f"Waiting {wait_time} seconds before auto-retry...", "WARN")
+                    time.sleep(wait_time)
+                    update_terminal_log(f"Resuming retry...", "INFO")
+                else:
+                    update_terminal_log("Max retries reached for rate limit. Giving up.", "ERROR")
+                    st.error("API Rate Limit Exceeded: The server is receiving too many requests. Please wait a moment and click 'Screen Papers' again.")
+                    return "RATE_LIMIT_ERROR"
+            else:
+                update_terminal_log(f"Non-retryable API error: {error_str}", "ERROR")
+                st.error(f"Error calling Ai API: {str(e)}")
+                return None
+    
+    return None
+
+def clean_json_response(raw_str):
+    """
+    Bulletproof JSON cleaning pipeline.
+    Handles Markdown, Trailing Commas, Comments, and Control Characters.
+    """
+    if not raw_str:
+        return ""
+
+
+    raw_str = re.sub(r'```json\s*', '', raw_str)
+    raw_str = re.sub(r'```\s*', '', raw_str)
+    
+  
+    raw_str = re.sub(r'//.*', '', raw_str)
+    
+
+    raw_str = re.sub(r'/\*.*?\*/', '', raw_str, flags=re.DOTALL)
+    
+
+    raw_str = re.sub(r',\s*([}\]])', r'\1', raw_str)
+    
+
+    start = raw_str.find('{')
+    end = raw_str.rfind('}')
+    
+    if start == -1 or end == -1 or end < start:
+        return "" 
+    
+    cleaned = raw_str[start:end+1]
+    
+  
+    def replace_newlines_in_strings(match):
+        return match.group(0).replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
+
+    
+    cleaned = re.sub(r'"(?:\\.|[^"\\])*"', replace_newlines_in_strings, cleaned)
+    
+    return cleaned
+
+def parse_result(raw_result, api_key, mode="screener", fields_list=None, original_text=None):
+    """
+    Parses AI response with extreme prejudice.
+    Tries Standard JSON -> JSON5 -> AI Repair -> Re-extraction -> Regex Fallback.
+    """
+    
+    if not raw_result or not raw_result.strip():
+        update_terminal_log("Empty AI response received.", "ERROR")
+      
+        if original_text:
+            update_terminal_log("Attempting Re-extraction due to empty response...", "WARN")
+            return _attempt_re_extraction(original_text, api_key, mode, fields_list)
+        return _get_default_result(mode, fields_list)
+    
+    update_terminal_log("Starting Bulletproof JSON parsing pipeline...", "DEBUG")
+    
+    cleaned_json = clean_json_response(raw_result)
+    
+   
+    if not cleaned_json or len(cleaned_json) < 10:
+        update_terminal_log("Cleaned JSON is empty or invalid. Structure likely missing.", "WARN")
+        if original_text:
+            update_terminal_log("Attempting Re-extraction due to structural failure...", "WARN")
+            return _attempt_re_extraction(original_text, api_key, mode, fields_list)
+
+        return _regex_extract_fallback(raw_result, mode, fields_list)
+    
+
     try:
-        
-        client = ZaiClient(api_key=api_key)
-        
-        
-        response = client.chat.completions.create(
-            model="GLM-4.5-Flash",
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            temperature=temperature,
-            max_tokens=max_tokens
-        )
-        
-        
-        return response.choices[0].message.content
+        update_terminal_log("Attempting standard json.loads()...", "DEBUG")
+        data = json.loads(cleaned_json)
+        update_terminal_log("Standard JSON parse successful.", "SUCCESS")
+        return data
+    except json.JSONDecodeError as e:
+        update_terminal_log(f"Standard JSON failed: {str(e)}", "WARN")
+
+  
+    try:
+        update_terminal_log("Attempting JSON5 parser (relaxed standard)...", "DEBUG")
+        data = json5.loads(cleaned_json)
+        update_terminal_log("JSON5 parse successful.", "SUCCESS")
+        return data
     except Exception as e:
-        st.error(f"Error calling Z.AI API: {str(e)}")
-        return None
+        update_terminal_log(f"JSON5 failed: {str(e)}", "WARN")
+
+    update_terminal_log("Attempting AI-based JSON repair...", "WARN")
+    repair_prompt = f"""
+The system generated a malformed JSON response. Your task is to fix the syntax errors and return ONLY a valid JSON object.
+
+Rules:
+1. Do NOT change the values, only fix the syntax (quotes, commas, braces).
+2. Do NOT include markdown formatting (```).
+3. Return ONLY the JSON.
+
+Malformed JSON:
+{cleaned_json}
+"""
+    fixed_raw = query_zai(repair_prompt, api_key, temperature=0.1, max_tokens=1024)
+    if fixed_raw and fixed_raw != "RATE_LIMIT_ERROR":
+        fixed_cleaned = clean_json_response(fixed_raw)
+        if fixed_cleaned:
+            try:
+                update_terminal_log("Testing AI-Repaired JSON...", "DEBUG")
+                data = json.loads(fixed_cleaned)
+                update_terminal_log("AI repair successful.", "SUCCESS")
+                return data
+            except:
+                update_terminal_log("AI repair failed.", "ERROR")
+    else:
+        update_terminal_log("AI repair skipped (empty/rate limit).", "WARN")
+
+   
+    update_terminal_log("All parsers failed. Using Regex Extraction Fallback.", "ERROR")
+    return _regex_extract_fallback(raw_result, mode, fields_list)
+
+def _attempt_re_extraction(original_text, api_key, mode, fields_list):
+    """
+    If first attempt failed (empty or bad structure), try once more with a very strict prompt.
+    """
+    update_terminal_log("Re-extraction initiated...", "SYSTEM")
+    
+ 
+    text_snippet = original_text[:MAX_INPUT_TOKENS*3] 
+    
+    if mode == "screener":
+        strict_prompt = f"""
+You failed to provide a valid JSON response previously. You are an expert systematic reviewer.
+Analyze this text and return a valid JSON object ONLY.
+
+Text:
+\"\"\"{text_snippet}\"\"\"
+
+Required JSON Format:
+{{
+  "status": "Include/Exclude/Maybe",
+  "reason": "Brief reason",
+  "title": "Paper Title",
+  "author": "Author Name",
+  "year": "Year"
+}}
+Return ONLY JSON object.
+"""
+    else:
+        fields_str = ", ".join(fields_list)
+        strict_prompt = f"""
+You failed to provide a valid JSON response previously.
+Extract these fields: {fields_str}.
+If a field is not found, use the value "Not Found".
+
+Text:
+\"\"\"{text_snippet}\"\"\"
+
+Required JSON Format:
+{{
+  "extracted": {{
+    "{fields_list[0]}": "Value",
+    ...
+  }}
+}}
+Return ONLY JSON object.
+"""
+
+    re_raw = query_zai(strict_prompt, api_key, temperature=0.1, max_tokens=2048)
+    if re_raw and re_raw != "RATE_LIMIT_ERROR":
+
+        cleaned = clean_json_response(re_raw)
+        try:
+            data = json.loads(cleaned)
+            update_terminal_log("Re-extraction successful.", "SUCCESS")
+            return data
+        except:
+            pass
+    
+    
+    update_terminal_log("Re-extraction failed. Using default/regex.", "ERROR")
+    return _get_default_result(mode, fields_list)
+
+def _get_default_result(mode, fields_list):
+    if mode == "screener":
+        return {
+            "status": "Error",
+            "reason": "Failed to extract data",
+            "title": "Not Found",
+            "author": "Not Found",
+            "year": "Not Found"
+        }
+    else:
+        result = {"extracted": {}}
+        if fields_list:
+            for field in fields_list:
+                result["extracted"][field] = "Not Found"
+        return result
+
+def _regex_extract_fallback(text, mode, fields_list):
+    """
+    Extracts specific key-value pairs from unstructured text using Regex.
+    Used when JSON parsing fails completely. Improved to handle non-JSON formats.
+    """
+    update_terminal_log("Running Regex Fallback extraction...", "DEBUG")
+    
+    if mode == "screener":
+        status = "Error"
+        reason = "Regex Fallback: Could not determine status"
+        title = "Not Found"
+        author = "Not Found"
+        year = "Not Found"
+        
+
+        lower_t = text.lower()
+        if "include" in lower_t and "exclude" not in lower_t:
+            status = "Include"
+            reason = "Regex Fallback: Inferred Inclusion"
+        elif "exclude" in lower_t:
+            status = "Exclude"
+            reason = "Regex Fallback: Inferred Exclusion"
+        
+        
+        patterns = {
+            "title": [r'"title"\s*:\s*"([^"]+)"', r'title\s*:\s*"?([^"\n]+)"?', r'Title\s*[:\-]\s*([^\n]+)'],
+            "author": [r'"author"\s*:\s*"([^"]+)"', r'author\s*:\s*"?([^"\n]+)"?'],
+            "year": [r'"year"\s*:\s*"([^"]+)"', r'year\s*:\s*(\d{4})']
+        }
+        
+        for key, regex_list in patterns.items():
+            for pattern in regex_list:
+                match = re.search(pattern, text, re.IGNORECASE)
+                if match:
+                    val = match.group(1).strip()
+                    if key == "title": title = val
+                    elif key == "author": author = val
+                    elif key == "year": year = val
+                    break 
+        
+        return {
+            "status": status,
+            "reason": reason,
+            "title": title,
+            "author": author,
+            "year": year
+        }
+    else:
+        result = {"extracted": {}}
+        if fields_list:
+            for field in fields_list:
+                val = "Not Found"
+         
+                pattern = rf'"{field}"\s*:\s*"([^"]*)"'
+                match = re.search(pattern, text, re.IGNORECASE)
+                if not match:
+
+                    pattern = rf'{field}\s*[:\-]\s*"?([^"\n]+)"?'
+                    match = re.search(pattern, text, re.IGNORECASE)
+                
+                if match:
+                    val = match.group(1).strip()
+                
+                result["extracted"][field] = val
+        return result
 
 def display_citation_section():
     st.markdown("---")
@@ -321,46 +710,46 @@ def display_citation_section():
 
     apa_citation = (
         "Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
-        "Zenodo. https://doi.org/10.5281/zenodo.17236600"
+        "Zenodo. https://doi.org/10.5281/zenodo.18060973"
     )
 
     harvard_citation = (
         "Sahu, V., 2025. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
-        "Zenodo. Available at: https://doi.org/10.5281/zenodo.17236600"
+        "Zenodo. Available at: https://doi.org/10.5281/zenodo.18060973"
     )
 
     mla_citation = (
         "Sahu, Vihaan. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0).\" "
-        "2025, Zenodo, https://doi.org/10.5281/zenodo.17236600."
+        "2025, Zenodo, https://doi.org/10.5281/zenodo.18060973."
     )
 
     chicago_citation = (
         "Sahu, Vihaan. 2025. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0).\" "
-        "Zenodo. https://doi.org/10.5281/zenodo.17236600."
+        "Zenodo. https://doi.org/10.5281/zenodo.18060973."
     )
 
     ieee_citation = (
         "V. Sahu, \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0),\" "
-        "Zenodo, 2025. doi: 10.5281/zenodo.17236600."
+        "Zenodo, 2025. doi: 10.5281/zenodo.18060973."
     )
 
     vancouver_citation = (
         "Sahu V. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
-        "Zenodo. 2025. doi:10.5281/zenodo.17236600"
+        "Zenodo. 2025. doi:10.5281/zenodo.18060973"
     )
 
     ris_data = """TY  - JOUR
 AU  - Sahu, V
 TI  - ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0)
 PY  - 2025
-DO  - 10.5281/zenodo.17236600
+DO  - 10.5281/zenodo.18060973
 ER  -"""
 
     bib_data = """@misc{Sahu2025,
   author={Sahu, V.},
   title={ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0)},
   year={2025},
-  doi={10.5281/zenodo.17236600}
+  doi={10.5281/zenodo.18060973}
 }"""
 
     citation_style = st.selectbox(
@@ -383,7 +772,6 @@ ER  -"""
 
     escaped_citation = html.escape(citation_text)
     
-    st.markdown(f'<p style="margin:0; color:#ffff; font-size:1.1rem;">A lot of Researchers use ReviewAid & do not disclose the use of A.i. in their Research. I would request Researchers to be transparent and to cite ReviewAid if they were to use it, even if just as a third person validator or just for Reference.</p>', unsafe_allow_html=True)
     st.markdown(f'<div class="citation-box"><p style="margin:0; color: #F0F4F8;">{escaped_citation}</p></div>', unsafe_allow_html=True)
 
     js_citation_text = json.dumps(citation_text)
@@ -504,33 +892,34 @@ st.markdown(
 if not st.session_state.disclaimer_acknowledged:
     st.markdown("<div style='margin-top: 80px;'>", unsafe_allow_html=True)
     
-    st.markdown("""
-    <div class="disclaimer-warning">
-        <h3>ReviewAid Disclaimer:</h3>
-<p>By using ReviewAid, you acknowledge and agree to the following:</p>
-<ul>
-    <li><strong>Researcher Responsibility:</strong> ReviewAid is an AI-assisted tool intended to support, not replace, the researcher's own judgment. All screening decisions, extracted data, and interpretations generated by the system must be independently verified by the user. The developer is not responsible for inaccuracies, omissions, or misclassifications arising from AI-generated outputs.</li>
-    <li><strong>No Guarantee of Completeness or Accuracy:</strong> While ReviewAid aims to improve efficiency during the literature review and evidence synthesis process, the tool does not guarantee the completeness, correctness, or reliability of its results. Users should exercise critical evaluation and cross-check all information before including it in their research.</li>
-    <li><strong>Data Responsibility & Privacy:</strong> Uploaded PDFs are processed only within the session and are not stored or collected by the developer. However, users remain responsible for ensuring that they have the legal and ethical right to upload and process the documents they submit.</li>
-    <li><strong>Non-Liability:</strong> The developer is not liable for any direct, indirect, or consequential damages resulting from the use of this tool, including but not limited to errors in screening, extraction, data interpretation, or research outcomes.</li>
-    <li><strong>Academic & Ethical Use:</strong> ReviewAid is intended solely for lawful academic and research purposes. Users must ensure compliance with all relevant institutional guidelines, copyright laws, and ethical standards.</li>
-    <li><strong>AI Limitations:</strong> ReviewAid uses AI algorithms to assist with literature screening and data extraction. Outputs may contain errors, omissions, or biases, and should not be considered a substitute for expert review or professional judgment.</li>
-    <li><strong>No Warranty:</strong> ReviewAid is provided "as is" without any warranty of any kind, either expressed or implied, including but not limited to accuracy, completeness, or fitness for a particular purpose.</li>
-    <li><strong>Transparency & Citation:</strong> Many researchers use ReviewAid during their review process without disclosing the involvement of AI tools. Users are strongly encouraged to maintain transparency by acknowledging the use of ReviewAid in their methodology. Citation is appreciated whenever ReviewAid contributes to the research workflow, whether as a primary screener, a secondary/third-person validator, or simply as a reference tool.</li>
-</ul>
-<p>Proper attribution supports ethical research practices and helps sustain ongoing development and improvement of the tool for the academic community.</p>
+    with st.expander("Read Full Disclaimer"):
+        st.markdown("""
+        <div class="disclaimer-warning">
+            <h3>ReviewAid Disclaimer:</h3>
+    <p>By using ReviewAid, you acknowledge and agree to the following:</p>
+    <ul>
+        <li><strong>Researcher Responsibility:</strong> ReviewAid is an AI-assisted tool intended to support, not replace, the researcher's own judgment. All screening decisions, extracted data, and interpretations generated by the system must be independently verified by the user. The developer is not responsible for inaccuracies, omissions, or misclassifications arising from AI-generated outputs.</li>
+        <li><strong>No Guarantee of Completeness or Accuracy:</strong> While ReviewAid aims to improve efficiency during the literature review and evidence synthesis process, the tool does not guarantee the completeness, correctness, or reliability of its results. Users should exercise critical evaluation and cross-check all information before including it in their research.</li>
+        <li><strong>Data Responsibility & Privacy:</strong> Uploaded PDFs are processed only within the session and are not stored or collected by the developer. However, users remain responsible for ensuring that they have the legal and ethical right to upload and process the documents they submit.</li>
+        <li><strong>Non-Liability:</strong> The developer is not liable for any direct, indirect, or consequential damages resulting from the use of this tool, including but not limited to errors in screening, extraction, data interpretation, or research outcomes.</li>
+        <li><strong>Academic & Ethical Use:</strong> ReviewAid is intended solely for lawful academic and research purposes. Users must ensure compliance with all relevant institutional guidelines, copyright laws, and ethical standards.</li>
+        <li><strong>AI Limitations:</strong> ReviewAid uses AI algorithms to assist with literature screening and data extraction. Outputs may contain errors, omissions, or biases, and should not be considered a substitute for expert review or professional judgment.</li>
+        <li><strong>No Warranty:</strong> ReviewAid is provided "as is" without any warranty of any kind, either expressed or implied, including but not limited to accuracy, completeness, or fitness for a particular purpose.</li>
+        <li><strong>Transparency & Citation:</strong> Many researchers use ReviewAid during their review process without disclosing the involvement of AI tools. Users are strongly encouraged to maintain transparency by acknowledging the use of ReviewAid in their methodology. Citation is appreciated whenever ReviewAid contributes to the research workflow, whether as a primary screener, a secondary/third-person validator, or simply as a reference tool.</li>
+    </ul>
+    <p>Proper attribution supports ethical research practices and helps sustain ongoing development and improvement of the tool for the academic community.</p>
 
 
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
     
-    agree = st.checkbox("I have read and agree to the above disclaimer.")
+    agree = st.checkbox("I acknowledge the disclaimer.")
     if agree and st.button("I Agree & Continue"):
         st.session_state.disclaimer_acknowledged = True
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-# API Keys 
+
 SCREENER_API_KEY = os.getenv("SCREENER_API_KEY")
 EXTRACTOR_API_KEY = os.getenv("EXTRACTOR_API_KEY")
 
@@ -546,7 +935,9 @@ if st.session_state.app_mode is None:
     st.markdown("<div class='mode-selection'>", unsafe_allow_html=True)
     
     st.markdown("## Select Application Mode")
-    
+
+  
+ 
     col1, col2 = st.columns(2)
     
     with col1:
@@ -587,7 +978,15 @@ if st.session_state.app_mode is None:
             st.session_state.app_mode = "extractor"
             st.rerun()
     
+    
     st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="important-note-box">
+        <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process.
+    </div>
+    """, unsafe_allow_html=True)
+
     
     st.markdown("<div class='citation-section'>", unsafe_allow_html=True)
     display_citation_section()
@@ -617,145 +1016,82 @@ if st.session_state.app_mode is None:
     
     st.stop()
 
-def extract_text_from_pdf(pdf_file):
-    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
-    return "".join(page.get_text() for page in doc)
 
-def extract_pdf_metadata(pdf_file):
-    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
-    metadata = doc.metadata
-    title = metadata.get('title', '')
-    author = metadata.get('author', '')
-    
-    
-    year = ''
-    if not year:
-        first_page_text = doc[0].get_text()
-        year_match = re.search(r'\b(19|20)\d{2}\b', first_page_text)
-        if year_match:
-            year = year_match.group()
-    
-   
-    if not year and metadata.get('creationDate'):
-        creation_date = metadata['creationDate']
-        year_match = re.search(r'\b(19|20)\d{2}\b', creation_date)
-        if year_match:
-            year = year_match.group()
-    
-    return title, author, year
-
-def preprocess_text_for_ai(text, max_tokens=1024):
-    text = " ".join(text.split())
-    return text[:max_tokens * 4]  
-
-def extract_json_substring(text):
-   
-    text = re.sub(r'```json\n?', '', text)
-    text = re.sub(r'\n?```', '', text)
-    
-   
-    start = text.find("{")
-    end = text.rfind("}")
-    
-    if start == -1 or end == -1 or end < start:
-        return text
-    
-    return text[start:end+1]
-
-def repair_json_via_ai(broken_json_str, api_key):
-    fix_prompt = f"""
-The following JSON output is invalid or malformed. Please fix it and return ONLY valid JSON, no extra text:
-
-{broken_json_str}
-"""
-    fixed_raw = query_zai(fix_prompt, api_key)
-    return fixed_raw
-
-def parse_result(raw_result, api_key, mode="screener", fields_list=None):
-   
-    if not raw_result or not raw_result.strip():
-        if mode == "screener":
-            return {
-                "status": "Error",
-                "reason": "Empty response from AI",
-            }
-        else:
-            result = {"extracted": {}}
-            if fields_list:
-                for field in fields_list:
-                    result["extracted"][field] = None
-            return result
-    
+def extract_pdf_content(pdf_file):
+    update_terminal_log("Initializing PDF extraction engine (PyMuPDF)...", "DEBUG")
     try:
-        cleaned = extract_json_substring(raw_result)
-        return json.loads(cleaned)
-    except json.JSONDecodeError:
-        print("⚠️ JSON parsing failed on cleaned string. Trying json5 parser...")
+        doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
+        page_count = doc.page_count
+        update_terminal_log(f"Document opened successfully. Total pages: {page_count}", "INFO")
+        
+        full_text_parts = []
+        for i, page in enumerate(doc):
+            if i % 5 == 0:
+                 update_terminal_log(f"Extracting text from Page {i+1}/{page_count}...", "DEBUG")
+            page_text = page.get_text()
+            full_text_parts.append(page_text)
+        
+        full_text = "".join(full_text_parts)
+        
 
-        try:
-            return json5.loads(cleaned)
-        except Exception as e:
-            print(f"⚠️ json5 parser failed: {e}. Attempting manual repair...")
+        ref_match = re.search(r'(?:\n|\r\n){1,2}(References|Reference|Bibliography)(?:\s|\r?\n|$)', full_text, re.IGNORECASE)
+        
+        if ref_match:
+            main_text_end = ref_match.start()
+            full_text = full_text[:main_text_end]
+            update_terminal_log("References section detected and removed to save tokens.", "INFO")
 
-            repaired = cleaned.strip()
+        
+        metadata = doc.metadata
+        title = metadata.get('title', '')
+        author = metadata.get('author', '')
+        
+        update_terminal_log(f"Metadata read -> Title: '{title}', Author: '{author}'", "DEBUG")
+        
+        year = ''
+        if not year:
+        
+            if page_count > 0:
+                first_page_text = full_text_parts[0]
+                year_match = re.search(r'\b(19|20)\d{2}\b', first_page_text)
+                if year_match:
+                    year = year_match.group()
+                    update_terminal_log(f"Year found on Page 1: {year}", "DEBUG")
+        
+        if not year:
+            if metadata.get('creationDate'):
+                creation_date = metadata['creationDate']
+                year_match = re.search(r'\b(19|20)\d{2}\b', creation_date)
+                if year_match:
+                    year = year_match.group()
+                    update_terminal_log(f"Year derived from creationDate: {year}", "DEBUG")
+        
+        doc.close()
+        update_terminal_log("Document closed. Extraction complete.", "DEBUG")
+        return full_text, title, author, year
+        
+    except Exception as e:
+        update_terminal_log(f"Error during PDF extraction: {str(e)}", "ERROR")
+        return "", "", "", ""
 
-            
-            repaired = re.sub(r'^[^{]*', '', repaired)
-            repaired = re.sub(r'[^}]*$', '', repaired)
+def preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS): 
 
-            if not repaired.startswith("{"):
-                repaired = "{" + repaired
-            if not repaired.endswith("}"):
-                repaired += "}"
-
-           
-            repaired = re.sub(r'(\s*)([a-zA-Z0-9_]+):', r'\1"\2":', repaired)
-
-            try:
-                return json.loads(repaired)
-            except json.JSONDecodeError:
-                print("⚠️ Manual repair failed. Trying AI fix retry...")
-
-                fixed_raw = repair_json_via_ai(raw_result, api_key)
-                if not fixed_raw:
-                    print("⚠️ AI fix returned empty response")
-                else:
-                    fixed_cleaned = extract_json_substring(fixed_raw)
-
-                    try:
-                        return json.loads(fixed_cleaned)
-                    except json.JSONDecodeError:
-                        print("⚠️ AI fix retry failed. Using fallback response.")
-                
-               
-                if mode == "screener":
-                    return {
-                        "status": "Error",
-                        "reason": "Invalid or unparseable JSON response after retries.",
-                    }
-                else:
-                    result = {"extracted": {}}
-                    if fields_list:
-                        for field in fields_list:
-                           
-                            pattern = rf'"{field}"\s*:\s*"([^"]*)"'
-                            match = re.search(pattern, raw_result, re.IGNORECASE)
-                            if match:
-                                result["extracted"][field] = match.group(1).strip()
-                            else:
-                              
-                                simple_pattern = rf'{field}[:\s]+(.*?)(?=\n|"|\}})'
-                                simple_match = re.search(simple_pattern, raw_result, re.IGNORECASE | re.DOTALL)
-                                if simple_match:
-                                    result["extracted"][field] = simple_match.group(1).strip()
-                                else:
-                                    result["extracted"][field] = None
-                    return result
+    if "  " in text or "\n" in text:
+        text = " ".join(text.split())
     
+    char_limit = max_tokens * 4
+    if len(text) > char_limit:
+        update_terminal_log(f"Text exceeds token limit ({len(text)} > {char_limit}). Truncating...", "WARN")
+        text = text[:char_limit]
+    
+    return text
+
 def estimate_confidence(text):
+    update_terminal_log("Estimating confidence based on text features...", "DEBUG")
     if not text or len(text.strip()) < 30:
         return 0.2
     if "randomized" in text.lower():
+        update_terminal_log("Keyword 'randomized' found. Boosting confidence.", "DEBUG")
         return 0.9
     return 0.6
 
@@ -767,11 +1103,10 @@ def df_from_results(results):
             "Title": r.get("title", ""),
             "Author": r.get("author", ""),
             "Year": r.get("year", ""),
-            "Status": r.get("status", "").capitalize(),
+         
             "Confidence": r.get("confidence", "")
         }
         
-       
         status = r.get("status", "").lower()
         if status == "include":
             row["Reason for Inclusion"] = r.get("reason", "")
@@ -850,15 +1185,55 @@ def to_excel(df):
 
 def find_exclusion_matches(text, exclusion_lists):
     matches = []
+    update_terminal_log("Scanning text for exclusion keywords...", "DEBUG")
     for criteria in exclusion_lists:
         criteria = criteria.strip()
-        if criteria and criteria.lower() in text.lower():
-            matches.append(criteria)
+        if criteria:
+            if criteria.lower() in text.lower():
+                update_terminal_log(f"Match found for exclusion criteria: '{criteria}'", "INFO")
+                matches.append(criteria)
+            else:
+                update_terminal_log(f"No match for exclusion criteria: '{criteria}'", "DEBUG")
     return matches
+
+def update_terminal_log(msg, level="INFO"):
+    """Updates the terminal log with a new message. Implements circular buffer for RAM efficiency."""
+    timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3] 
+    
+    if level == "INFO":
+        color_class = "log-info"
+    elif level == "SUCCESS":
+        color_class = "log-success"
+    elif level == "WARN":
+        color_class = "log-warn"
+    elif level == "ERROR":
+        color_class = "log-error"
+    elif level == "SYSTEM":
+        color_class = "log-system"
+    elif level == "DEBUG":
+        color_class = "log-debug"
+    else:
+        color_class = "log-info"
+        
+    log_entry = f'<span class="terminal-line"><span class="terminal-timestamp">[{timestamp}]</span><span class="{color_class}">{level}</span>: {html.escape(msg)}</span>'
+    
+    st.session_state.terminal_logs.append(log_entry)
+    
+
+    if len(st.session_state.terminal_logs) > MAX_LOG_ENTRIES:
+        st.session_state.terminal_logs.pop(0)
+    
+ 
+    full_log_html = '<div class="terminal-container">' + "".join(st.session_state.terminal_logs) + '</div>'
+    st.session_state.terminal_placeholder.markdown(full_log_html, unsafe_allow_html=True)
+
 
 if st.session_state.app_mode == "screener":
     st.markdown("## Full-text Paper Screener")
     
+  
+    
+
     st.subheader("Population Criteria")
     population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18–65 with MS")
     population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases")
@@ -878,7 +1253,10 @@ if st.session_state.app_mode == "screener":
 
 elif st.session_state.app_mode == "extractor":
     st.markdown("## Full-text Data Extractor")
-    
+
+   
+
+
     fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. Author, Year, Study Design, Sample Size, Conclusion")
     fields_list = [f.strip() for f in fields.split(",") if f.strip()]
     
@@ -888,7 +1266,7 @@ elif st.session_state.app_mode == "extractor":
     
    
     if len(fields_list) == 1 and fields_list[0] == "Paper Title":
-        st.info("Only Paper Title will be extracted. Add more fields to extract additional information.")
+        st.info("If left Empty, Only Paper Title will be extracted. Add more fields to extract additional information.")
     
     uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
     
@@ -899,6 +1277,10 @@ elif st.session_state.app_mode == "extractor":
     comparison_inclusion = ""
     comparison_exclusion = ""
     outcome_criteria = ""
+
+
+if 'terminal_placeholder' not in st.session_state:
+    st.session_state.terminal_placeholder = st.empty()
 
 if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "Screen Papers"):
 
@@ -938,6 +1320,17 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
             st.stop()
         api_key = EXTRACTOR_API_KEY
 
+
+    st.session_state.terminal_logs = []
+
+
+    with st.expander("System Terminal (Background Processing)", expanded=True):
+        st.session_state.terminal_placeholder = st.empty()
+        update_terminal_log("Initializing processing session...", "SYSTEM")
+        update_terminal_log(f"Mode detected: {st.session_state.app_mode}", "INFO")
+        update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 20)}", "INFO")
+        update_terminal_log("Allocating resources...", "DEBUG")
+
     if st.session_state.app_mode == "screener":
         st.session_state.included_results, st.session_state.excluded_results, st.session_state.maybe_results = [], [], []
     else:
@@ -945,32 +1338,50 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
 
     max_papers = 20
     total_pdfs = min(len(uploaded_pdfs), max_papers)
+    
     progress_bar = st.progress(0)
 
     for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
-        st.info(f"Processing: {pdf.name}")
+        
+        update_terminal_log(f"--- Starting File {idx}/{total_pdfs}: {pdf.name} ---", "SYSTEM")
+        
         try:
+            start_time_file = time.time()
+            
             pdf.seek(0)
-            text = extract_text_from_pdf(pdf)
+            update_terminal_log("Reading PDF content...", "INFO")
+            
+           
+            text, title, author, year = extract_pdf_content(pdf)
 
             if not text.strip():
-                st.warning(f"PDF '{pdf.name}' appears empty or unreadable. Skipping.")
+                update_terminal_log(f"PDF '{pdf.name}' appears empty or unreadable.", "WARN")
+                update_terminal_log("Skipping this file.", "WARN")
                 progress_bar.progress(idx / total_pdfs)
+   
+                gc.collect()
                 continue
+            
+            update_terminal_log(f"Text extracted. Length: {len(text)} chars.", "INFO")
 
-            text = preprocess_text_for_ai(text, max_tokens=1024)
+
+            full_text_backup = text
+
+            text = preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS)
+            update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS}.", "INFO")
             confidence = estimate_confidence(text)
+            update_terminal_log(f"Initial confidence score estimated: {confidence}", "INFO")
 
             if st.session_state.app_mode == "screener":
-             
-                pdf.seek(0)
-                title, author, year = extract_pdf_metadata(pdf)
                 
                 all_exclusions = []
                 for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
                     if block.strip():
                         all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
+                
+                update_terminal_log(f"Total exclusion criteria loaded: {len(all_exclusions)}", "INFO")
 
+                update_terminal_log("Running exclusion match logic...", "INFO")
                 matches = find_exclusion_matches(text, all_exclusions)
 
                 if len(matches) >= 1:
@@ -987,11 +1398,21 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         "year": year
                     }
                     st.session_state.excluded_results.append(result)
-                    st.warning(f"Auto-excluded {pdf.name}: {len(matches)} exclusion criteria matched")
+                    update_terminal_log(f"Found {len(matches)} exclusion matches: {matches}", "WARN")
+                    update_terminal_log(f"Result: EXCLUDED (Auto-rule)", "WARN")
                     progress_bar.progress(idx / total_pdfs)
+                    
+
+                    del text, matches, exclusion_reason
+                    gc.collect()
                     continue
 
+                update_terminal_log("Constructing PICO prompt for AI...", "INFO")
                 prompt = f"""
+You are an expert systematic reviewer. Your task is to screen a research paper based on specific PICO criteria.
+
+**CRITICAL INSTRUCTION:**
+Return your response as a SINGLE valid JSON object. Do not include markdown formatting (like ```json), do not add comments, and do not include conversational filler text.
 
 **Population**
 Inclusion: {population_inclusion}
@@ -1005,33 +1426,31 @@ Exclusion: {intervention_exclusion}
 Inclusion: {comparison_inclusion}
 Exclusion: {comparison_exclusion}
 
-**Outcomes (if relevant)**: {outcome_criteria}
+**Outcomes**: {outcome_criteria}
 
-Paper text:
+**Paper Text:**
 \"\"\"
 {text}
 \"\"\"
 
-Based on the criteria above, classify this paper as "Include", "Exclude", or "Maybe".
-Provide a detailed reason for your classification.
+**Task:**
+1. Classify the paper as "Include", "Exclude", or "Maybe" based strictly on the criteria.
+2. Provide a detailed reason for the classification.
+3. Extract the Paper Title, Main Author, and Publication Year.
+4. If a value is not found, use "Not Found".
 
-Also extract the following information:
-- Paper Title: The full title of the paper
-- Main Author: The first author or corresponding author
-- Publication Year: The year the paper was published
-
-Return exactly one valid JSON object with this format, no extra text or comments:
-
+**JSON Format Required:**
 {{
   "status": "Include",
-  "reason": "Detailed classification reason.",
-  "title": "Full paper title",
+  "reason": "Detailed classification reason explaining why it fits or fails the criteria.",
+  "title": "Full paper title extracted from text",
   "author": "Main author name",
   "year": "2023"
 }}
 """
             else:
                
+                update_terminal_log(f"Preparing extraction fields: {', '.join(fields_list)}", "INFO")
                 field_descriptions = {
                     "Paper Title": "The full title of the research paper",
                     "Author": "The main author(s) of the paper",
@@ -1058,12 +1477,16 @@ Return exactly one valid JSON object with this format, no extra text or comments
                     prompt += f"- {field}: {description}\n"
                 
                 prompt += f"""
-Paper text:
+**Paper Text:**
 \"\"\"
 {text}
 \"\"\"
 
-Return your response as a valid JSON object with this exact structure:
+**CRITICAL INSTRUCTION:**
+Return your response as a SINGLE valid JSON object. Do not include markdown formatting. Ensure all keys are present.
+If a field is not found in the text, use the value "Not Found".
+
+**JSON Format Required:**
 {{
   "extracted": {{
 """
@@ -1076,32 +1499,40 @@ Return your response as a valid JSON object with this exact structure:
                 prompt = prompt.rstrip(",\n") + "\n  }\n}"
                 
                
-                prompt += """
-
-IMPORTANT: 
-1. Return ONLY the JSON object with no additional text, explanations, or formatting.
-2. Fill in the extracted information for each field in the quotes.
-3. If information for a field is not found in the paper, leave it as an empty string ("").
-4. Ensure the JSON is valid and properly formatted.
-"""
+                prompt += "\nEnsure the JSON is valid. Use 'Not Found' for missing data.\n"
             
-            with st.spinner(f"Analysing '{pdf.name}' using AI..."):
-              
-                if st.session_state.app_mode == "extractor":
-                    raw_result = query_zai(prompt, api_key, temperature=0.3, max_tokens=1024)
-                else:
-                    raw_result = query_zai(prompt, api_key)
+          
+            
+            if st.session_state.app_mode == "extractor":
+                raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=MAX_OUTPUT_TOKENS)
+            else:
+                raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=2048)
+
+      
+            if raw_result == "RATE_LIMIT_ERROR":
+                update_terminal_log("Processing halted due to API rate limits.", "ERROR")
+                st.error("The processing was stopped because the API rate limit was reached. Please wait a few minutes and click 'Screen Papers' to resume.")
+               
+                del text, prompt
+                gc.collect()
+                break
 
             if raw_result is None:
-                st.error(f"Failed to analyse using AI for {pdf.name}")
+                update_terminal_log("API Error: Failed to receive response.", "ERROR")
                 progress_bar.progress(idx / total_pdfs)
+        
+                del text, prompt
+                gc.collect()
                 continue
+
+            update_terminal_log(f"API response received. Length: {len(raw_result)} chars.", "SUCCESS")
+            update_terminal_log("Parsing JSON response...", "INFO")
 
            
             if st.session_state.app_mode == "screener":
-                result = parse_result(raw_result, api_key, mode="screener")
+                result = parse_result(raw_result, api_key, mode="screener", original_text=full_text_backup)
             else:
-                result = parse_result(raw_result, api_key, mode="extractor", fields_list=fields_list)
+                result = parse_result(raw_result, api_key, mode="extractor", fields_list=fields_list, original_text=full_text_backup)
                 
               
                 if "extracted" not in result:
@@ -1110,49 +1541,74 @@ IMPORTANT:
                
                 for field in fields_list:
                     if field not in result["extracted"]:
-                        result["extracted"][field] = None
+                        result["extracted"][field] = "Not Found"
+            
+            update_terminal_log("JSON parsed successfully.", "SUCCESS")
 
             result["filename"] = pdf.name
             result["confidence"] = confidence
             if confidence < 0.5:
                 result["flags"] = ["low_confidence"]
+                update_terminal_log("Flagged: Low confidence score.", "WARN")
 
          
             if st.session_state.app_mode == "screener":
                 
-                if "title" not in result or not result["title"]:
+                if "title" not in result or not result["title"] or result["title"] == "":
                     result["title"] = title
-                if "author" not in result or not result["author"]:
+                if "author" not in result or not result["author"] or result["author"] == "":
                     result["author"] = author
-                if "year" not in result or not result["year"]:
+                if "year" not in result or not result["year"] or result["year"] == "":
                     result["year"] = year
 
             if st.session_state.app_mode == "screener":
                 status = result.get("status", "").strip().lower()
-                if status not in {"include", "exclude", "maybe"}:
+ 
+                if "include" in status:
+                    status = "include"
+                elif "exclude" in status:
+                    status = "exclude"
+                elif "maybe" in status:
+                    status = "maybe"
+                else:
                      status = "exclude"
                
                 if status == "include":
                     st.session_state.included_results.append(result)
+                    update_terminal_log(f"Final Decision: INCLUDE", "SUCCESS")
                 elif status == "exclude":
                     st.session_state.excluded_results.append(result)
+                    update_terminal_log(f"Final Decision: EXCLUDE", "WARN")
                 elif status == "maybe":
                     st.session_state.maybe_results.append(result)
+                    update_terminal_log(f"Final Decision: MAYBE", "INFO")
                 else:
                     st.session_state.excluded_results.append(result)
+                    update_terminal_log(f"Final Decision: EXCLUDE (Default)", "WARN")
 
-                st.success(f"Processed: {pdf.name} — {status.capitalize()}")
             else:
                 st.session_state.extracted_results.append(result)
-                st.success(f"Processed: {pdf.name}")
+                update_terminal_log("Data extraction completed.", "SUCCESS")
+            
+            elapsed = time.time() - start_time_file
+            update_terminal_log(f"File processed in {elapsed:.2f}s.", "SYSTEM")
+
+          
+            del text, prompt, raw_result
+            gc.collect()
 
         except Exception as e:
-            st.error(f"Error processing {pdf.name}: {str(e)}")
+            update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
+            import traceback
+            update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
+        
+            gc.collect()
 
         progress_bar.progress(idx / total_pdfs)
         time.sleep(0.5)
 
-    st.info("All files processed!")
+    update_terminal_log("=== Batch processing complete ===", "SYSTEM")
+    update_terminal_log("All files processed.", "SUCCESS")
 
 if st.session_state.app_mode == "screener":
     included = len(st.session_state.included_results)
@@ -1165,36 +1621,87 @@ if st.session_state.app_mode == "screener":
 
     with st.expander("Screening Dashboard", expanded=True):
          st.metric("Papers Screened", total)
-
+         
+       
+         colors_map = {
+             "Included": "#3fb950", 
+             "Excluded": "#f85149",
+             "Maybe": "#d29922"     
+         }
+         
          fig = px.pie(
             names=["Included", "Excluded", "Maybe"],
             values=[included, excluded, maybe],
-            title="Screening Decisions"
+            title="Screening Decisions",
+            hole=0.4,
+            color=["Included", "Excluded", "Maybe"],
+            color_discrete_map=colors_map
         )
-         st.plotly_chart(fig, use_container_width=True)
+         
+
+         fig.update_layout(
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            font=dict(color='#F0F4F8'),
+            legend=dict(orientation="h", yanchor="bottom", y=-0.1, xanchor="center", x=0.5),
+            title_font=dict(size=20)
+         )
+         
+         col_g1, col_g2 = st.columns([3, 1])
+         with col_g1:
+
+             st.plotly_chart(fig, width='stretch')
+         with col_g2:
+
+             html_string = fig.to_html()
+             st.download_button(
+                label="Download Graph",
+                data=html_string,
+                file_name="screening_decisions_graph.html",
+                mime="text/html"
+            )
 
     included_results = st.session_state.included_results
     excluded_results = st.session_state.excluded_results
     maybe_results = st.session_state.maybe_results 
 
+
+    def color_status(val):
+        if val == "Include":
+            return 'background-color: rgba(16, 185, 129, 0.15); color: #34d399; font-weight: bold;'
+        elif val == "Exclude":
+            return 'background-color: rgba(239, 68, 68, 0.15); color: #f87171; font-weight: bold;'
+        elif val == "Maybe":
+            return 'background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; font-weight: bold;'
+        return ''
+
     if included_results:
         st.header("Included Papers")
         df_inc = df_from_results(included_results)
-        st.dataframe(df_inc)
+
+        styled_inc = df_inc.style.set_properties(**{'text-align': 'left'})
+        
+        st.dataframe(styled_inc, width='stretch', height=400)
     else:
         st.info("No Included papers found.")
 
     if excluded_results:
         st.header("Excluded Papers")
         df_exc = df_from_results(excluded_results)
-        st.dataframe(df_exc)
+   
+        styled_exc = df_exc.style.set_properties(**{'text-align': 'left'})
+   
+        st.dataframe(styled_exc, width='stretch', height=400)
     else:
         st.info("No Excluded papers found.")
 
     if maybe_results:
         st.header("Maybe Papers")
         df_maybe = df_from_results(maybe_results)
-        st.dataframe(df_maybe)
+
+        styled_maybe = df_maybe.style.set_properties(**{'text-align': 'left'})
+      
+        st.dataframe(styled_maybe, width='stretch', height=400)
     else:
         st.info("No Maybe papers found.")
 
@@ -1241,7 +1748,14 @@ else:
     if extracted_results:
         st.header("Extracted Data")
         df_ext = df_from_extracted_results(extracted_results)
-        st.dataframe(df_ext)
+        
+      
+        def style_extractor_df(df):
+            return df.style.set_properties(**{'text-align': 'left'})
+            
+        styled_ext = style_extractor_df(df_ext)
+  
+        st.dataframe(styled_ext, width='stretch', height=400)
         
         st.header("Export Results")
         
@@ -1286,6 +1800,12 @@ st.markdown(
 )
 
 st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown("""
+    <div class="important-note-box">
+        <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process.
+    </div>
+    """, unsafe_allow_html=True)
 
 if st.session_state.app_mode is not None:
     st.markdown("<div class='citation-section'>", unsafe_allow_html=True)
