@@ -35,9 +35,6 @@ try:
             cred_dict = json.loads(firebase_key_str)
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
-            st.success("Firebase initialized successfully.")
-        else:
-            st.warning("FIREBASE_KEY not found in environment variables. Analytics disabled.")
     
 
     if firebase_admin._apps:
