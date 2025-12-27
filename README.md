@@ -2,11 +2,11 @@
 
 **Code & Archive (Zenodo DOI):** [10.5281/zenodo.18060973](https://doi.org/10.5281/zenodo.18060973)
 
+**ReviewAid** is an AI-powered Research article full-text Screener and Extractor designed to streamline the systematic review process. Upload research papers, automatically screen for relevance, extract key data fields, and accelerate your literature review workflow — all in one intuitive, easy-to-use web tool.
+
 ---
 
 ## 🚀 Features
-
-**ReviewAid** is an AI-powered Research article full-text Screener and Extractor designed to streamline the systematic review process. Upload research papers, automatically screen for relevance, extract key data fields, and accelerate your literature review workflow — all in one intuitive, easy-to-use web tool.
 
 - **AI-based full-text screening:** Quickly filter large batches of research articles based on your custom inclusion and exclusion criteria.  
 - **Extraction:** Extract any part of the paper you want! 
@@ -21,7 +21,7 @@
 
 ---
 
-## Important Notes
+## 📝 Important Notes
 
 - **Performance:**  
   Depending on the number and size of PDFs uploaded and your internet connection, AI processing can take some time. Please be patient — progress indicators and termianl will keep you updated. 

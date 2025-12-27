@@ -1492,7 +1492,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
         update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 20)}", "INFO")
         update_terminal_log("Allocating resources...", "DEBUG")
 
-    max_papers = 20
+    max_papers = 2000
     total_pdfs = min(len(uploaded_pdfs), max_papers)
     
     progress_bar = st.progress(0)

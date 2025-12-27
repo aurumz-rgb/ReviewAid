@@ -1,8 +1,8 @@
 {
     "papers_screened": 1,
     "papers_extracted": 2,
-    "total_visits": 3,
-    "total_users": 3,
+    "total_visits": 4,
+    "total_users": 4,
     "active_users": [
         {
             "id": "005cba1a-b19b-49eb-a6f5-109c04d757ac",
@@ -14,7 +14,11 @@
         },
         {
             "id": "ef34401c-5335-4ef2-a69b-b09fae7215a7",
-            "last_seen": "2025-12-27T21:55:56.190276"
+            "last_seen": "2025-12-27T22:06:49.133968"
+        },
+        {
+            "id": "2c83edbe-64e8-46d3-98d6-f05546f56492",
+            "last_seen": "2025-12-27T22:09:21.519928"
         }
     ]
 }
