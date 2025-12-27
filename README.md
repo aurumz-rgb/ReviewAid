@@ -37,7 +37,7 @@
 
 ---
 
-# Confidence Scoring System
+## 🌟 Confidence Scoring System
 
 This system implements a **hierarchical four-tier confidence model** designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes **deterministic rule-based decisions** before progressively falling back to algorithmic and heuristic estimation only when necessary.
 
@@ -148,7 +148,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ---
 
-##  Usage
+## ⚡ Usage
 
 1.  **Run the Streamlit web app**
 
@@ -175,7 +175,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 ---
 
 
-## 📸 Screenshots
+## Screenshots
 
 
 ![User Interface](screenshots/screenshot1.png)  
@@ -202,7 +202,7 @@ For more information, please see the [GLM-4.6V-Flash paper](https://arxiv.org/ab
 
 ---
 
-## 🎯 Citation
+## 📌 Citation
 
 If you use ReviewAid, please cite:
 
@@ -216,7 +216,7 @@ This project is licensed under the Apache 2.0 License.
 
 ---
 
-## 📬 Contact
+## 📨 Contact
 
 Questions, feedback, or collaboration ideas? Reach out at [pteroisvolitans12@gmail.com](mailto:pteroisvolitans12@gmail.com) or open an issue on GitHub.
 
