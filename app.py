@@ -17,6 +17,93 @@ import base64
 import html
 from zai import ZaiClient
 import gc 
+import uuid 
+
+ANALYTICS_FILE = "analytics.json"
+
+
+def load_analytics():
+    """Loads analytics data from JSON file safely."""
+    if not os.path.exists(ANALYTICS_FILE):
+        return {
+            "papers_screened": 0,
+            "papers_extracted": 0,
+            "total_visits": 0,
+            "total_users": 0,
+            "active_users": []
+        }
+    try:
+        with open(ANALYTICS_FILE, "r") as f:
+            return json.load(f)
+    except Exception:
+        return {
+            "papers_screened": 0,
+            "papers_extracted": 0,
+            "total_visits": 0,
+            "total_users": 0,
+            "active_users": []
+        }
+
+def save_analytics(data):
+    """Saves analytics data to JSON file safely."""
+    try:
+        with open(ANALYTICS_FILE, "w") as f:
+            json.dump(data, f, indent=4)
+    except Exception:
+        pass 
+
+def init_analytics():
+    """Initializes session and updates global counters."""
+    analytics = load_analytics()
+    
+
+    if 'user_id' not in st.session_state:
+        st.session_state.user_id = str(uuid.uuid4())
+        analytics['total_users'] += 1
+    
+
+    if 'visit_recorded' not in st.session_state:
+        analytics['total_visits'] += 1
+        st.session_state.visit_recorded = True
+        
+
+    current_time = datetime.now().isoformat()
+    active_updated = False
+    new_active_list = []
+    
+    user_found = False
+    for u in analytics.get('active_users', []):
+        if u['id'] == st.session_state.user_id:
+            u['last_seen'] = current_time
+            user_found = True
+            new_active_list.append(u)
+        else:
+            new_active_list.append(u)
+            
+    if not user_found:
+        new_active_list.append({'id': st.session_state.user_id, 'last_seen': current_time})
+    
+    analytics['active_users'] = new_active_list
+    
+    save_analytics(analytics)
+    return analytics
+
+def update_processing_stats(mode, count=1):
+    """Updates papers screened/extracted count."""
+    analytics = load_analytics()
+    if mode == "screener":
+        analytics['papers_screened'] += count
+    elif mode == "extractor":
+        analytics['papers_extracted'] += count
+
+    current_time = datetime.now().isoformat()
+    for u in analytics.get('active_users', []):
+        if u['id'] == st.session_state.user_id:
+            u['last_seen'] = current_time
+            break
+            
+    save_analytics(analytics)
+
 
 st.set_page_config(
     page_title="ReviewAid / AI Screener & Extractor",
@@ -174,7 +261,6 @@ hide_streamlit_style = """
         color: #000000;
     }
 
-
     .terminal-container {
         background-color: #0d1117; 
         color: #c9d1d9;
@@ -225,7 +311,6 @@ hide_streamlit_style = """
         background: #484f58;
     }
 
-    
     .important-note-box {
         background-color: rgba(65, 137, 220, 0.15);
         border-left: 5px solid #e64d43;
@@ -235,6 +320,58 @@ hide_streamlit_style = """
         color: #F0F4F8;
         font-size: 1rem;
         line-height: 1.5;
+    }
+
+    .confidence-table-container {
+        background-color: rgba(31, 41, 55, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        color: #F0F4F8;
+    }
+
+    .confidence-table-container th {
+        text-align: center;
+        color: #45a4f3;
+        border-bottom: 2px solid #45a4f3;
+    }
+    
+    .confidence-table-container td {
+        vertical-align: top;
+        text-align: center;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(65, 137, 220, 0.2);
+    }
+
+    @media screen and (max-width: 768px) {
+        .main .block-container {
+            margin-top: -10px !important;
+            padding-top: 10px !important;
+        }
+        .terminal-container {
+            height: 250px !important;
+            font-size: 11px !important;
+            padding: 10px !important;
+        }
+        .terminal-timestamp {
+            min-width: 55px;
+            font-size: 10px;
+        }
+        .disclaimer-warning {
+            padding: 10px !important;
+            font-size: 0.9rem !important;
+        }
+        .important-note-box {
+            padding: 10px !important;
+            font-size: 0.9rem !important;
+        }
+        .stTextArea, .stTextInput {
+            font-size: 0.9rem !important;
+        }
+        .confidence-table-container {
+            padding: 10px !important;
+            overflow-x: auto;
+        }
     }
     </style>
 """
@@ -316,6 +453,31 @@ st.markdown(f"""
     .mode-selection-footer .right-text {{
         font-weight: normal;
     }}
+    
+    @media screen and (max-width: 768px) {{
+        .mode-card {{
+            padding: 15px !important;
+            margin: 5px 0 !important;
+            max-width: 100% !important;
+        }}
+        .mode-title {{
+            font-size: 1.2rem !important;
+        }}
+        .mode-description {{
+            font-size: 0.9rem !important;
+        }}
+        .mode-selection-footer {{
+            flex-direction: column !important;
+            text-align: center;
+            gap: 5px;
+            padding: 10px !important;
+        }}
+        .custom-button {{
+            width: 100% !important;
+            text-align: center !important;
+            box-sizing: border-box;
+        }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -353,13 +515,12 @@ if "terminal_logs" not in st.session_state:
 
 
 MAX_LOG_ENTRIES = 200
-
-
-MAX_INPUT_TOKENS = 12000 
-
+MAX_INPUT_TOKENS_SCREENER = 128000 
+MAX_INPUT_TOKENS_EXTRACTOR = 128000 
 MAX_OUTPUT_TOKENS = 4096
 
 st.session_state.page_load_count += 1
+
 
 img_src = ""
 try:
@@ -368,16 +529,16 @@ try:
         with open(img_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
         img_src = f"data:image/png;base64,{encoded_string}"
+        del encoded_string, image_file 
     else:
-       
         img_path_root = "RA.png"
         if os.path.exists(img_path_root):
              with open(img_path_root, "rb") as image_file:
                 encoded_string = base64.b64encode(image_file.read()).decode()
              img_src = f"data:image/png;base64,{encoded_string}"
-except Exception as e:
+             del encoded_string, image_file 
+except Exception:
     pass 
-
 
 if img_src:
     st.markdown(
@@ -389,7 +550,6 @@ if img_src:
 
 
 def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
-    
     if not api_key:
         st.error("API key is missing. Please check your environment variables.")
         return None
@@ -419,6 +579,10 @@ def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
             )
             
             result_content = response.choices[0].message.content
+
+            del response 
+            del client 
+            
             update_terminal_log("Response received successfully.", "SUCCESS")
             return result_content
             
@@ -458,13 +622,13 @@ def clean_json_response(raw_str):
     raw_str = re.sub(r'```json\s*', '', raw_str)
     raw_str = re.sub(r'```\s*', '', raw_str)
     
-  
+
     raw_str = re.sub(r'//.*', '', raw_str)
     
 
     raw_str = re.sub(r'/\*.*?\*/', '', raw_str, flags=re.DOTALL)
     
-
+   
     raw_str = re.sub(r',\s*([}\]])', r'\1', raw_str)
     
 
@@ -476,11 +640,10 @@ def clean_json_response(raw_str):
     
     cleaned = raw_str[start:end+1]
     
-  
     def replace_newlines_in_strings(match):
         return match.group(0).replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
 
-    
+
     cleaned = re.sub(r'"(?:\\.|[^"\\])*"', replace_newlines_in_strings, cleaned)
     
     return cleaned
@@ -490,42 +653,42 @@ def parse_result(raw_result, api_key, mode="screener", fields_list=None, origina
     Parses AI response with extreme prejudice.
     Tries Standard JSON -> JSON5 -> AI Repair -> Re-extraction -> Regex Fallback.
     """
-    
     if not raw_result or not raw_result.strip():
         update_terminal_log("Empty AI response received.", "ERROR")
-      
         if original_text:
             update_terminal_log("Attempting Re-extraction due to empty response...", "WARN")
-            return _attempt_re_extraction(original_text, api_key, mode, fields_list)
+            res = _attempt_re_extraction(original_text, api_key, mode, fields_list)
+            del original_text 
+            return res
         return _get_default_result(mode, fields_list)
     
     update_terminal_log("Starting Bulletproof JSON parsing pipeline...", "DEBUG")
     
     cleaned_json = clean_json_response(raw_result)
     
-   
     if not cleaned_json or len(cleaned_json) < 10:
         update_terminal_log("Cleaned JSON is empty or invalid. Structure likely missing.", "WARN")
         if original_text:
             update_terminal_log("Attempting Re-extraction due to structural failure...", "WARN")
-            return _attempt_re_extraction(original_text, api_key, mode, fields_list)
-
+            res = _attempt_re_extraction(original_text, api_key, mode, fields_list)
+            del original_text 
+            return res
         return _regex_extract_fallback(raw_result, mode, fields_list)
-    
 
     try:
         update_terminal_log("Attempting standard json.loads()...", "DEBUG")
         data = json.loads(cleaned_json)
         update_terminal_log("Standard JSON parse successful.", "SUCCESS")
+        del cleaned_json 
         return data
     except json.JSONDecodeError as e:
         update_terminal_log(f"Standard JSON failed: {str(e)}", "WARN")
 
-  
     try:
         update_terminal_log("Attempting JSON5 parser (relaxed standard)...", "DEBUG")
         data = json5.loads(cleaned_json)
         update_terminal_log("JSON5 parse successful.", "SUCCESS")
+        del cleaned_json 
         return data
     except Exception as e:
         update_terminal_log(f"JSON5 failed: {str(e)}", "WARN")
@@ -543,6 +706,8 @@ Malformed JSON:
 {cleaned_json}
 """
     fixed_raw = query_zai(repair_prompt, api_key, temperature=0.1, max_tokens=1024)
+    del repair_prompt 
+    
     if fixed_raw and fixed_raw != "RATE_LIMIT_ERROR":
         fixed_cleaned = clean_json_response(fixed_raw)
         if fixed_cleaned:
@@ -550,13 +715,13 @@ Malformed JSON:
                 update_terminal_log("Testing AI-Repaired JSON...", "DEBUG")
                 data = json.loads(fixed_cleaned)
                 update_terminal_log("AI repair successful.", "SUCCESS")
+                del fixed_raw, fixed_cleaned
                 return data
             except:
                 update_terminal_log("AI repair failed.", "ERROR")
     else:
         update_terminal_log("AI repair skipped (empty/rate limit).", "WARN")
 
-   
     update_terminal_log("All parsers failed. Using Regex Extraction Fallback.", "ERROR")
     return _regex_extract_fallback(raw_result, mode, fields_list)
 
@@ -566,8 +731,7 @@ def _attempt_re_extraction(original_text, api_key, mode, fields_list):
     """
     update_terminal_log("Re-extraction initiated...", "SYSTEM")
     
- 
-    text_snippet = original_text[:MAX_INPUT_TOKENS*3] 
+    text_snippet = original_text[:MAX_INPUT_TOKENS_SCREENER*3] 
     
     if mode == "screener":
         strict_prompt = f"""
@@ -583,7 +747,8 @@ Required JSON Format:
   "reason": "Brief reason",
   "title": "Paper Title",
   "author": "Author Name",
-  "year": "Year"
+  "year": "Year",
+  "confidence": 0.5
 }}
 Return ONLY JSON object.
 """
@@ -602,22 +767,25 @@ Required JSON Format:
   "extracted": {{
     "{fields_list[0]}": "Value",
     ...
-  }}
+  }},
+  "confidence": 0.5
 }}
 Return ONLY JSON object.
 """
 
     re_raw = query_zai(strict_prompt, api_key, temperature=0.1, max_tokens=2048)
+    del strict_prompt
+    del text_snippet 
+    
     if re_raw and re_raw != "RATE_LIMIT_ERROR":
-
         cleaned = clean_json_response(re_raw)
         try:
             data = json.loads(cleaned)
             update_terminal_log("Re-extraction successful.", "SUCCESS")
+            del re_raw, cleaned
             return data
         except:
             pass
-    
     
     update_terminal_log("Re-extraction failed. Using default/regex.", "ERROR")
     return _get_default_result(mode, fields_list)
@@ -629,10 +797,11 @@ def _get_default_result(mode, fields_list):
             "reason": "Failed to extract data",
             "title": "Not Found",
             "author": "Not Found",
-            "year": "Not Found"
+            "year": "Not Found",
+            "confidence": 0.0
         }
     else:
-        result = {"extracted": {}}
+        result = {"extracted": {}, "confidence": 0.0}
         if fields_list:
             for field in fields_list:
                 result["extracted"][field] = "Not Found"
@@ -652,15 +821,17 @@ def _regex_extract_fallback(text, mode, fields_list):
         author = "Not Found"
         year = "Not Found"
         
+        confidence = 0.2 
 
         lower_t = text.lower()
         if "include" in lower_t and "exclude" not in lower_t:
             status = "Include"
             reason = "Regex Fallback: Inferred Inclusion"
+            confidence = 0.3
         elif "exclude" in lower_t:
             status = "Exclude"
             reason = "Regex Fallback: Inferred Exclusion"
-        
+            confidence = 0.3
         
         patterns = {
             "title": [r'"title"\s*:\s*"([^"]+)"', r'title\s*:\s*"?([^"\n]+)"?', r'Title\s*[:\-]\s*([^\n]+)'],
@@ -683,18 +854,17 @@ def _regex_extract_fallback(text, mode, fields_list):
             "reason": reason,
             "title": title,
             "author": author,
-            "year": year
+            "year": year,
+            "confidence": confidence
         }
     else:
-        result = {"extracted": {}}
+        result = {"extracted": {}, "confidence": 0.2} 
         if fields_list:
             for field in fields_list:
                 val = "Not Found"
-         
                 pattern = rf'"{field}"\s*:\s*"([^"]*)"'
                 match = re.search(pattern, text, re.IGNORECASE)
                 if not match:
-
                     pattern = rf'{field}\s*[:\-]\s*"?([^"\n]+)"?'
                     match = re.search(pattern, text, re.IGNORECASE)
                 
@@ -777,7 +947,7 @@ ER  -"""
     js_citation_text = json.dumps(citation_text)
     
     st.markdown(f"""
-    <div style="display:flex; gap:10px; margin-top:10px; margin-bottom:10px; position:relative;" id="button-container">
+    <div style="display:flex; gap:10px; margin-top:10px; margin-bottom:10px; position:relative; flex-wrap:wrap;" id="button-container">
         <button id="copy-btn" class="custom-button">Copy</button>
         <a download="ReviewAid_citation.ris" href="data:application/x-research-info-systems;base64,{base64.b64encode(ris_data.encode()).decode()}" class="custom-button">RIS Format</a>
         <a download="ReviewAid_citation.bib" href="data:application/x-bibtex;base64,{base64.b64encode(bib_data.encode()).decode()}" class="custom-button">BibTeX Format</a>
@@ -808,6 +978,8 @@ ER  -"""
     }});
     </script>
     """, unsafe_allow_html=True)
+
+current_analytics = init_analytics()
 
 if st.session_state.app_mode is not None:
     st.markdown("""
@@ -876,6 +1048,19 @@ st.markdown(
         0%, 100% { border-color: transparent; }
         50% { border-color: #F0F4F8; }
     }
+
+    @media screen and (max-width: 768px) {
+        .typewriter {
+            font-size: 2.2rem !important;
+        }
+        .subheading {
+            font-size: 1rem !important;
+            margin-bottom: 10px;
+        }
+        .lottie-container svg {
+            height: 180px !important;
+        }
+    }
     </style>
 
     <div class="typewriter">
@@ -919,10 +1104,8 @@ if not st.session_state.disclaimer_acknowledged:
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
 
-
 SCREENER_API_KEY = os.getenv("SCREENER_API_KEY")
 EXTRACTOR_API_KEY = os.getenv("EXTRACTOR_API_KEY")
-
 
 if st.session_state.app_mode == "screener":
     if not SCREENER_API_KEY:
@@ -933,11 +1116,7 @@ elif st.session_state.app_mode == "extractor":
 
 if st.session_state.app_mode is None:
     st.markdown("<div class='mode-selection'>", unsafe_allow_html=True)
-    
     st.markdown("## Select Application Mode")
-
-  
- 
     col1, col2 = st.columns(2)
     
     with col1:
@@ -978,20 +1157,16 @@ if st.session_state.app_mode is None:
             st.session_state.app_mode = "extractor"
             st.rerun()
     
-    
     st.markdown("</div>", unsafe_allow_html=True)
-
     st.markdown("""
     <div class="important-note-box">
         <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process.
     </div>
     """, unsafe_allow_html=True)
-
     
     st.markdown("<div class='citation-section'>", unsafe_allow_html=True)
     display_citation_section()
     st.markdown("</div>", unsafe_allow_html=True)
-
     st.markdown("---")
     
     st.markdown("<div class='support-section'>", unsafe_allow_html=True)
@@ -1017,8 +1192,10 @@ if st.session_state.app_mode is None:
     st.stop()
 
 
+
 def extract_pdf_content(pdf_file):
     update_terminal_log("Initializing PDF extraction engine (PyMuPDF)...", "DEBUG")
+    doc = None
     try:
         doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
         page_count = doc.page_count
@@ -1030,9 +1207,11 @@ def extract_pdf_content(pdf_file):
                  update_terminal_log(f"Extracting text from Page {i+1}/{page_count}...", "DEBUG")
             page_text = page.get_text()
             full_text_parts.append(page_text)
+            del page_text 
         
         full_text = "".join(full_text_parts)
-        
+        del full_text_parts
+
 
         ref_match = re.search(r'(?:\n|\r\n){1,2}(References|Reference|Bibliography)(?:\s|\r?\n|$)', full_text, re.IGNORECASE)
         
@@ -1040,41 +1219,43 @@ def extract_pdf_content(pdf_file):
             main_text_end = ref_match.start()
             full_text = full_text[:main_text_end]
             update_terminal_log("References section detected and removed to save tokens.", "INFO")
+            del ref_match
 
-        
         metadata = doc.metadata
         title = metadata.get('title', '')
         author = metadata.get('author', '')
+        del metadata 
         
         update_terminal_log(f"Metadata read -> Title: '{title}', Author: '{author}'", "DEBUG")
         
         year = ''
         if not year:
-        
             if page_count > 0:
-                first_page_text = full_text_parts[0]
-                year_match = re.search(r'\b(19|20)\d{2}\b', first_page_text)
+                
+                year_match = re.search(r'\b(19|20)\d{2}\b', full_text[:5000]) 
                 if year_match:
                     year = year_match.group()
                     update_terminal_log(f"Year found on Page 1: {year}", "DEBUG")
         
         if not year:
-            if metadata.get('creationDate'):
-                creation_date = metadata['creationDate']
+            if doc.metadata.get('creationDate'):
+                creation_date = doc['creationDate']
                 year_match = re.search(r'\b(19|20)\d{2}\b', creation_date)
                 if year_match:
                     year = year_match.group()
                     update_terminal_log(f"Year derived from creationDate: {year}", "DEBUG")
         
-        doc.close()
-        update_terminal_log("Document closed. Extraction complete.", "DEBUG")
         return full_text, title, author, year
         
     except Exception as e:
         update_terminal_log(f"Error during PDF extraction: {str(e)}", "ERROR")
         return "", "", "", ""
+    finally:
+        if doc:
+            doc.close()
+            del doc
 
-def preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS): 
+def preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_SCREENER):
 
     if "  " in text or "\n" in text:
         text = " ".join(text.split())
@@ -1089,11 +1270,15 @@ def preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS):
 def estimate_confidence(text):
     update_terminal_log("Estimating confidence based on text features...", "DEBUG")
     if not text or len(text.strip()) < 30:
-        return 0.2
-    if "randomized" in text.lower():
-        update_terminal_log("Keyword 'randomized' found. Boosting confidence.", "DEBUG")
-        return 0.9
-    return 0.6
+        return 0.1 
+
+    lower_t = text.lower()
+    if "randomized" in lower_t and "trial" in lower_t:
+        update_terminal_log("Keywords 'randomized trial' found. Boosting confidence.", "DEBUG")
+        return 0.75
+    if "method" in lower_t and "result" in lower_t:
+        return 0.6
+    return 0.4
 
 def df_from_results(results):
     rows = []
@@ -1103,7 +1288,6 @@ def df_from_results(results):
             "Title": r.get("title", ""),
             "Author": r.get("author", ""),
             "Year": r.get("year", ""),
-         
             "Confidence": r.get("confidence", "")
         }
         
@@ -1158,7 +1342,6 @@ def to_docx(df):
     return buffer.getvalue()
 
 def to_pdf(df):
-    from fpdf import FPDF
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     pdf.set_font("Arial", size=8)
@@ -1197,7 +1380,6 @@ def find_exclusion_matches(text, exclusion_lists):
     return matches
 
 def update_terminal_log(msg, level="INFO"):
-    """Updates the terminal log with a new message. Implements circular buffer for RAM efficiency."""
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3] 
     
     if level == "INFO":
@@ -1219,21 +1401,17 @@ def update_terminal_log(msg, level="INFO"):
     
     st.session_state.terminal_logs.append(log_entry)
     
-
     if len(st.session_state.terminal_logs) > MAX_LOG_ENTRIES:
         st.session_state.terminal_logs.pop(0)
     
- 
     full_log_html = '<div class="terminal-container">' + "".join(st.session_state.terminal_logs) + '</div>'
     st.session_state.terminal_placeholder.markdown(full_log_html, unsafe_allow_html=True)
+
 
 
 if st.session_state.app_mode == "screener":
     st.markdown("## Full-text Paper Screener")
     
-  
-    
-
     st.subheader("Population Criteria")
     population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18–65 with MS")
     population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases")
@@ -1253,18 +1431,12 @@ if st.session_state.app_mode == "screener":
 
 elif st.session_state.app_mode == "extractor":
     st.markdown("## Full-text Data Extractor")
-
-   
-
-
     fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. Author, Year, Study Design, Sample Size, Conclusion")
     fields_list = [f.strip() for f in fields.split(",") if f.strip()]
     
-   
     if "Paper Title" not in fields_list:
         fields_list.insert(0, "Paper Title")
     
-   
     if len(fields_list) == 1 and fields_list[0] == "Paper Title":
         st.info("If left Empty, Only Paper Title will be extracted. Add more fields to extract additional information.")
     
@@ -1278,22 +1450,15 @@ elif st.session_state.app_mode == "extractor":
     comparison_exclusion = ""
     outcome_criteria = ""
 
-
 if 'terminal_placeholder' not in st.session_state:
     st.session_state.terminal_placeholder = st.empty()
 
 if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "Screen Papers"):
-
-    if "unique_users" not in st.session_state:
-       st.session_state.unique_users = set()
-    if "user_api_keys" not in st.session_state:
-       st.session_state.user_api_keys = set()
-    if "papers_screened" not in st.session_state:
-       st.session_state.papers_screened = 0
-
-    st.session_state.papers_screened += min(len(uploaded_pdfs), 20)   
-
-    st.session_state.unique_users.add("admin")
+   
+    st.session_state.included_results = []
+    st.session_state.excluded_results = []
+    st.session_state.maybe_results = []
+    st.session_state.extracted_results = []
 
     if not uploaded_pdfs:
         st.warning("Please upload at least one PDF file.")
@@ -1308,7 +1473,6 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
         st.warning("Please enter at least one inclusion or exclusion criterion.")
         st.stop()
 
-
     if st.session_state.app_mode == "screener":
         if not SCREENER_API_KEY:
             st.error("Screener API key is not set. Please set the SCREENER_API_KEY environment variable.")
@@ -1320,10 +1484,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
             st.stop()
         api_key = EXTRACTOR_API_KEY
 
-
     st.session_state.terminal_logs = []
-
-
     with st.expander("System Terminal (Background Processing)", expanded=True):
         st.session_state.terminal_placeholder = st.empty()
         update_terminal_log("Initializing processing session...", "SYSTEM")
@@ -1331,17 +1492,15 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
         update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 20)}", "INFO")
         update_terminal_log("Allocating resources...", "DEBUG")
 
-    if st.session_state.app_mode == "screener":
-        st.session_state.included_results, st.session_state.excluded_results, st.session_state.maybe_results = [], [], []
-    else:
-        st.session_state.extracted_results = []
-
     max_papers = 20
     total_pdfs = min(len(uploaded_pdfs), max_papers)
     
     progress_bar = st.progress(0)
+    papers_processed_in_batch = 0
 
     for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
+       
+        gc.collect()
         
         update_terminal_log(f"--- Starting File {idx}/{total_pdfs}: {pdf.name} ---", "SYSTEM")
         
@@ -1351,43 +1510,62 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
             pdf.seek(0)
             update_terminal_log("Reading PDF content...", "INFO")
             
-           
             text, title, author, year = extract_pdf_content(pdf)
+            pdf.seek(0) 
 
             if not text.strip():
                 update_terminal_log(f"PDF '{pdf.name}' appears empty or unreadable.", "WARN")
                 update_terminal_log("Skipping this file.", "WARN")
                 progress_bar.progress(idx / total_pdfs)
-   
-                gc.collect()
                 continue
             
             update_terminal_log(f"Text extracted. Length: {len(text)} chars.", "INFO")
 
-
             full_text_backup = text
 
-            text = preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS)
-            update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS}.", "INFO")
-            confidence = estimate_confidence(text)
-            update_terminal_log(f"Initial confidence score estimated: {confidence}", "INFO")
+            if st.session_state.app_mode == "screener":
+                text = preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_SCREENER)
+            else:
+                text = preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_EXTRACTOR)
 
             if st.session_state.app_mode == "screener":
-                
+                update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS_SCREENER}.", "INFO")
+            else:
+                update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS_EXTRACTOR}.", "INFO")
+
+            confidence = estimate_confidence(text)
+            update_terminal_log(f"Initial heuristic confidence score estimated: {confidence}", "INFO")
+
+            if st.session_state.app_mode == "screener":
                 all_exclusions = []
                 for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
                     if block.strip():
                         all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
                 
                 update_terminal_log(f"Total exclusion criteria loaded: {len(all_exclusions)}", "INFO")
+                matches_exc = find_exclusion_matches(text, all_exclusions)
 
-                update_terminal_log("Running exclusion match logic...", "INFO")
-                matches = find_exclusion_matches(text, all_exclusions)
+                all_inclusions = []
+                for block in [population_inclusion, intervention_inclusion, comparison_inclusion]:
+                    if block.strip():
+                        all_inclusions.extend([c.strip() for c in block.split(",") if c.strip()])
+                
+                matches_inc = []
+                update_terminal_log("Scanning text for inclusion keywords...", "DEBUG")
+                for criteria in all_inclusions:
+                    if criteria.strip() and criteria.lower() in text.lower():
+                        update_terminal_log(f"Match found for inclusion criteria: '{criteria}'", "INFO")
+                        matches_inc.append(criteria)
+                
+            
+                del all_exclusions, all_inclusions, matches_inc
 
-                if len(matches) >= 1:
+                if len(matches_exc) >= 1 and len(matches_inc) == 0:
                     exclusion_reason = (
-                        f"Auto-excluded because {len(matches)} exclusion criteria matched: {', '.join(matches)}"
+                        f"Auto-excluded because {len(matches_exc)} exclusion criteria matched: {', '.join(matches_exc)}"
                     )
+                    confidence = 1.0 
+                    
                     result = {
                         "filename": pdf.name,
                         "status": "Exclude",
@@ -1398,15 +1576,20 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         "year": year
                     }
                     st.session_state.excluded_results.append(result)
-                    update_terminal_log(f"Found {len(matches)} exclusion matches: {matches}", "WARN")
-                    update_terminal_log(f"Result: EXCLUDED (Auto-rule)", "WARN")
+                    update_terminal_log(f"Found {len(matches_exc)} exclusion matches: {matches_exc}", "WARN")
+                    update_terminal_log(f"Result: EXCLUDED (Auto-rule) with Confidence 1.0", "WARN")
                     progress_bar.progress(idx / total_pdfs)
                     
+                    update_processing_stats("screener", 1)
+                    papers_processed_in_batch += 1
 
-                    del text, matches, exclusion_reason
-                    gc.collect()
+              
+                    del text, full_text_backup, matches_exc, exclusion_reason
                     continue
-
+                
+                elif len(matches_exc) >= 1 and len(matches_inc) >= 1:
+                    update_terminal_log("Conflict detected: Both Exclusion and Inclusion keywords found. Sending to AI for resolution.", "WARN")
+                 
                 update_terminal_log("Constructing PICO prompt for AI...", "INFO")
                 prompt = f"""
 You are an expert systematic reviewer. Your task is to screen a research paper based on specific PICO criteria.
@@ -1438,6 +1621,11 @@ Exclusion: {comparison_exclusion}
 2. Provide a detailed reason for the classification.
 3. Extract the Paper Title, Main Author, and Publication Year.
 4. If a value is not found, use "Not Found".
+5. **CONFIDENCE SCORE**: Rate your confidence (0.0 to 1.0). 
+   - 1.0 = The paper perfectly matches or perfectly violates the criteria with explicit evidence.
+   - 0.8 - 0.9 = High confidence based on strong evidence.
+   - 0.5 - 0.7 = Moderate confidence (Some ambiguity in criteria or text).
+   - < 0.5 = Low confidence (Guessing, criteria vague, or text unclear).
 
 **JSON Format Required:**
 {{
@@ -1445,11 +1633,11 @@ Exclusion: {comparison_exclusion}
   "reason": "Detailed classification reason explaining why it fits or fails the criteria.",
   "title": "Full paper title extracted from text",
   "author": "Main author name",
-  "year": "2023"
+  "year": "2023",
+  "confidence": 0.95
 }}
 """
             else:
-               
                 update_terminal_log(f"Preparing extraction fields: {', '.join(fields_list)}", "INFO")
                 field_descriptions = {
                     "Paper Title": "The full title of the research paper",
@@ -1470,8 +1658,6 @@ Exclusion: {comparison_exclusion}
                 }
                 
                 prompt = "Extract the following information from the research paper:\n\n"
-                
-               
                 for field in fields_list:
                     description = field_descriptions.get(field, f"Information about {field}")
                     prompt += f"- {field}: {description}\n"
@@ -1485,85 +1671,100 @@ Exclusion: {comparison_exclusion}
 **CRITICAL INSTRUCTION:**
 Return your response as a SINGLE valid JSON object. Do not include markdown formatting. Ensure all keys are present.
 If a field is not found in the text, use the value "Not Found".
+**CONFIDENCE SCORE**: Rate your confidence (0.0 to 1.0).
+- 1.0 = All extracted fields are explicitly stated in the text.
+- 0.8 - 0.9 = Most fields are explicit, some inferred.
+- 0.5 - 0.7 = Some fields missing or ambiguous.
+- < 0.5 = Data largely missing or garbled.
 
 **JSON Format Required:**
 {{
   "extracted": {{
 """
-
-                
                 for field in fields_list:
                     prompt += f'    "{field}": "",\n'
                 
-               
-                prompt = prompt.rstrip(",\n") + "\n  }\n}"
-                
-               
+                prompt = prompt.rstrip(",\n") + "\n  },\n"
+                prompt += '  "confidence": 0.0\n}'
                 prompt += "\nEnsure the JSON is valid. Use 'Not Found' for missing data.\n"
-            
-          
             
             if st.session_state.app_mode == "extractor":
                 raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=MAX_OUTPUT_TOKENS)
             else:
                 raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=2048)
 
-      
+ 
+            del prompt 
+
             if raw_result == "RATE_LIMIT_ERROR":
                 update_terminal_log("Processing halted due to API rate limits.", "ERROR")
                 st.error("The processing was stopped because the API rate limit was reached. Please wait a few minutes and click 'Screen Papers' to resume.")
-               
-                del text, prompt
+                del text, full_text_backup
                 gc.collect()
                 break
 
             if raw_result is None:
                 update_terminal_log("API Error: Failed to receive response.", "ERROR")
                 progress_bar.progress(idx / total_pdfs)
-        
-                del text, prompt
+                del text, full_text_backup
                 gc.collect()
                 continue
 
             update_terminal_log(f"API response received. Length: {len(raw_result)} chars.", "SUCCESS")
             update_terminal_log("Parsing JSON response...", "INFO")
 
-           
             if st.session_state.app_mode == "screener":
                 result = parse_result(raw_result, api_key, mode="screener", original_text=full_text_backup)
             else:
                 result = parse_result(raw_result, api_key, mode="extractor", fields_list=fields_list, original_text=full_text_backup)
                 
-              
                 if "extracted" not in result:
                     result["extracted"] = {}
                 
-               
                 for field in fields_list:
                     if field not in result["extracted"]:
                         result["extracted"][field] = "Not Found"
             
+           
+            del raw_result
+            del full_text_backup
+            gc.collect()
+
             update_terminal_log("JSON parsed successfully.", "SUCCESS")
+
+            ai_confidence = result.get("confidence", None)
+            if ai_confidence is not None:
+                try:
+                    confidence = float(ai_confidence)
+                    confidence = max(0.0, min(1.0, confidence))
+                    update_terminal_log(f"Using AI reported confidence: {confidence}", "INFO")
+                except ValueError:
+                    update_terminal_log(f"AI confidence invalid format. Using fallback.", "WARN")
+                    confidence = estimate_confidence(text)
+            else:
+                update_terminal_log(f"AI did not provide confidence. Using heuristic fallback.", "WARN")
+                confidence = estimate_confidence(text)
 
             result["filename"] = pdf.name
             result["confidence"] = confidence
+            
             if confidence < 0.5:
                 result["flags"] = ["low_confidence"]
                 update_terminal_log("Flagged: Low confidence score.", "WARN")
 
-         
             if st.session_state.app_mode == "screener":
-                
                 if "title" not in result or not result["title"] or result["title"] == "":
                     result["title"] = title
                 if "author" not in result or not result["author"] or result["author"] == "":
                     result["author"] = author
                 if "year" not in result or not result["year"] or result["year"] == "":
                     result["year"] = year
+            
+       
+            del title, author, year, text 
 
             if st.session_state.app_mode == "screener":
-                status = result.get("status", "").strip().lower()
- 
+                status = result.get("status", "").strip().lower() 
                 if "include" in status:
                     status = "include"
                 elif "exclude" in status:
@@ -1585,30 +1786,29 @@ If a field is not found in the text, use the value "Not Found".
                 else:
                     st.session_state.excluded_results.append(result)
                     update_terminal_log(f"Final Decision: EXCLUDE (Default)", "WARN")
+                
+                update_processing_stats("screener", 1)
+                papers_processed_in_batch += 1
 
             else:
                 st.session_state.extracted_results.append(result)
                 update_terminal_log("Data extraction completed.", "SUCCESS")
+                update_processing_stats("extractor", 1)
+                papers_processed_in_batch += 1
             
             elapsed = time.time() - start_time_file
             update_terminal_log(f"File processed in {elapsed:.2f}s.", "SYSTEM")
-
-          
-            del text, prompt, raw_result
-            gc.collect()
 
         except Exception as e:
             update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
             import traceback
             update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
         
-            gc.collect()
-
         progress_bar.progress(idx / total_pdfs)
         time.sleep(0.5)
 
     update_terminal_log("=== Batch processing complete ===", "SYSTEM")
-    update_terminal_log("All files processed.", "SUCCESS")
+    update_terminal_log(f"Processed {papers_processed_in_batch} papers in this session.", "SUCCESS")
 
 if st.session_state.app_mode == "screener":
     included = len(st.session_state.included_results)
@@ -1619,9 +1819,14 @@ if st.session_state.app_mode == "screener":
     session_duration = time.time() - st.session_state.start_time
     avg_speed = session_duration / total if total > 0 else 0
 
-    with st.expander("Screening Dashboard", expanded=True):
+    with st.expander("Screening Dashboard", expanded=False):
          st.metric("Papers Screened", total)
          
+         analytics_data = load_analytics()
+         c1, c2, c3 = st.columns(3)
+         c1.metric("Total Papers Screened (All Time)", analytics_data["papers_screened"])
+         c2.metric("Total Visits", analytics_data["total_visits"])
+         c3.metric("Total Users", analytics_data["total_users"])
        
          colors_map = {
              "Included": "#3fb950", 
@@ -1638,7 +1843,6 @@ if st.session_state.app_mode == "screener":
             color_discrete_map=colors_map
         )
          
-
          fig.update_layout(
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
@@ -1649,10 +1853,8 @@ if st.session_state.app_mode == "screener":
          
          col_g1, col_g2 = st.columns([3, 1])
          with col_g1:
-
              st.plotly_chart(fig, width='stretch')
          with col_g2:
-
              html_string = fig.to_html()
              st.download_button(
                 label="Download Graph",
@@ -1660,11 +1862,11 @@ if st.session_state.app_mode == "screener":
                 file_name="screening_decisions_graph.html",
                 mime="text/html"
             )
+             del html_string
 
     included_results = st.session_state.included_results
     excluded_results = st.session_state.excluded_results
     maybe_results = st.session_state.maybe_results 
-
 
     def color_status(val):
         if val == "Include":
@@ -1678,34 +1880,85 @@ if st.session_state.app_mode == "screener":
     if included_results:
         st.header("Included Papers")
         df_inc = df_from_results(included_results)
-
         styled_inc = df_inc.style.set_properties(**{'text-align': 'left'})
-        
         st.dataframe(styled_inc, width='stretch', height=400)
+        del df_inc
     else:
         st.info("No Included papers found.")
 
     if excluded_results:
         st.header("Excluded Papers")
         df_exc = df_from_results(excluded_results)
-   
         styled_exc = df_exc.style.set_properties(**{'text-align': 'left'})
-   
         st.dataframe(styled_exc, width='stretch', height=400)
+        del df_exc
     else:
         st.info("No Excluded papers found.")
 
     if maybe_results:
         st.header("Maybe Papers")
         df_maybe = df_from_results(maybe_results)
-
         styled_maybe = df_maybe.style.set_properties(**{'text-align': 'left'})
-      
         st.dataframe(styled_maybe, width='stretch', height=400)
+        del df_maybe
     else:
         st.info("No Maybe papers found.")
 
     if included_results or excluded_results or maybe_results:
+        st.markdown("""
+        <div class="confidence-table-container">
+            <h3 style="margin-top:0;">Confidence Score Interpretation</h3>
+            <table style="width:100%; border-collapse: collapse; color: #F0F4F8;">
+                <thead>
+                    <tr>
+                        <th>Confidence Score</th>
+                        <th>Classification</th>
+                        <th>Description</th>
+                        <th>Implication</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1.0 (100%)</strong></td>
+                        <td>Definitive Match</td>
+                        <td>Deterministic rule-based classification / No ambiguity.</td>
+                        <td>Fully automated decision</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0.8 – 1.0</strong></td>
+                        <td>Very High Confidence</td>
+                        <td>AI strongly validates decision using explicit textual evidence.</td>
+                        <td>Safe to accept</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0.6 – 0.79</strong></td>
+                        <td>High Confidence</td>
+                        <td>Criteria appear satisfied based on standard academic structure and content.</td>
+                        <td>Review optional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0.4 – 0.59</strong></td>
+                        <td>Moderate Confidence</td>
+                        <td>Ambiguous context or loosely met criteria.</td>
+                        <td>Manual verification recommended</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0.1 – 0.39</strong></td>
+                        <td>Low Confidence</td>
+                        <td>Based mainly on heuristic keyword estimation.</td>
+                        <td>High risk of error</td>
+                    </tr>
+                    <tr>
+                        <td><strong>&lt; 0.1</strong></td>
+                        <td>Unreliable</td>
+                        <td>Derived from fallback or failed extraction methods.</td>
+                        <td>Mandatory manual review</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
+
         st.header("Export Results")
 
         def export_buttons(df, label_prefix):
@@ -1727,35 +1980,90 @@ if st.session_state.app_mode == "screener":
             st.subheader("Included Papers")
             df_inc = df_from_results(included_results)
             export_buttons(df_inc, "Included")
+            del df_inc
 
         if excluded_results:
             st.subheader("Excluded Papers")
             df_exc = df_from_results(excluded_results)
             export_buttons(df_exc, "Excluded")
+            del df_exc
 
         if maybe_results:
             st.subheader("Maybe Papers")
             df_maybe = df_from_results(maybe_results)
             export_buttons(df_maybe, "Maybe")
+            del df_maybe
 
 else:
     extracted_results = st.session_state.extracted_results
     total = len(extracted_results)
     
-    with st.expander("Extraction Dashboard", expanded=True):
+    with st.expander("Extraction Dashboard", expanded=False):
          st.metric("Papers Processed", total)
+         
+         analytics_data = load_analytics()
+         c1, c2, c3 = st.columns(3)
+         c1.metric("Total Papers Extracted (All Time)", analytics_data["papers_extracted"])
+         c2.metric("Total Visits", analytics_data["total_visits"])
+         c3.metric("Total Users", analytics_data["total_users"])
 
     if extracted_results:
         st.header("Extracted Data")
         df_ext = df_from_extracted_results(extracted_results)
         
-      
         def style_extractor_df(df):
             return df.style.set_properties(**{'text-align': 'left'})
             
         styled_ext = style_extractor_df(df_ext)
-  
         st.dataframe(styled_ext, width='stretch', height=400)
+
+        st.markdown("""
+        <div class="confidence-table-container">
+            <h3 style="margin-top:0;">Confidence Score Interpretation</h3>
+            <table style="width:100%; border-collapse: collapse; color: #F0F4F8;">
+                <thead>
+                    <tr>
+                        <th>Confidence Score</th>
+                        <th>Classification</th>
+                        <th>Description</th>
+                        <th>Implication</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>0.8 – 1.0</strong></td>
+                        <td>Very High Confidence</td>
+                        <td>AI strongly validates decision using explicit textual evidence.</td>
+                        <td>Safe to accept</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0.6 – 0.79</strong></td>
+                        <td>High Confidence</td>
+                        <td>Criteria appear satisfied based on standard academic structure and content.</td>
+                        <td>Review optional</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0.4 – 0.59</strong></td>
+                        <td>Moderate Confidence</td>
+                        <td>Ambiguous context or loosely met criteria.</td>
+                        <td>Manual verification recommended</td>
+                    </tr>
+                    <tr>
+                        <td><strong>0.1 – 0.39</strong></td>
+                        <td>Low Confidence</td>
+                        <td>Based mainly on heuristic keyword estimation.</td>
+                        <td>High risk of error</td>
+                    </tr>
+                    <tr>
+                        <td><strong>&lt; 0.1</strong></td>
+                        <td>Unreliable</td>
+                        <td>Derived from fallback or failed extraction methods.</td>
+                        <td>Mandatory manual review</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
         
         st.header("Export Results")
         
@@ -1775,6 +2083,7 @@ else:
                 )
         
         export_buttons(df_ext, "Extracted")
+        del df_ext
     else:
         st.info("No extracted data available. Upload and process papers to see results here.")
 
@@ -1839,6 +2148,18 @@ st.markdown(
         align-items: center;
         z-index: 9999;
         backdrop-filter: blur(5px);
+    }}
+    
+  
+    @media screen and (max-width: 600px) {{
+        .custom-footer-container {{
+            flex-direction: column;
+            height: auto;
+            padding: 10px;
+            gap: 5px;
+            text-align: center;
+            font-size: 11px;
+        }}
     }}
     </style>
 
