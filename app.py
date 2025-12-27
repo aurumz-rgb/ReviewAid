@@ -1145,7 +1145,8 @@ if st.session_state.app_mode is None:
     st.markdown("</div>", unsafe_allow_html=True)
     st.markdown("""
     <div class="important-note-box">
-        <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process.
+        <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process. 
+          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a>.  
     </div>
     """, unsafe_allow_html=True)
     
@@ -1528,11 +1529,6 @@ elif st.session_state.app_mode == "extractor":
         st.info("If left Empty, Only Paper Title will be extracted. Add more fields to extract additional information.")
     
     
-    st.warning(
-        "Please note: Data extraction results may occasionally display 'Not Found' for specific fields. "
-        "This typically occurs when the uploaded document is not a full-text research article (e.g., an abstract-only PDF) "
-        "or if the file format is incompatible (such as HTML). For optimal performance and accuracy, please ensure all uploads are complete, full-text PDF documents."
-    )
 
     uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
     
@@ -2299,7 +2295,8 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
     <div class="important-note-box">
-        <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process.
+        <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process. 
+          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a>.  
     </div>
     """, unsafe_allow_html=True)
 
