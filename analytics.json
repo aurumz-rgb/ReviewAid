@@ -1,8 +1,8 @@
 {
     "papers_screened": 1,
     "papers_extracted": 2,
-    "total_visits": 4,
-    "total_users": 4,
+    "total_visits": 5,
+    "total_users": 5,
     "active_users": [
         {
             "id": "005cba1a-b19b-49eb-a6f5-109c04d757ac",
@@ -19,6 +19,10 @@
         {
             "id": "2c83edbe-64e8-46d3-98d6-f05546f56492",
             "last_seen": "2025-12-27T22:09:21.519928"
+        },
+        {
+            "id": "2a6a16cb-6e1b-4e3f-8a89-267949ab030e",
+            "last_seen": "2025-12-28T00:27:46.507342"
         }
     ]
 }

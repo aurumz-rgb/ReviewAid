@@ -863,10 +863,13 @@
             <h4>Fallback</h4>
             <p><strong>Purpose:</strong> Provide a probabilistic estimate when LLM confidence is unavailable.</p>
             <p><strong>Triggered when:</strong> The LLM fails to return a valid confidence value (e.g., formatting or JSON parsing errors).</p>
-            <p><strong>Logic:</strong></p>
+            <p><strong>Screener Logic:</strong></p>
             <ul>
-              <li>The system analyzes the text for <strong>academic and methodological indicators</strong> (e.g., "randomized trial", "methodology", "results", "statistical analysis").</li>
-              <li>A probability score is assigned based on the presence and density of these indicators.</li>
+              <li>The system analyzes the users input <strong>Inclusions and Exclusions critiera</strong> and matches with the paper's full-text and determines the confidence level.</li>
+            </ul>
+            <p><strong>Extractor Logic:</strong></p>
+            <ul>
+              <li>The system analyzes <strong>Extracted data</strong> with the paper's full-text and determines the confidence level.</li>
             </ul>
             <div class="rationale">
               <strong>Rationale:</strong> Offers a best-effort estimate derived from text structure rather than semantic certainty.

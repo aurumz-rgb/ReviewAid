@@ -48,10 +48,18 @@ The confidence score reflects how reliably a paper has been classified or extrac
 
 The system operates in the following order:
 
-1. Deterministic Rule-Based Classification  (For Screener)
+1. Deterministic Rule-Based Classification  (Screener specific)
 2. LLM Self-Assessment  
 3. Heuristic Keyword Estimation  
 4. Low-Confidence Default  
+
+Text: Tier 1 (Deterministic) 
+→
+ Tier 2 (LLM) 
+→
+ Tier 3 (Heuristic) 
+→
+ Tier 4 (Default).
 
 Each tier is only activated if the previous tier fails to produce a valid and reliable result.
 
@@ -95,13 +103,12 @@ This tier captures nuanced contextual understanding that deterministic rules can
 **Triggered when:**
 - The LLM fails to return a valid confidence value (e.g., formatting or JSON parsing errors)
 
-**Logic:**
-- The system analyzes the text for **academic and methodological indicators**, such as:
-  - “randomized trial”
-  - “methodology”
-  - “results”
-  - “statistical analysis”
-- A probability score is assigned based on the presence and density of these indicators
+**Screener Logic:**
+- The system analyzes the users input **Inclusions and Exclusions critiera** and matches with the paper's full-text and determines the confidence level.
+
+**Extractor Logic:**
+- The system analyzes **Extracted data** with the paper's full-text and determines the confidence level.
+
 
 **Rationale:**  
 This tier offers a best-effort estimate derived from text structure rather than semantic certainty.

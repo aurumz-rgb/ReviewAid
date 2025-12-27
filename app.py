@@ -18,91 +18,93 @@ import html
 from zai import ZaiClient
 import gc 
 import uuid 
+import firebase_admin
+from firebase_admin import credentials, firestore
 
-ANALYTICS_FILE = "analytics.json"
+
+load_dotenv()
 
 
-def load_analytics():
-    """Loads analytics data from JSON file safely."""
-    if not os.path.exists(ANALYTICS_FILE):
+db = None 
+
+try:
+    if not firebase_admin._apps:
+        firebase_key_str = os.getenv("FIREBASE_KEY")
+        if firebase_key_str:
+           
+            cred_dict = json.loads(firebase_key_str)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+            st.success("Firebase initialized successfully.")
+        else:
+            st.warning("FIREBASE_KEY not found in environment variables. Analytics disabled.")
+    
+
+    if firebase_admin._apps:
+        db = firestore.client()
+
+except Exception as e:
+    st.error(f"Error initializing Firebase: {e}")
+
+def increment_firebase_counter(field):
+    """Safely increments a counter in Firestore."""
+    if db is None:
+        return
+    try:
+        doc_ref = db.collection("ReviewAidAnalytics").document("counters")
+        doc_ref.update({field: firestore.Increment(1)})
+    except Exception as e:
+
+        print(f"Analytics Error: {e}")
+
+def get_firebase_stats():
+    """Reads counters from Firestore."""
+    if db is None:
         return {
             "papers_screened": 0,
             "papers_extracted": 0,
             "total_visits": 0,
-            "total_users": 0,
-            "active_users": []
         }
     try:
-        with open(ANALYTICS_FILE, "r") as f:
-            return json.load(f)
-    except Exception:
+        doc_ref = db.collection("ReviewAidAnalytics").document("counters")
+        doc = doc_ref.get()
+        if doc.exists:
+            return doc.to_dict()
+        else:
+       
+            return {
+                "papers_screened": 0,
+                "papers_extracted": 0,
+                "total_visits": 0,
+            }
+    except Exception as e:
+        print(f"Analytics Read Error: {e}")
         return {
             "papers_screened": 0,
             "papers_extracted": 0,
             "total_visits": 0,
-            "total_users": 0,
-            "active_users": []
         }
-
-def save_analytics(data):
-    """Saves analytics data to JSON file safely."""
-    try:
-        with open(ANALYTICS_FILE, "w") as f:
-            json.dump(data, f, indent=4)
-    except Exception:
-        pass 
 
 def init_analytics():
-    """Initializes session and updates global counters."""
-    analytics = load_analytics()
-    
+    """Initializes session and updates global counters via Firebase."""
+    if db is None:
+        return
 
-    if 'user_id' not in st.session_state:
-        st.session_state.user_id = str(uuid.uuid4())
-        analytics['total_users'] += 1
-    
-
-    if 'visit_recorded' not in st.session_state:
-        analytics['total_visits'] += 1
+   
+    if "visit_recorded" not in st.session_state:
+        increment_firebase_counter("total_visits")
         st.session_state.visit_recorded = True
-        
-
-    current_time = datetime.now().isoformat()
-    active_updated = False
-    new_active_list = []
-    
-    user_found = False
-    for u in analytics.get('active_users', []):
-        if u['id'] == st.session_state.user_id:
-            u['last_seen'] = current_time
-            user_found = True
-            new_active_list.append(u)
-        else:
-            new_active_list.append(u)
-            
-    if not user_found:
-        new_active_list.append({'id': st.session_state.user_id, 'last_seen': current_time})
-    
-    analytics['active_users'] = new_active_list
-    
-    save_analytics(analytics)
-    return analytics
 
 def update_processing_stats(mode, count=1):
-    """Updates papers screened/extracted count."""
-    analytics = load_analytics()
+    """Updates papers screened/extracted count via Firebase."""
+    if db is None:
+        return
     if mode == "screener":
-        analytics['papers_screened'] += count
+        for _ in range(count):
+            increment_firebase_counter("papers_screened")
     elif mode == "extractor":
-        analytics['papers_extracted'] += count
-
-    current_time = datetime.now().isoformat()
-    for u in analytics.get('active_users', []):
-        if u['id'] == st.session_state.user_id:
-            u['last_seen'] = current_time
-            break
-            
-    save_analytics(analytics)
+        for _ in range(count):
+            increment_firebase_counter("papers_extracted")
 
 
 st.set_page_config(
@@ -481,8 +483,6 @@ st.markdown(f"""
     </style>
     """, unsafe_allow_html=True)
 
-load_dotenv()
-
 @st.cache_resource
 def load_lottiefile(filepath: str):
     try:
@@ -521,7 +521,6 @@ MAX_OUTPUT_TOKENS = 4096
 
 st.session_state.page_load_count += 1
 
-
 img_src = ""
 try:
     img_path = os.path.join("assets", "RA.png")
@@ -546,8 +545,6 @@ if img_src:
         <img src="{img_src}" style="position: fixed; bottom: 38px; right: 5px; width: 80px; height: 80px; z-index: 10000; opacity: 0.6; pointer-events: none;">
         """, unsafe_allow_html=True
     )
-
-
 
 def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
     if not api_key:
@@ -618,20 +615,15 @@ def clean_json_response(raw_str):
     if not raw_str:
         return ""
 
-
     raw_str = re.sub(r'```json\s*', '', raw_str)
     raw_str = re.sub(r'```\s*', '', raw_str)
     
-
     raw_str = re.sub(r'//.*', '', raw_str)
     
-
     raw_str = re.sub(r'/\*.*?\*/', '', raw_str, flags=re.DOTALL)
     
-   
     raw_str = re.sub(r',\s*([}\]])', r'\1', raw_str)
     
-
     start = raw_str.find('{')
     end = raw_str.rfind('}')
     
@@ -642,7 +634,6 @@ def clean_json_response(raw_str):
     
     def replace_newlines_in_strings(match):
         return match.group(0).replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
-
 
     cleaned = re.sub(r'"(?:\\.|[^"\\])*"', replace_newlines_in_strings, cleaned)
     
@@ -979,7 +970,7 @@ ER  -"""
     </script>
     """, unsafe_allow_html=True)
 
-current_analytics = init_analytics()
+init_analytics()
 
 if st.session_state.app_mode is not None:
     st.markdown("""
@@ -1180,6 +1171,16 @@ if st.session_state.app_mode is None:
     </div>
     """, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
+
+
+    stats = get_firebase_stats()
+    st.markdown("---")
+    st.markdown("### Global Platform Statistics")
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Papers Screened", stats["papers_screened"])
+    c2.metric("Papers Extracted", stats["papers_extracted"])
+    c3.metric("Total Visits", stats["total_visits"])
+  
     
     st.markdown("""
     <div class="mode-selection-footer">
@@ -1231,7 +1232,6 @@ def extract_pdf_content(pdf_file):
         year = ''
         if not year:
             if page_count > 0:
-                
                 year_match = re.search(r'\b(19|20)\d{2}\b', full_text[:5000]) 
                 if year_match:
                     year = year_match.group()
@@ -1267,17 +1267,98 @@ def preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_SCREENER):
     
     return text
 
-def estimate_confidence(text):
-    update_terminal_log("Estimating confidence based on text features...", "DEBUG")
+def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_data=None, fields_list=None):
+    """
+    Heuristic Estimation Fallback
+    
+    Purpose: Provide a probabilistic estimate when LLM confidence is unavailable.
+    Triggered when: The LLM fails to return a valid confidence value.
+    
+    Logic:
+    - Screener: Analyze exact matching of inclusion/exclusion criteria.
+    - Extractor: Check how much extracted data matches the paper content.
+    """
+    update_terminal_log(f"Calculating heuristic confidence for mode: {mode}", "DEBUG")
+    
     if not text or len(text.strip()) < 30:
         return 0.1 
 
-    lower_t = text.lower()
-    if "randomized" in lower_t and "trial" in lower_t:
-        update_terminal_log("Keywords 'randomized trial' found. Boosting confidence.", "DEBUG")
-        return 0.75
-    if "method" in lower_t and "result" in lower_t:
-        return 0.6
+    text_lower = text.lower()
+
+    if mode == "screener":
+     
+        match_count = 0
+        total_criteria = 0
+        
+
+        def count_matches(criteria_string):
+            nonlocal match_count, total_criteria
+            if not criteria_string or not criteria_string.strip():
+                return
+   
+            items = [c.strip() for c in criteria_string.split(",") if c.strip()]
+            total_criteria += len(items)
+            for item in items:
+                if item.lower() in text_lower:
+                    match_count += 1
+        
+        if criteria_dict:
+            count_matches(criteria_dict.get("pop_inc", ""))
+            count_matches(criteria_dict.get("pop_exc", ""))
+            count_matches(criteria_dict.get("int_inc", ""))
+            count_matches(criteria_dict.get("int_exc", ""))
+            count_matches(criteria_dict.get("comp_inc", ""))
+            count_matches(criteria_dict.get("comp_exc", ""))
+            count_matches(criteria_dict.get("outcome", ""))
+
+        if total_criteria == 0:
+            update_terminal_log("No criteria provided for heuristic estimation. Defaulting to 0.4.", "DEBUG")
+            return 0.4
+        
+     
+        score = match_count / total_criteria
+        
+ 
+        if score > 0.8:
+            score = min(score + 0.1, 1.0)
+        
+        update_terminal_log(f"Screener Heuristic: {match_count}/{total_criteria} criteria matched. Score: {score:.2f}", "DEBUG")
+        return round(score, 2)
+
+    elif mode == "extractor":
+
+        
+        if not extracted_data or not isinstance(extracted_data, dict):
+            update_terminal_log("No extracted data available for validation. Defaulting to 0.4.", "DEBUG")
+            return 0.4
+            
+        valid_fields = 0
+        found_fields = 0
+        
+        for key, value in extracted_data.items():
+            if value and str(value).strip() != "Not Found":
+                valid_fields += 1
+
+                val_str = str(value).strip()
+                if len(val_str) > 5: 
+                    if val_str.lower() in text_lower:
+                        found_fields += 1
+                    else:
+
+                        words = val_str.split()[:3] 
+                        if all(word in text_lower for word in words):
+                            found_fields += 1
+                elif len(val_str) > 0:
+                     if val_str.lower() in text_lower:
+                        found_fields += 1
+        
+        if valid_fields == 0:
+            return 0.1
+        
+        score = found_fields / valid_fields
+        update_terminal_log(f"Extractor Heuristic: {found_fields}/{valid_fields} fields verified in text. Score: {score:.2f}", "DEBUG")
+        return round(score, 2)
+
     return 0.4
 
 def df_from_results(results):
@@ -1428,6 +1509,9 @@ if st.session_state.app_mode == "screener":
     outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
 
     uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
+    
+    
+    fields_list = []
 
 elif st.session_state.app_mode == "extractor":
     st.markdown("## Full-text Data Extractor")
@@ -1533,7 +1617,25 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
             else:
                 update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS_EXTRACTOR}.", "INFO")
 
-            confidence = estimate_confidence(text)
+ 
+            criteria_dict = {
+                "pop_inc": population_inclusion,
+                "pop_exc": population_exclusion,
+                "int_inc": intervention_inclusion,
+                "int_exc": intervention_exclusion,
+                "comp_inc": comparison_inclusion,
+                "comp_exc": comparison_exclusion,
+                "outcome": outcome_criteria
+            }
+            
+        
+            confidence = estimate_confidence(
+                text, 
+                mode=st.session_state.app_mode, 
+                criteria_dict=criteria_dict,
+                extracted_data=None, 
+                fields_list=fields_list
+            )
             update_terminal_log(f"Initial heuristic confidence score estimated: {confidence}", "INFO")
 
             if st.session_state.app_mode == "screener":
@@ -1714,7 +1816,7 @@ If a field is not found in the text, use the value "Not Found".
             update_terminal_log("Parsing JSON response...", "INFO")
 
             if st.session_state.app_mode == "screener":
-                result = parse_result(raw_result, api_key, mode="screener", original_text=full_text_backup)
+                result = parse_result(raw_result, api_key, mode="screener", original_text=full_text_backup, fields_list=fields_list)
             else:
                 result = parse_result(raw_result, api_key, mode="extractor", fields_list=fields_list, original_text=full_text_backup)
                 
@@ -1740,10 +1842,24 @@ If a field is not found in the text, use the value "Not Found".
                     update_terminal_log(f"Using AI reported confidence: {confidence}", "INFO")
                 except ValueError:
                     update_terminal_log(f"AI confidence invalid format. Using fallback.", "WARN")
-                    confidence = estimate_confidence(text)
+
+                    confidence = estimate_confidence(
+                        text, 
+                        mode=st.session_state.app_mode, 
+                        criteria_dict=criteria_dict, 
+                        extracted_data=result.get("extracted") if st.session_state.app_mode == "extractor" else None,
+                        fields_list=fields_list
+                    )
             else:
                 update_terminal_log(f"AI did not provide confidence. Using heuristic fallback.", "WARN")
-                confidence = estimate_confidence(text)
+
+                confidence = estimate_confidence(
+                    text, 
+                    mode=st.session_state.app_mode, 
+                    criteria_dict=criteria_dict, 
+                    extracted_data=result.get("extracted") if st.session_state.app_mode == "extractor" else None,
+                    fields_list=fields_list
+                )
 
             result["filename"] = pdf.name
             result["confidence"] = confidence
@@ -1822,11 +1938,12 @@ if st.session_state.app_mode == "screener":
     with st.expander("Screening Dashboard", expanded=False):
          st.metric("Papers Screened", total)
          
-         analytics_data = load_analytics()
-         c1, c2, c3 = st.columns(3)
+
+         analytics_data = get_firebase_stats()
+         c1, c2 = st.columns(2)
          c1.metric("Total Papers Screened (All Time)", analytics_data["papers_screened"])
          c2.metric("Total Visits", analytics_data["total_visits"])
-         c3.metric("Total Users", analytics_data["total_users"])
+         
        
          colors_map = {
              "Included": "#3fb950", 
@@ -2001,11 +2118,12 @@ else:
     with st.expander("Extraction Dashboard", expanded=False):
          st.metric("Papers Processed", total)
          
-         analytics_data = load_analytics()
-         c1, c2, c3 = st.columns(3)
+
+         analytics_data = get_firebase_stats()
+         c1, c2 = st.columns(2)
          c1.metric("Total Papers Extracted (All Time)", analytics_data["papers_extracted"])
          c2.metric("Total Visits", analytics_data["total_visits"])
-         c3.metric("Total Users", analytics_data["total_users"])
+   
 
     if extracted_results:
         st.header("Extracted Data")
