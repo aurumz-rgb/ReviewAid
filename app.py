@@ -1,3 +1,4 @@
+
 import streamlit as st
 import fitz  
 import time
@@ -584,16 +585,16 @@ def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
             if is_rate_limit:
                 update_terminal_log(f"Rate Limit / Quota Exceeded detected.", "WARN")
                 
-     
+              
                 if attempt < max_retries - 1:
                     if attempt == 0:
-  
+     
                         wait_time = 15
                         update_terminal_log(f"Rate limit hit. Waiting {wait_time} seconds before retry...", "WARN")
                         time.sleep(wait_time)
                         update_terminal_log(f"Resuming retry...", "INFO")
                     else:
-
+      
                         update_terminal_log("Rate limit hit again. Immediate skip to fallback.", "ERROR")
                         return None
                 else:
@@ -601,7 +602,7 @@ def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
                     return None
             else:
                 update_terminal_log(f"Non-retryable API error: {error_str}", "ERROR")
-
+           
                 if attempt < 2:
                      time.sleep(2)
                 else:
@@ -813,7 +814,7 @@ def _regex_extract_fallback(text, mode, fields_list):
     confidence = 0.2 
     
     if mode == "screener":
-
+  
         result["status"] = "Error"
         result["reason"] = "Regex Fallback: AI Blocked - Using Local Rules"
         result["title"] = "Not Found"
@@ -823,7 +824,7 @@ def _regex_extract_fallback(text, mode, fields_list):
 
         lower_t = text.lower()
         
-
+ 
         if "include" in lower_t and "exclude" not in lower_t:
             result["status"] = "Include"
             result["reason"] = "Regex Fallback: Inferred Inclusion (Local)"
@@ -833,7 +834,7 @@ def _regex_extract_fallback(text, mode, fields_list):
             result["reason"] = "Regex Fallback: Inferred Exclusion (Local)"
             confidence = 0.3
         
-  
+
         patterns = {
             "title": [r'"title"\s*:\s*"([^"]+)"', r'title\s*:\s*"?([^"\n]+)"?', r'Title\s*[:\-]\s*([^\n]+)'],
             "author": [r'"author"\s*:\s*"([^"]+)"', r'author\s*:\s*"?([^"\n]+)"?'],
@@ -1228,7 +1229,7 @@ def extract_pdf_content(pdf_file):
 
             if re.search(r'(?:\n|\r\n){1,2}(References|Reference|Bibliography)(?:\s|\r?\n|$)', page_text, re.IGNORECASE):
                 references_found = True 
-      
+
                 pass 
 
             full_text_parts.append(page_text)
@@ -1281,11 +1282,11 @@ def extract_pdf_content(pdf_file):
             del doc
 
 def preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_SCREENER):
-
+   
     if "  " in text or "\n" in text:
         text = " ".join(text.split())
     
-
+  
     char_limit = max_tokens * 4
     if len(text) > char_limit:
         update_terminal_log(f"Text exceeds token limit ({len(text)} > {char_limit}). Truncating...", "WARN")
@@ -1616,7 +1617,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
     progress_bar = st.progress(0)
     papers_processed_in_batch = 0
 
-
+    
     try:
         for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
 
@@ -1735,7 +1736,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         result = {
                             "filename": pdf.name,
                             "status": "Exclude",
-                            "reason": exclusion_reason[:1000], 
+                            "reason": exclusion_reason[:500], 
                             "confidence": confidence,
                             "title": title,
                             "author": author,
@@ -1873,7 +1874,7 @@ If a field is not found in the text, use the value "Not Found".
                         else:
                             raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=2048)
 
-           
+                  
                         if raw_result is None:
                             update_terminal_log("API Client returned persistent error (None). Skipping file.", "ERROR")
                             processing_successful = False
@@ -1890,12 +1891,12 @@ If a field is not found in the text, use the value "Not Found".
                     if processing_successful:
                         break
                 
-            
+       
                 del prompt 
 
                 if not processing_successful:
                     update_terminal_log("Skipping file due to persistent API failure.", "ERROR")
-
+              
                     del text, full_text_backup
                     gc.collect()
                     continue
@@ -1918,18 +1919,18 @@ If a field is not found in the text, use the value "Not Found".
                         if field not in result["extracted"]:
                             result["extracted"][field] = "Not Found"
                 
-              
+           
                 if result:
                     processing_successful = True
                     
-          
+        
                     if "filename" not in result:
                         result["filename"] = pdf.name
                 
    
                 del raw_result
                 
-         
+    
                 del full_text_backup
                 gc.collect()
 
@@ -1977,7 +1978,7 @@ If a field is not found in the text, use the value "Not Found".
                         if "year" not in result or not result["year"] or result["year"] == "":
                             result["year"] = year
                     
-          
+             
                     del title, author, year, text 
 
                     if st.session_state.app_mode == "screener":
@@ -1991,7 +1992,7 @@ If a field is not found in the text, use the value "Not Found".
                         else:
                              status = "exclude"
                         
-                       
+ 
                         if len(result.get("reason", "")) > 500:
                             result["reason"] = result["reason"][:500] + "..."
 
@@ -2012,7 +2013,7 @@ If a field is not found in the text, use the value "Not Found".
                         papers_processed_in_batch += 1
 
                     else:
-        
+                        
                         for key in result["extracted"]:
                             if isinstance(result["extracted"][key], str) and len(result["extracted"][key]) > 1000:
                                 result["extracted"][key] = result["extracted"][key][:1000] + "..."
@@ -2028,19 +2029,19 @@ If a field is not found in the text, use the value "Not Found".
                 elapsed = time.time() - start_time_file
                 update_terminal_log(f"File processed in {elapsed:.2f}s.", "SYSTEM")
 
-  
+
             except Exception as e:
                 update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
                 import traceback
                 update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
-        
+
                 gc.collect()
             
             progress_bar.progress(idx / total_pdfs)
             
             time.sleep(1)
 
-    
+
     except Exception as e:
         update_terminal_log(f"CRITICAL BATCH ERROR: {str(e)}", "ERROR")
         import traceback
