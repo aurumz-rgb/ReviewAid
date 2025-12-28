@@ -1,3 +1,4 @@
+
 import streamlit as st
 import fitz  
 import time
@@ -1673,8 +1674,7 @@ def to_pdf(df):
              
         for val in row:
          
-            clean_text = str(val).encode('latin-1', 'replace').decode('latin-1')
- 
+            clean_text = str(val).encode('latin-1', 'replace').decode('latin-1') 
             pdf.multi_cell(col_width, 6, clean_text, border=1, fill=(not is_odd))
         pdf.ln(6)
         is_odd = not is_odd
@@ -1749,7 +1749,7 @@ def find_exclusion_matches(text, exclusion_lists):
     return matches
 
 def update_terminal_log(msg, level="INFO"):
- 
+
     if "terminal_logs" not in st.session_state or "terminal_placeholder" not in st.session_state:
         return
 
@@ -1795,11 +1795,11 @@ def update_terminal_log(msg, level="INFO"):
         </script>
         """
         
-     
+       
         try:
             st.session_state.terminal_placeholder.markdown(full_log_html + scroll_script, unsafe_allow_html=True)
         except Exception:
-       
+            
             pass
         st.session_state.last_log_update_time = current_time
 
@@ -1910,7 +1910,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
  
             gc.collect()
             
-        
+
             matches_exc = []
             matches_inc = []
             result = None
@@ -1919,7 +1919,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
             full_text_backup = ""
             title, author, year = "", "", ""
             
-  
+         
             if pdf is None:
                 continue
 
@@ -1927,7 +1927,8 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                 update_terminal_log(f"--- Starting File {idx}/{total_pdfs}: {pdf.name} ---", "SYSTEM")
             except:
                 pass
-           
+            
+         
             try:
                 start_time_file = time.time()
 
@@ -1939,14 +1940,14 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         update_terminal_log(f"File read error for {pdf.name}: {str(e)}", "ERROR")
                     except:
                         pass
-           
+                  
                     continue
 
                 pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
                 
                 if pdf_hash in st.session_state.batch_file_hashes:
                     try:
-                        update_terminal_log(f"Duplicate file detected (Hash match). Using cached result.", "WARN")
+                        update_terminal_log(f"Duplicate file detected (Hash match). Using cached result.", "INFO")
                     except:
                         pass
                     cached_result = st.session_state.batch_file_hashes[pdf_hash]
@@ -1976,7 +1977,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                     
                     papers_processed_in_batch += 1
                     
-                 
+            
                     try:
                         percent = int((idx / total_pdfs) * 100)
                         status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span> (Cached)</h4>", unsafe_allow_html=True)
@@ -1985,7 +1986,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                     except:
                         pass
                     
-              
+                
                     del pdf_bytes
                     continue
                 else:
@@ -2008,7 +2009,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         update_terminal_log("Skipping this file.", "WARN")
                     except:
                         pass
-                    
+                  
                     try:
                         progress_bar.progress(idx / total_pdfs)
                     except:
@@ -2134,7 +2135,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                             pass
                         papers_processed_in_batch += 1
 
-                      
+                        
                         del text, full_text_backup, matches_exc, matches_inc
                         continue
                     
@@ -2148,6 +2149,10 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         update_terminal_log("Constructing PICO prompt for AI...", "INFO")
                     except:
                         pass
+                    
+             
+                    time.sleep(1) 
+                    
                     prompt = f"""
 You are an expert systematic reviewer. Your task is to screen a research paper based on specific PICO criteria.
 
@@ -2221,6 +2226,9 @@ Exclusion: {comparison_exclusion}
                     for field in fields_list:
                         description = field_descriptions.get(field, f"Information about {field}")
                         prompt += f"- {field}: {description}\n"
+                    
+                    
+                    time.sleep(1)
                     
                     prompt += f"""
 **Paper Text:**
@@ -2466,7 +2474,7 @@ If a field is not found in the text, use the value "Not Found".
                     pass
 
             except Exception as e:
-              
+               
                 try:
                     update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
                 except:
@@ -2477,23 +2485,23 @@ If a field is not found in the text, use the value "Not Found".
                 except:
                     pass
         
-    
+         
                 gc.collect()
-
+             
                 continue
             
             finally:
- 
+          
                 try:
                     percent = int((idx / total_pdfs) * 100)
                     status_placeholder.markdown(f"<h6 style='text-align: center; color: 'white';'>Processed {percent}% of papers... Processing <span style='color: #4189DC'> {pdf.name}</span></h6>", unsafe_allow_html=True)
                     progress_bar.progress(idx / total_pdfs)
                 except Exception:
-
+                    
                     pass
 
     except Exception as e:
-
+        
         try:
             update_terminal_log(f"CRITICAL BATCH ERROR: {str(e)}", "ERROR")
         except:

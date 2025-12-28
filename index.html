@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
  <meta name="google-site-verification" content="" />
  
@@ -87,7 +87,7 @@
   
   <style>
     :root {
-      
+     
       --bg-body: #09090b;
       --bg-card: #18181b;
       --bg-card-hover: #27272a;
@@ -100,7 +100,6 @@
       --border-color: #27272a;
       --border-highlight: #3f3f46;
       
-      
       --primary: #4189DC; 
       --primary-glow: rgba(65, 137, 220, 0.25);
       --primary-hover: #5da9ea;
@@ -111,6 +110,78 @@
       
       --font-main: 'Inter', system-ui, -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    }
+
+    
+    [data-theme="light"] {
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --bg-accent: #eff6ff;
+      
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      
+      --border-color: #e2e8f0;
+      --border-highlight: #cbd5e1;
+      
+      --primary: #2563eb; 
+      --primary-glow: rgba(37, 99, 235, 0.2);
+      --primary-hover: #1d4ed8;
+      
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+    }
+
+    
+    [data-theme="light"] body {
+       background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    }
+
+  
+    [data-theme="light"] .header {
+      background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    [data-theme="light"] .header::before {
+      display: none; 
+    }
+
+    [data-theme="light"] h1 {
+      background: linear-gradient(to right, #0f172a, #2563eb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+
+    [data-theme="light"] .motivation {
+      background: rgba(37, 99, 235, 0.05);
+      border-color: rgba(37, 99, 235, 0.2);
+    }
+    
+
+    [data-theme="light"] .disclaimer-note {
+      background: rgba(245, 158, 11, 0.05);
+      border-color: rgba(245, 158, 11, 0.2);
+    }
+    
+
+    [data-theme="light"] .motivation[style*="#10b981"] {
+      background: rgba(22, 163, 74, 0.05);
+      border-color: rgba(22, 163, 74, 0.2);
+    }
+
+
+    [data-theme="light"] .confidence-table th {
+      background-color: #f1f5f9;
+    }
+    [data-theme="light"] .confidence-table tr:hover td {
+      background-color: #f8fafc;
     }
 
     * {
@@ -134,6 +205,7 @@
         linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
       background-size: 40px 40px;
       overflow-x: hidden;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     
@@ -177,6 +249,7 @@
       text-align: center;
       border-bottom: 1px solid var(--border-color);
       overflow: hidden;
+      transition: background 0.3s;
     }
     
     .header::before {
@@ -210,6 +283,7 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       line-height: 1.1;
+      transition: background 0.3s;
     }
     
     .tagline {
@@ -223,7 +297,6 @@
       width: 100%;
       max-width: 1000px; 
       height: auto;
-
       margin: 30px auto;
       display: block;
   
@@ -309,6 +382,11 @@
       color: #e2e8f0;
     }
     
+    [data-theme="light"] code {
+      background: rgba(0,0,0,0.08);
+      color: #334155;
+    }
+
   
     .main-links {
       text-align: center;
@@ -336,8 +414,18 @@
       color: var(--text-primary);
     }
     
+    [data-theme="light"] .main-links a:not(.primary) {
+      background: rgba(0,0,0,0.03);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+    
     .main-links a:not(.primary):hover {
       background: rgba(255,255,255,0.1);
+    }
+
+    [data-theme="light"] .main-links a:not(.primary):hover {
+      background: rgba(0,0,0,0.06);
       border-color: var(--text-muted);
     }
  
@@ -399,6 +487,11 @@
       border-radius: 16px;
       margin-bottom: 50px;
       border: 1px solid var(--border-color);
+      transition: background 0.3s;
+    }
+
+    [data-theme="light"] .highlight-section {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(0,0,0,0));
     }
     
     .highlight-section h2 {
@@ -441,6 +534,10 @@
       color: var(--text-secondary);
       font-weight: 500;
       background: rgba(0,0,0,0.2);
+    }
+
+    [data-theme="light"] .gallery-item .caption {
+      background: rgba(0,0,0,0.03);
     }
 
     
@@ -594,6 +691,10 @@
       letter-spacing: 0.05em;
     }
 
+    [data-theme="light"] .confidence-badge {
+      background: rgba(0,0,0,0.05);
+    }
+
     .rationale {
       font-style: italic;
       color: var(--text-muted);
@@ -601,6 +702,10 @@
       margin-top: 20px;
       padding-top: 20px;
       border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    [data-theme="light"] .rationale {
+      border-top: 1px solid rgba(0,0,0,0.1);
     }
 
    
@@ -613,6 +718,7 @@
       font-style: normal;
       color: var(--text-secondary);
       border: 1px solid rgba(65, 137, 220, 0.2);
+      transition: background 0.3s;
     }
     .motivation h3 { color: var(--text-primary); margin-top: 0; }
 
@@ -625,6 +731,7 @@
       color: var(--text-secondary);
       font-size: 1rem;
       border: 1px solid rgba(245, 158, 11, 0.2);
+      transition: background 0.3s;
     }
 
     .disclaimer-note strong {
@@ -675,6 +782,11 @@
       color: var(--text-muted);
       padding: 40px 0;
       border-top: 1px solid var(--border-color);
+      transition: background 0.3s;
+    }
+
+    [data-theme="light"] footer {
+      background: #ffffff;
     }
     
     .footer-content {
@@ -703,7 +815,46 @@
       color: var(--primary);
     }
 
- 
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .theme-toggle:hover {
+      transform: scale(1.1);
+      border-color: var(--primary);
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+
+    .theme-toggle svg {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+
+    [data-theme="dark"] .icon-sun { display: none; }
+    [data-theme="light"] .icon-moon { display: none; }
+
+
     @media (max-width: 900px) {
       h1 { font-size: 2.8rem; }
       .tools { grid-template-columns: 1fr 1fr; }
@@ -732,6 +883,26 @@
 </head>
 <body>
 
+
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
+  
+    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+
+    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </button>
+
   <div class="header">
     <div class="header-content">
       <img src="assets/RA_banner1.png" alt="ReviewAid Banner" class="banner-img">
@@ -744,7 +915,7 @@
         <a href="https://github.com/aurumz-rgb/ReviewAid/commits/main"><img src="https://img.shields.io/github/last-commit/aurumz-rgb/ReviewAid?style=for-the-badge" alt="Last Commit"></a>
         <a href="https://github.com/aurumz-rgb/ReviewAid/issues"><img src="https://img.shields.io/github/issues-raw/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Issues"></a>
         <a href="https://github.com/aurumz-rgb/ReviewAid"><img src="https://img.shields.io/badge/uses-Streamlit-red?style=for-the-badge&logo=streamlit" alt="Uses streamlit"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid"><img src="https://img.shields.io/github/repo-size/aurumz-rgb/ReviewAid?style=for-the-badge" alt="Repo Size"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid"><img src="https://img.shields.io/badge/Repo_Size-Large-blue?style=for-the-badge" alt="Repo Size"></a>
         <a href="https://github.com/aurumz-rgb/ReviewAid/graphs/contributors"><img src="https://img.shields.io/github/contributors/aurumz-rgb/ReviewAid?style=for-the-badge" alt="Contributors"></a>
          <a href="https://github.com/aurumz-rgb/ReviewAid/stargazers"><img src="https://img.shields.io/github/stars/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Stars"></a>
         <a href="https://github.com/aurumz-rgb/ReviewAid/network/members"><img src="https://img.shields.io/github/forks/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Forks"></a>
@@ -1074,7 +1245,7 @@
       <div class="section acknowledgements-section reveal">
         <h2>Acknowledgements</h2>
         <div class="acknowledgement-content">
-          <img src="assets/GLMV.png" alt="ZAI GLM-4.6V-Flash Logo" class="ack-img">
+          <img src="assets/GLM4.6VFlash.png" alt="ZAI GLM-4.6V-Flash Logo" class="ack-img">
           <div class="ack-text">
             <p>I gratefully acknowledge developers of <strong>GLM-4.6V-Flash (Z.ai)</strong> for providing the AI model used in ReviewAid.</p>
             <p>The visual and text-based reasoning capabilities of GLM-4.6V-Flash have greatly enhanced ReviewAid's full-text screening and data extraction workflows.</p>
@@ -1101,6 +1272,23 @@
 
 
   <script>
+    
+    const toggleBtn = document.getElementById('theme-toggle');
+    const htmlElement = document.documentElement;
+
+  
+    const currentTheme = localStorage.getItem('theme') || 'dark';
+    htmlElement.setAttribute('data-theme', currentTheme);
+
+    toggleBtn.addEventListener('click', () => {
+        const existingTheme = htmlElement.getAttribute('data-theme');
+        const newTheme = existingTheme === 'dark' ? 'light' : 'dark';
+        
+        htmlElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+    });
+
+
     window.addEventListener('scroll', reveal);
 
     function reveal(){
