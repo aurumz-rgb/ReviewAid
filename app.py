@@ -1,4 +1,3 @@
-
 import streamlit as st
 import fitz  
 import time
@@ -551,7 +550,7 @@ def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
         st.error("API key is missing. Please check your environment variables.")
         return None
     
-    # Safely attempt logging without crashing the loop if UI fails
+
     try:
         update_terminal_log(f"Initializing ZAI Client...", "DEBUG")
     except:
@@ -1750,7 +1749,7 @@ def find_exclusion_matches(text, exclusion_lists):
     return matches
 
 def update_terminal_log(msg, level="INFO"):
-    # Double check session state existence to prevent crashes
+ 
     if "terminal_logs" not in st.session_state or "terminal_placeholder" not in st.session_state:
         return
 
@@ -1796,11 +1795,11 @@ def update_terminal_log(msg, level="INFO"):
         </script>
         """
         
-        # Wrapped in try/except to prevent loop crashes if UI disconnects
+     
         try:
             st.session_state.terminal_placeholder.markdown(full_log_html + scroll_script, unsafe_allow_html=True)
         except Exception:
-            # Silent fail if UI is dead
+       
             pass
         st.session_state.last_log_update_time = current_time
 
@@ -1911,7 +1910,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
  
             gc.collect()
             
-            # Initialize local variables for this iteration
+        
             matches_exc = []
             matches_inc = []
             result = None
@@ -1920,7 +1919,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
             full_text_backup = ""
             title, author, year = "", "", ""
             
-            # Check if pdf object is valid (safety check)
+  
             if pdf is None:
                 continue
 
@@ -1928,8 +1927,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                 update_terminal_log(f"--- Starting File {idx}/{total_pdfs}: {pdf.name} ---", "SYSTEM")
             except:
                 pass
-            
-            # Inner try-catch to ensure single file errors don't stop whole batch
+           
             try:
                 start_time_file = time.time()
 
@@ -1941,7 +1939,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         update_terminal_log(f"File read error for {pdf.name}: {str(e)}", "ERROR")
                     except:
                         pass
-                    # Skip this file and go to next one immediately
+           
                     continue
 
                 pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
@@ -1978,7 +1976,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                     
                     papers_processed_in_batch += 1
                     
-                    # UI Update
+                 
                     try:
                         percent = int((idx / total_pdfs) * 100)
                         status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span> (Cached)</h4>", unsafe_allow_html=True)
@@ -1987,7 +1985,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                     except:
                         pass
                     
-                    # Cleanup
+              
                     del pdf_bytes
                     continue
                 else:
@@ -2010,7 +2008,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         update_terminal_log("Skipping this file.", "WARN")
                     except:
                         pass
-                    # Ensure UI updates before continue
+                    
                     try:
                         progress_bar.progress(idx / total_pdfs)
                     except:
@@ -2136,7 +2134,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                             pass
                         papers_processed_in_batch += 1
 
-                        # Clean up
+                      
                         del text, full_text_backup, matches_exc, matches_inc
                         continue
                     
@@ -2468,7 +2466,7 @@ If a field is not found in the text, use the value "Not Found".
                     pass
 
             except Exception as e:
-                # Catching any exception from processing a single file
+              
                 try:
                     update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
                 except:
@@ -2479,24 +2477,23 @@ If a field is not found in the text, use the value "Not Found".
                 except:
                     pass
         
-                # Ensure cleanup happens even if exception occurred
+    
                 gc.collect()
-                # Explicitly continue to next file to ensure robustness
+
                 continue
             
             finally:
-                # Update progress at the end of every file loop (success or failure)
-                # Wrapped in try/except to ensure UI error doesn't stop loop
+ 
                 try:
                     percent = int((idx / total_pdfs) * 100)
                     status_placeholder.markdown(f"<h6 style='text-align: center; color: 'white';'>Processed {percent}% of papers... Processing <span style='color: #4189DC'> {pdf.name}</span></h6>", unsafe_allow_html=True)
                     progress_bar.progress(idx / total_pdfs)
                 except Exception:
-                    # If UI update fails, just log and continue loop
+
                     pass
 
     except Exception as e:
-        # Catching exceptions that break the entire loop (rare, but possible)
+
         try:
             update_terminal_log(f"CRITICAL BATCH ERROR: {str(e)}", "ERROR")
         except:
