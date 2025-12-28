@@ -1223,28 +1223,38 @@ def extract_pdf_content(pdf_file):
             update_terminal_log("References section detected and removed to save tokens.", "INFO")
             del ref_match
 
-        metadata = doc.metadata
-        title = metadata.get('title', '')
-        author = metadata.get('author', '')
-        del metadata 
-        
-        update_terminal_log(f"Metadata read -> Title: '{title}', Author: '{author}'", "DEBUG")
-        
+      
+        title = ''
+        author = ''
         year = ''
+        
+        try:
+     
+            metadata = doc.metadata
+            title = metadata.get('title', '')
+            author = metadata.get('author', '')
+            
+     
+            if not year:
+
+                creation_date_str = metadata.get('creationDate', '')
+                if creation_date_str:
+                    year_match = re.search(r'\b(19|20)\d{2}\b', creation_date_str)
+                    if year_match:
+                        year = year_match.group()
+                        update_terminal_log(f"Year derived from creationDate: {year}", "DEBUG")
+            
+            del metadata
+        except Exception as meta_err:
+            update_terminal_log(f"Warning: Metadata extraction caused an error ({meta_err}). Using fallbacks.", "WARN")
+     
+        
         if not year:
             if page_count > 0:
                 year_match = re.search(r'\b(19|20)\d{2}\b', full_text[:5000]) 
                 if year_match:
                     year = year_match.group()
                     update_terminal_log(f"Year found on Page 1: {year}", "DEBUG")
-        
-        if not year:
-            if doc.metadata.get('creationDate'):
-                creation_date = doc['creationDate']
-                year_match = re.search(r'\b(19|20)\d{2}\b', creation_date)
-                if year_match:
-                    year = year_match.group()
-                    update_terminal_log(f"Year derived from creationDate: {year}", "DEBUG")
         
         return full_text, title, author, year
         
@@ -1832,26 +1842,29 @@ If a field is not found in the text, use the value "Not Found".
             
    
             raw_result = None
-            max_empty_retries = 2 
-            empty_retry_count = 0
             
-            while empty_retry_count <= max_empty_retries:
+       
+            MAX_RETRIES_EMPTY = 3 
+            retry_count = 0
+            
+            while retry_count < MAX_RETRIES_EMPTY:
                 if st.session_state.app_mode == "extractor":
                     raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=MAX_OUTPUT_TOKENS)
                 else:
                     raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=2048)
 
-    
                 if raw_result and raw_result.strip():
-                    break 
+                    break
                 elif raw_result == "RATE_LIMIT_ERROR":
-                    break 
-                elif empty_retry_count < max_empty_retries:
-                    empty_retry_count += 1
-                    update_terminal_log(f"API returned empty response. Retrying ({empty_retry_count}/{max_empty_retries})...", "WARN")
-                    time.sleep(2) 
+                    break
                 else:
-                    update_terminal_log("Max retries for empty response reached.", "ERROR")
+                    retry_count += 1
+                    if retry_count < MAX_RETRIES_EMPTY:
+                        update_terminal_log(f"API returned empty or None response. Retrying ({retry_count}/{MAX_RETRIES_EMPTY})...", "WARN")
+                        time.sleep(2) 
+                    else:
+                        update_terminal_log(f"Failed after {MAX_RETRIES_EMPTY} retries. API did not return content.", "ERROR")
+         
 
             del prompt 
 
