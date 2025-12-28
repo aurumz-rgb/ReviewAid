@@ -1145,8 +1145,7 @@ if st.session_state.app_mode is None:
     st.markdown("</div>", unsafe_allow_html=True)
     st.markdown("""
     <div class="important-note-box">
-        <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process. 
-          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a>.  
+        <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process.
     </div>
     """, unsafe_allow_html=True)
     
@@ -1223,38 +1222,28 @@ def extract_pdf_content(pdf_file):
             update_terminal_log("References section detected and removed to save tokens.", "INFO")
             del ref_match
 
-      
-        title = ''
-        author = ''
+        metadata = doc.metadata
+        title = metadata.get('title', '')
+        author = metadata.get('author', '')
+        del metadata 
+        
+        update_terminal_log(f"Metadata read -> Title: '{title}', Author: '{author}'", "DEBUG")
+        
         year = ''
-        
-        try:
-     
-            metadata = doc.metadata
-            title = metadata.get('title', '')
-            author = metadata.get('author', '')
-            
-     
-            if not year:
-
-                creation_date_str = metadata.get('creationDate', '')
-                if creation_date_str:
-                    year_match = re.search(r'\b(19|20)\d{2}\b', creation_date_str)
-                    if year_match:
-                        year = year_match.group()
-                        update_terminal_log(f"Year derived from creationDate: {year}", "DEBUG")
-            
-            del metadata
-        except Exception as meta_err:
-            update_terminal_log(f"Warning: Metadata extraction caused an error ({meta_err}). Using fallbacks.", "WARN")
-     
-        
         if not year:
             if page_count > 0:
                 year_match = re.search(r'\b(19|20)\d{2}\b', full_text[:5000]) 
                 if year_match:
                     year = year_match.group()
                     update_terminal_log(f"Year found on Page 1: {year}", "DEBUG")
+        
+        if not year:
+            if doc.metadata.get('creationDate'):
+                creation_date = doc['creationDate']
+                year_match = re.search(r'\b(19|20)\d{2}\b', creation_date)
+                if year_match:
+                    year = year_match.group()
+                    update_terminal_log(f"Year derived from creationDate: {year}", "DEBUG")
         
         return full_text, title, author, year
         
@@ -1843,43 +1832,59 @@ If a field is not found in the text, use the value "Not Found".
    
             raw_result = None
             
-       
-            MAX_RETRIES_EMPTY = 3 
-            retry_count = 0
+
             
-            while retry_count < MAX_RETRIES_EMPTY:
-                if st.session_state.app_mode == "extractor":
-                    raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=MAX_OUTPUT_TOKENS)
-                else:
-                    raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=2048)
+            processing_successful = False
+            fatal_error = False
 
-                if raw_result and raw_result.strip():
-                    break
-                elif raw_result == "RATE_LIMIT_ERROR":
-                    break
-                else:
-                    retry_count += 1
-                    if retry_count < MAX_RETRIES_EMPTY:
-                        update_terminal_log(f"API returned empty or None response. Retrying ({retry_count}/{MAX_RETRIES_EMPTY})...", "WARN")
-                        time.sleep(2) 
+            
+            
+            max_api_attempts = 2 
+            retries_per_api_attempt = 3
+            
+            for api_attempt in range(max_api_attempts):
+                if api_attempt > 0:
+                    update_terminal_log("Previous attempt failed after 3 retries. Initiating NEW API call for this paper...", "WARN")
+                
+                for retry_idx in range(retries_per_api_attempt):
+                    if st.session_state.app_mode == "extractor":
+                        raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=MAX_OUTPUT_TOKENS)
                     else:
-                        update_terminal_log(f"Failed after {MAX_RETRIES_EMPTY} retries. API did not return content.", "ERROR")
-         
+                        raw_result = query_zai(prompt, api_key, temperature=0.1, max_tokens=2048)
 
+             
+                    if raw_result == "RATE_LIMIT_ERROR":
+                        fatal_error = True
+                        break 
+                    
+         
+                    if raw_result and raw_result.strip():
+                        processing_successful = True
+                        break 
+                    
+         
+                    if retry_idx < retries_per_api_attempt - 1:
+                         update_terminal_log(f"API returned empty response. Retry {retry_idx + 2}/{retries_per_api_attempt}...", "DEBUG")
+                         time.sleep(2)
+
+                
+                if processing_successful or fatal_error:
+                    break
+            
             del prompt 
 
-            if raw_result == "RATE_LIMIT_ERROR":
+            if fatal_error:
                 update_terminal_log("Processing halted due to API rate limits.", "ERROR")
                 st.error("The processing was stopped because the API rate limit was reached. Please wait a few minutes and click 'Screen Papers' to resume.")
                 del text, full_text_backup
                 gc.collect()
                 break
 
-            if raw_result is None or not raw_result.strip():
-                update_terminal_log("API Error: Failed to receive response after retries.", "ERROR")
-         
+            if not processing_successful:
+                update_terminal_log("API Error: Failed to receive response after all retries and new attempts.", "ERROR")
                 raw_result = "" 
-  
+
+        
 
             if raw_result:
                  update_terminal_log(f"API response received. Length: {len(raw_result)} chars.", "SUCCESS")
