@@ -16,7 +16,7 @@
 - **Privacy-first approach:** Your uploaded documents and API keys stay private and are never stored or shared.  
 - **Open-source and extensible:** Built on Python and Streamlit for easy customization and community contributions.  
 
-- **NOTE:** 
+- **NOTE ‼️:** 
   ReviewAid is used as a supplementary tool alongside manual screening and data extraction to minimise errors and improve research accuracy, without replacing human judgment.
 
 ---
@@ -64,7 +64,7 @@ Text: Tier 1 (Deterministic)
 Each tier is only activated if the previous tier fails to produce a valid and reliable result.
 
 
-## Tier 1: Deterministic Rule-Based Classification (Highest Priority) 
+## ❓ Tier 1: Deterministic Rule-Based Classification (Highest Priority) 
 
 **Purpose:** Eliminate ambiguity using explicit user-defined rules. For screener, Extractor starts directly from Tier 2.
 
@@ -81,7 +81,7 @@ Each tier is only activated if the previous tier fails to produce a valid and re
 Explicit rules provide deterministic certainty and override probabilistic inference when applicable.
 
 
-## Tier 2: LLM Self-Assessment (Primary Mechanism)
+## ✔️ Tier 2: LLM Self-Assessment (Primary Mechanism)
 
 **Purpose:** Leverage the model’s internal reasoning and evidence-based judgment.
 
@@ -96,7 +96,7 @@ Explicit rules provide deterministic certainty and override probabilistic infere
 This tier captures nuanced contextual understanding that deterministic rules cannot, while maintaining transparency through self-reported certainty.
 
 
-## Tier 3: Heuristic Keyword Estimation (Fallback)
+## ✔️ Tier 3: Heuristic Keyword Estimation (Fallback)
 
 **Purpose:** Provide a probabilistic estimate when LLM confidence is unavailable.
 
@@ -114,7 +114,7 @@ This tier captures nuanced contextual understanding that deterministic rules can
 This tier offers a best-effort estimate derived from text structure rather than semantic certainty.
 
 
-## Tier 4: Low-Confidence Default (Last Resort)
+## ✔️ Tier 4: Low-Confidence Default (Last Resort)
 
 **Purpose:** Explicitly flag unreliable outputs.
 
@@ -134,7 +134,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ---
 
-## Confidence Score Interpretation
+## ⭐ Confidence Score Interpretation
 
 | Confidence Score | Classification | Description | Implication |
 |------------------|---------------|-------------|-------------|
@@ -205,7 +205,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 ---
 
 
-## Screenshots
+## 📸 Screenshots
 
 
 ![User Interface](screenshots/screenshot1.png)  
@@ -220,7 +220,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ---
 
-##  Acknowledgements
+## 🔗 Acknowledgements
 
 ![ZAI](assets/GLM-4.6V-Flash.png)
 
@@ -240,7 +240,7 @@ If you use ReviewAid, please cite:
 
 ---
 
-##  License
+## 📄 License
 
 This project is licensed under the Apache 2.0 License.
 

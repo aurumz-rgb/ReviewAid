@@ -1757,6 +1757,13 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
  
             gc.collect()
             
+
+            matches_exc = []
+            matches_inc = []
+            result = None
+            processing_successful = False
+            text = ""
+            
             update_terminal_log(f"--- Starting File {idx}/{total_pdfs}: {pdf.name} ---", "SYSTEM")
             
             try:
@@ -1847,6 +1854,9 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                 )
                 update_terminal_log(f"Initial heuristic confidence score estimated: {confidence}", "INFO")
 
+                raw_result = None
+                prompt = ""
+
                 if st.session_state.app_mode == "screener":
                     all_exclusions = []
                     for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
@@ -1869,7 +1879,8 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                             matches_inc.append(criteria)
                 
             
-                    del all_exclusions, all_inclusions, matches_inc
+                    
+                    del all_exclusions, all_inclusions 
 
                     if len(matches_exc) >= 1 and len(matches_inc) == 0:
                         exclusion_reason = (
@@ -1900,7 +1911,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         papers_processed_in_batch += 1
 
               
-                        del text, full_text_backup, matches_exc, exclusion_reason
+                        del text, full_text_backup, matches_exc, matches_inc
                         continue
                     
                     elif len(matches_exc) >= 1 and len(matches_inc) >= 1:
@@ -2005,11 +2016,6 @@ If a field is not found in the text, use the value "Not Found".
                     prompt += "\nEnsure that JSON is valid. Use 'Not Found' for missing data.\n"
                 
             
-                raw_result = None
-            
-                processing_successful = False
-
-               
                 max_api_attempts = 3 
                 retries_per_api_attempt = 3
                 
@@ -2176,8 +2182,9 @@ If a field is not found in the text, use the value "Not Found".
                 update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
                 import traceback
                 update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
-              
+        
                 gc.collect()
+                continue
             
             
             percent = int((idx / total_pdfs) * 100)

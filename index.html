@@ -876,7 +876,7 @@
             </div>
           </div>
 
-          <!-- Tier 4 -->
+       
           <div class="tier-card" style="border-top-color: #ef4444;">
             <h3>Tier 4: Low-Confidence Default</h3>
             <h4>Last Resort</h4>
@@ -948,6 +948,87 @@
             </div>
         </div>
 
+      </div>
+
+
+
+      <div class="section reveal">
+        <h2>Bulletproof Parsing Pipeline</h2>
+        <p><strong>Purpose:</strong> Safely parse API/AI responses, even if the JSON is broken or missing.</p>
+        
+        <div class="highlight-section">
+            <h3>Flow</h3>
+            <ol style="margin-left: 20px; color: #4b5563; line-height: 1.8;">
+                <li><strong>If <code>raw_result</code> is <code>None</code></strong><br>
+                &rarr; Use regex to extract data locally.</li>
+                <li><strong>Clean the response</strong><br>
+                &rarr; Remove Markdown, comments, and trailing commas.</li>
+                <li><strong>Try standard JSON parsing</strong><br>
+                &rarr; <code>json.loads</code></li>
+                <li><strong>If that fails, try JSON5</strong><br>
+                &rarr; Handles loose / malformed JSON.</li>
+                <li><strong>If that fails, use AI repair</strong><br>
+                &rarr; Ask AI to fix the JSON.</li>
+                <li><strong>Final fallback</strong><br>
+                &rarr; Extract known keys using regex.</li>
+            </ol>
+        </div>
+
+        <div class="motivation" style="background: #f0fdf4; border-left-color: #16a34a;">
+            <h3 style="margin-top: 0; color: #14532d;">Guarantee</h3>
+            <ul style="margin-left: 20px;">
+                <li>Never crashes</li>
+                <li>Always attempts to recover usable data</li>
+            </ul>
+        </div>
+      </div>
+
+     
+      <div class="section reveal">
+        <h2>Usage</h2>
+        <p>Follow these steps to get started with ReviewAid for your systematic review.</p>
+
+        <div class="tiers-grid">
+            <div class="tier-card" style="border-top-color: #4189DC;">
+                <h3>1. Run the App</h3>
+                <p>Launch the <strong>Streamlit web app</strong> to begin your session.</p>
+            </div>
+            
+            <div class="tier-card" style="border-top-color: #4189DC;">
+                <h3>2. Select Mode</h3>
+                <p>Choose the workflow that suits your current needs:</p>
+                <ul>
+                    <li><strong>Full-text Paper Screener:</strong> Screen papers based on PICO (Population, Intervention, Comparison, Outcome) criteria.</li>
+                    <li><strong>Full-text Data Extractor:</strong> Extract specific fields (Author, Year, Conclusion, etc.) from research papers.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="tools">
+            <div class="tool" style="text-align: left;">
+                <h4>Workflow: Screener</h4>
+                <ul style="list-style-type: disc; padding-left: 20px; color: #4b5563; margin-top: 10px;">
+                    <li>Enter your PICO criteria (Inclusion/Exclusion) in the input fields.</li>
+                    <li>Upload your PDF papers (Batch upload supported).</li>
+                    <li>Click "Screen Papers".</li>
+                    <li>Monitor the "System Terminal" for real-time logs of extraction, API calls, and processing status.</li>
+                    <li>View the "Screening Dashboard" for a pie chart of Included/Excluded/Maybe decisions.</li>
+                    <li>Download results as CSV, XLSX, or DOCX.</li>
+                </ul>
+            </div>
+
+            <div class="tool" style="text-align: left;">
+                <h4>Workflow: Extractor</h4>
+                <ul style="list-style-type: disc; padding-left: 20px; color: #4b5563; margin-top: 10px;">
+                    <li>Enter the fields you want to extract (comma-separated).</li>
+                    <li>Upload your PDF papers.</li>
+                    <li>Click "Process Papers".</li>
+                    <li>Monitor the "System Terminal" for logs.</li>
+                    <li>View extracted data in the dashboard.</li>
+                    <li>Download extracted data as CSV, XLSX, or DOCX.</li>
+                </ul>
+            </div>
+        </div>
       </div>
 
 
