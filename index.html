@@ -142,21 +142,6 @@
         linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
     }
 
-  
-    [data-theme="light"] .header {
-      background: radial-gradient(circle at center, #ffffff 0%, #f1f5f9 100%);
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    [data-theme="light"] .header::before {
-      display: none; 
-    }
-
-    [data-theme="light"] h1 {
-      background: linear-gradient(to right, #0f172a, #2563eb);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
 
 
     [data-theme="light"] .motivation {
@@ -174,6 +159,11 @@
     [data-theme="light"] .motivation[style*="#10b981"] {
       background: rgba(22, 163, 74, 0.05);
       border-color: rgba(22, 163, 74, 0.2);
+    }
+
+   
+    [data-theme="light"] .motivation[style*="#10b981"] h3 {
+      color: #000000 !important;
     }
 
 
@@ -438,6 +428,18 @@
       background: var(--primary-hover);
       transform: translateY(-2px);
       box-shadow: 0 0 30px var(--primary-glow);
+    }
+
+
+    .launch-btn {
+      background-color: #0970e5; 
+      color: white;
+    }
+
+    .launch-btn:hover {
+      background-color: #044b76; 
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(9, 115, 229, 0.4);
     }
     
    
@@ -946,13 +948,13 @@
       <div class="section reveal">
         <h2>About</h2>
         <p>
-          ReviewAid is an open-source AI-driven tool designed to streamline the full-text screening and data extraction phases of systematic reviews. It leverages advanced large language models to classify papers based on PICO criteria and extract custom data fields, drastically reducing the manual workload for researchers.
+          ReviewAid is an open-source AI-driven tool designed to streamline full-text screening and data extraction phases of systematic reviews. It leverages advanced large language models to classify papers based on PICO criteria and extract custom data fields, drastically reducing the manual workload for researchers.
         </p>
         
         <div class="motivation">
           <h3>Why did I make this?</h3>
           <p>
-            I built ReviewAid after spending countless hours staring at PDF screens, manually checking inclusion/exclusion criteria for hundreds of papers. It was tedious, prone to error, and burned me out. I needed an assistant that understood context, could handle messy PDF text, and gave me reproducible data I could export directly to Excel. ReviewAid is that assistant -fast, accurate, and completely free.
+            I built ReviewAid to act as an assistant for Researchers especially those involved in Evidence synthesis. The idea was simple, manual work will be never be replaced but more likely will be aided by this tool. Researchers can manually do the work and then check their accuracy by such a tool so as to not miss any potential important papers. Thus, acting as an "Aid". ReviewAid.
           </p>
         </div>
 
@@ -965,6 +967,7 @@
       <div class="main-links reveal">
         <a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub Repository</a>
         <a href="https://reviewaid.github.io" class="primary" target="_blank">Main-Website</a>
+        <a href="https://reviewaid-ai.streamlit.app" target="_blank" class="launch-btn">Launch ReviewAid</a>
       </div>
 
       <div class="highlight-section reveal">
@@ -980,7 +983,7 @@
           </div>
           <div class="tool">
             <h4>3. Batch Processing</h4>
-            <p>Process up to 20 papers at once</p>
+            <p>Process up to 50 papers at once</p>
           </div>
           <div class="tool">
             <h4>4. Multiple Exports</h4>
