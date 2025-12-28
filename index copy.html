@@ -15,7 +15,7 @@
   <link rel="canonical" href="https://aurumz-rgb.github.io/ReviewAid/">
   <link rel="icon" href="favicon.ico" type="image/png">
   
-  <meta name="theme-color" content="#09090b">
+  <meta name="theme-color" content="#1f2937">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="ReviewAid | AI-Driven Full-Text Screening & Extraction">
@@ -86,33 +86,6 @@
   </script>
   
   <style>
-    :root {
-      
-      --bg-body: #09090b;
-      --bg-card: #18181b;
-      --bg-card-hover: #27272a;
-      --bg-accent: #0c1929;
-      
-      --text-primary: #f4f4f5;
-      --text-secondary: #a1a1aa;
-      --text-muted: #71717a;
-      
-      --border-color: #27272a;
-      --border-highlight: #3f3f46;
-      
-      
-      --primary: #4189DC; 
-      --primary-glow: rgba(65, 137, 220, 0.25);
-      --primary-hover: #5da9ea;
-      
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      
-      --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
-    }
-
     * {
       margin: 0;
       padding: 0;
@@ -124,235 +97,186 @@
     }
     
     body {
-      font-family: var(--font-main);
-      line-height: 1.7;
-      color: var(--text-primary);
-      background-color: var(--bg-body);
-     
-      background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f8f9fa;
       overflow-x: hidden;
     }
 
-    
+
     ::-webkit-scrollbar {
-      width: 10px;
+      width: 14px;
     }
+    
     ::-webkit-scrollbar-track {
-      background: var(--bg-body);
+      background: #f1f1f1;
     }
+    
     ::-webkit-scrollbar-thumb {
-      background: var(--border-color);
-      border-radius: 5px;
-      border: 2px solid var(--bg-body);
+      background: #cbd5e1;
+      border-radius: 6px;
+      border: 3px solid #f1f1f1; 
     }
+    
     ::-webkit-scrollbar-thumb:hover {
-      background: var(--text-muted);
+      background: #64748b; 
+      border: 3px solid #f1f1f1;
     }
+    
+  
+    ::-webkit-scrollbar-thumb:active {
+      background: #1f2937 !important; 
+      border: 3px solid #f1f1f1 !important; 
+    }
+    
+
     html {
       scrollbar-width: thin;
-      scrollbar-color: var(--border-color) var(--bg-body);
+      scrollbar-color: #cbd5e1 #f1f1f1;
     }
 
-    /* Reveal Animation */
+
     .reveal {
       position: relative;
-      transform: translateY(30px);
+      transform: translateY(50px);
       opacity: 0;
-      transition: all 0.6s cubic-bezier(0.5, 0, 0, 1);
+      transition: all 0.8s ease-out;
     }
+
     .reveal.active {
       transform: translateY(0);
       opacity: 1;
     }
     
-  
     .header {
-      position: relative;
-      background: radial-gradient(circle at center, #0c1929 0%, #000000 100%); 
+      background: linear-gradient(135deg, #0c1117 0%, #111827 100%);
       color: white;
-      padding: 60px 0;
+      padding: 40px 0;
       text-align: center;
-      border-bottom: 1px solid var(--border-color);
-      overflow: hidden;
+      border-bottom: 5px solid #4189DC;
     }
     
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%);
-      opacity: 0.4;
-      pointer-events: none;
-      z-index: 0;
-    }
-
     .header-content {
-      position: relative;
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 20px;
-      z-index: 1;
     }
     
     h1 {
-      font-size: 4rem;
-      margin-bottom: 15px;
-      font-weight: 800;
-      letter-spacing: -0.05em;
-      background: linear-gradient(to right, #fff, #a5d8ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      line-height: 1.1;
+      font-size: 3.5rem;
+      margin-bottom: 10px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
     }
     
     .tagline {
-      font-size: 1.25rem;
+      font-size: 1.5rem;
       margin-bottom: 30px;
-      color: var(--text-secondary);
-      font-weight: 400;
+      color: #e2e8f0;
+      font-weight: 300;
     }
 
     .banner-img {
-      width: 100%;
-      max-width: 1000px; 
-      height: auto;
-
-      margin: 30px auto;
-      display: block;
-  
+        width: 100%;
+        max-width: 1200px; 
+        height: auto;
+        border-radius: 12px;
+        margin: 20px auto;
+        display: block;
     }
     
     .badges {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       margin-top: 30px;
       padding: 20px;
+      background: transparent; 
+      border-radius: 15px;
  
     }
     
     .badges img {
-      height: 24px;
-      filter: grayscale(0.5);
-      transition: filter 0.2s;
-    }
-    .badges img:hover {
-      filter: grayscale(0);
+      height: 28px;
     }
     
     .main-content {
-      padding: 60px 0 100px;
+      background: white;
+      padding: 40px 0;
     }
     
     .container {
-      max-width: 1000px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 20px;
     }
     
     .section {
-      margin-bottom: 80px;
+      margin-bottom: 50px;
     }
     
     h2 {
-      font-size: 2.5rem;
-      color: var(--text-primary);
-      margin-bottom: 30px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      display: flex;
-      align-items: center;
+      font-size: 2.2rem;
+      color: #1f2937;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #4189DC;
     }
-    h2::after {
-      content: '';
-      display: block;
-      flex: 1;
-      height: 1px;
-      background: var(--border-color);
-      margin-left: 20px;
-      opacity: 0.5;
-    }
-
+    
     h3 {
-      font-size: 1.5rem;
-      color: var(--text-primary);
+      font-size: 1.4rem;
+      color: #1f2937;
       margin-bottom: 15px;
-      font-weight: 600;
-      margin-top: 25px;
+      margin-top: 10px;
     }
     
     p {
-      margin-bottom: 24px;
-      color: var(--text-secondary);
-      font-size: 1.05rem;
-    }
-
-    strong {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-
-    code {
-      background: rgba(255,255,255,0.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-family: var(--font-mono);
-      font-size: 0.9em;
-      color: #e2e8f0;
+      margin-bottom: 20px;
+      color: #4b5563;
+      font-size: 1.1rem;
     }
     
-  
     .main-links {
       text-align: center;
-      margin: 60px 0;
+      margin: 40px 0;
     }
     
     .main-links a {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-block;
       color: white;
-      padding: 16px 32px;
+      padding: 15px 30px;
       border-radius: 8px;
       text-decoration: none;
       font-weight: 600;
-      margin: 10px;
+      margin: 8px;
       transition: all 0.3s ease;
-      font-size: 1rem;
-      border: 1px solid transparent;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 15px rgba(65, 137, 220, 0.3);
     }
     
+    
     .main-links a:not(.primary) {
-      background: rgba(255,255,255,0.05);
-      border-color: var(--border-color);
-      color: var(--text-primary);
+      background: #174D8B;
     }
     
     .main-links a:not(.primary):hover {
-      background: rgba(255,255,255,0.1);
-      border-color: var(--text-muted);
+      background: #0f3560;
+      transform: translateY(-3px);
     }
+    
  
     .main-links a.primary {
-      background: var(--primary);
-      box-shadow: 0 0 20px var(--primary-glow);
+      background: #4189DC;
     }
     
     .main-links a.primary:hover {
-      background: var(--primary-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 0 30px var(--primary-glow);
+      background: #2b6cb0; 
+      transform: translateY(-3px);
     }
     
-   
     .tools {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -361,282 +285,226 @@
     }
     
     .tool {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 25px;
-      text-align: left; 
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      background: #f9fafb;
       transition: all 0.3s ease;
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      justify-content: center;
     }
     
     .tool:hover {
       transform: translateY(-5px);
-      border-color: var(--primary);
-      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border-color: #4189DC;
     }
     
     .tool h4 {
-      color: var(--text-primary);
+      color: #1f2937;
       margin-bottom: 10px;
-      font-size: 1.15rem;
-      margin-top: 0;
+      font-size: 1.2rem;
     }
     
     .tool p {
-      color: var(--text-secondary);
+      color: #6b7280;
       margin-bottom: 0;
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
-
-  
+    
     .highlight-section {
-      background: linear-gradient(145deg, rgba(24, 24, 27, 0.5), rgba(0,0,0,0));
+      background: #ebf8ff;
       padding: 40px;
-      border-radius: 16px;
+      border-radius: 10px;
       margin-bottom: 50px;
-      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border-left: 5px solid #4189DC;
     }
     
     .highlight-section h2 {
-      border-bottom: none;
+      color: #1f2937;
+      border-bottom: 3px solid #4189DC;
     }
     
-    /* Gallery */
     .gallery {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
+      gap: 25px;
       margin: 30px 0;
     }
     
     .gallery-item {
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
       overflow: hidden;
       transition: all 0.3s ease;
-      background: var(--bg-card);
+      background: white;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
     }
     
     .gallery-item:hover {
       transform: translateY(-5px);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
-      border-color: var(--border-highlight);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     
     .gallery-item img {
       width: 100%;
-      height: 220px;
+      height: 250px;
       object-fit: cover;
       display: block;
-      border-bottom: 1px solid var(--border-color);
+      background-color: #f3f4f6; 
     }
     
     .gallery-item .caption {
       padding: 15px;
       text-align: center;
-      color: var(--text-secondary);
+      color: #1f2937;
       font-weight: 500;
-      background: rgba(0,0,0,0.2);
     }
 
-    
+
     .confidence-overview-list {
       list-style-type: none;
-      padding-left: 0;
+      padding-left: 10px;
     }
     
     .confidence-overview-list li {
       position: relative;
       padding-left: 25px;
-      margin-bottom: 12px;
-      color: var(--text-secondary);
+      margin-bottom: 10px;
     }
     
     .confidence-overview-list li::before {
-      content: "→";
-      color: var(--primary);
+      content: "•";
+      color: #4189DC;
       font-weight: bold;
       position: absolute;
       left: 0;
+      font-size: 1.2em;
     }
 
- 
     .tiers-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 24px;
-      margin: 40px 0;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+      margin: 30px 0;
     }
 
     .tier-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 30px;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-top: 5px solid #4189DC;
     }
-
-    .tier-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: var(--border-color);
-    }
-    
-   
-    .tier-card[style*="#ef4444"]::before { background: #ef4444; } 
-    .tier-card[style*="#4189DC"]::before { background: #4189DC; } 
-    .tier-card[style*="#16a34a"]::before { background: #16a34a; } 
 
     .tier-card:hover {
-      transform: translateY(-5px);
-      border-color: var(--border-highlight);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
     .tier-card h3 {
       margin-top: 0;
-      font-size: 1.35rem;
-      color: var(--text-primary);
+      font-size: 1.25rem;
+      color: #1f2937;
     }
 
     .tier-card h4 {
-      font-size: 0.85rem;
+      font-size: 1rem;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin-bottom: 15px;
-      margin-top: 10px;
+      letter-spacing: 0.05em;
+      color: #6b7280;
+      margin-bottom: 8px;
+      margin-top: 15px;
     }
 
     .tier-card p {
       font-size: 0.95rem;
       margin-bottom: 10px;
-      color: var(--text-secondary);
+      color: #4b5563;
     }
 
     .tier-card ul {
       list-style-type: disc;
       padding-left: 20px;
-      margin-bottom: 20px;
-      color: var(--text-secondary);
+      margin-bottom: 15px;
+      color: #4b5563;
       font-size: 0.95rem;
     }
     
     .tier-card ul li {
-      margin-bottom: 8px;
+      margin-bottom: 5px;
     }
 
-    
+
     .table-responsive {
       overflow-x: auto;
-      margin-top: 30px;
-      border-radius: 12px;
-      border: 1px solid var(--border-color);
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
 
     .confidence-table {
       width: 100%;
       border-collapse: collapse;
-      background: var(--bg-card);
+      background: white;
       min-width: 600px; 
     }
 
     .confidence-table th, 
     .confidence-table td {
-      padding: 18px 24px;
+      padding: 16px;
       text-align: left;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid #e5e7eb;
     }
 
     .confidence-table th {
-      background-color: #0f0f11;
-      color: var(--text-muted);
+      background-color: #1f2937;
+      color: white;
       font-weight: 600;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
-    .confidence-table tr:last-child td {
-      border-bottom: none;
+    .confidence-table tr:nth-child(even) {
+      background-color: #f9fafb;
     }
 
-    .confidence-table tr:hover td {
-      background-color: rgba(255,255,255,0.02);
+    .confidence-table tr:hover {
+      background-color: #f3f4f6;
     }
 
     .confidence-table td:first-child {
       font-weight: 600;
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-      font-size: 0.9em;
+      color: #1f2937;
     }
 
     .confidence-badge {
       display: inline-block;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      background: rgba(255,255,255,0.05);
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: #e5e7eb;
+      color: #374151;
     }
 
     .rationale {
       font-style: italic;
-      color: var(--text-muted);
+      color: #6b7280;
       font-size: 0.9rem;
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f3f4f6;
     }
 
-   
-    .motivation {
-      background: rgba(24, 40, 75, 0.2); 
-      padding: 30px;
-      border-radius: 12px;
-      margin: 30px 0;
-      border-left: 4px solid var(--primary);
-      font-style: normal;
-      color: var(--text-secondary);
-      border: 1px solid rgba(65, 137, 220, 0.2);
-    }
-    .motivation h3 { color: var(--text-primary); margin-top: 0; }
 
-    .disclaimer-note {
-      background: rgba(245, 158, 11, 0.1); 
-      padding: 30px;
-      border-radius: 12px;
-      margin: 30px 0;
-      border-left: 4px solid var(--warning);
-      color: var(--text-secondary);
-      font-size: 1rem;
-      border: 1px solid rgba(245, 158, 11, 0.2);
-    }
 
-    .disclaimer-note strong {
-      color: var(--warning);
-      display: block;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-size: 0.85rem;
-    }
-
-    /* Acknowledgements */
     .acknowledgement-content {
       display: flex;
       flex-direction: column;
@@ -645,37 +513,26 @@
     }
 
     .ack-img {
-      max-width: 300px;
+      max-width: 350px;
       height: auto;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
       border-radius: 8px;
-      border: 1px solid var(--border-color);
-      background: var(--bg-card);
     }
 
     .ack-text p {
       margin: 0 0 15px 0;
       max-width: 100%;
     }
-    
+
     .ack-text strong {
-      color: var(--primary);
+      color: #4189DC;
     }
-    .ack-text a {
-      color: var(--primary-hover);
-      text-decoration: none;
-      font-weight: 500;
-    }
-    .ack-text a:hover {
-      text-decoration: underline;
-    }
-    
     
     footer {
-      background: #000;
-      color: var(--text-muted);
-      padding: 40px 0;
-      border-top: 1px solid var(--border-color);
+      background: #1f2937;
+      color: white;
+      padding: 20px 0;
+      margin-top: 0;
     }
     
     .footer-content {
@@ -687,47 +544,165 @@
       align-items: center;
     }
     
+    .footer-left {
+      text-align: left;
+      flex: 1;
+    }
+    
+    .footer-center {
+      text-align: center;
+      flex: 1;
+    }
+    
+    .footer-right {
+      text-align: right;
+      flex: 1;
+    }
+    
     footer p {
-      color: var(--text-muted);
+      color: #e5e7eb;
       margin-bottom: 0;
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
     
     footer a {
-      color: var(--text-primary);
+      color: #ffffff;
       text-decoration: none;
       font-weight: 500;
-      transition: color 0.2s;
+      transition: all 0.3s ease;
     }
     
     footer a:hover {
-      color: var(--primary);
+      color: #e2e8f0;
+      text-decoration: underline;
+    }
+    
+    .heart {
+      color: #e53e3e;
+    }
+    
+    .maroon {
+      color: #e14242;
+    }
+    
+    .motivation {
+      background: #f0f9ff;
+      padding: 25px;
+      border-radius: 10px;
+      margin: 25px 0;
+      border-left: 5px solid #4189DC;
+      font-style: italic;
+      color: #374151;
     }
 
- 
+
+    .disclaimer-note {
+      background: #fff7ed; 
+      padding: 25px;
+      border-radius: 10px;
+      margin: 25px 0;
+      border-left: 5px solid #f97316; 
+      color: #374151;
+      font-size: 1.05rem;
+    }
+
+    .disclaimer-note strong {
+      color: #c2410c; 
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+
+    
     @media (max-width: 900px) {
-      h1 { font-size: 2.8rem; }
-      .tools { grid-template-columns: 1fr 1fr; }
-      .tiers-grid { grid-template-columns: 1fr; }
-      .gallery { grid-template-columns: 1fr; }
-      .ack-img { max-width: 250px; }
+      h1 {
+        font-size: 3rem;
+      }
+      .tools {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+      .gallery {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+   
+      .ack-img {
+        max-width: 300px;
+      }
+      
+      .tiers-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 768px) {
-      .header { padding: 40px 0; }
-      h1 { font-size: 2.2rem; }
-      h2 { font-size: 1.8rem; }
-      .tools { grid-template-columns: 1fr; }
-      .badges { padding: 15px; gap: 8px; }
-      .badges img { height: 20px; }
-      .footer-content { flex-direction: column; gap: 20px; text-align: center; }
-      .ack-img { max-width: 200px; }
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .tagline {
+        font-size: 1.2rem;
+      }
+      
+      .badges {
+        padding: 15px;
+        gap: 8px;
+      }
+
+      .badges img {
+        height: 24px;
+      }
+      
+      .tools {
+        grid-template-columns: 1fr;
+      }
+      
+      .gallery {
+        grid-template-columns: 1fr;
+      }
+      
+      .header {
+        padding: 30px 0;
+      }
+      
+      .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+      }
+      
+      .footer-left, .footer-center, .footer-right {
+        text-align: center;
+      }
+
+
+      .ack-img {
+        max-width: 250px;
+      }
     }
 
     @media (max-width: 480px) {
-      h1 { font-size: 1.8rem; }
-      .main-links a { display: block; width: 100%; margin: 8px 0; }
-      .highlight-section { padding: 25px; }
+      h1 {
+        font-size: 2rem;
+      }
+      
+      h2 {
+        font-size: 1.8rem;
+      }
+      
+      .banner-img {
+        border-radius: 8px;
+      }
+      
+      .main-links a {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+      }
+      
+
+      .ack-img {
+        max-width: 200px;
+      }
     }
   </style>
 </head>
@@ -735,9 +710,12 @@
 
   <div class="header">
     <div class="header-content">
+      
+
       <img src="assets/RA_banner1.png" alt="ReviewAid Banner" class="banner-img">
 
       <div class="badges">
+
         <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python Version"></a>
         <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge" alt="License"></a>
         <a href="https://doi.org/10.5281/zenodo.18060973"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.18060973.svg?style=for-the-badge" alt="DOI"></a>
@@ -762,7 +740,7 @@
         </p>
         
         <div class="motivation">
-          <h3>Why did I make this?</h3>
+          <h3 style="margin-bottom: 15px; color: #1f2937;">Why did I make this?</h3>
           <p>
             I built ReviewAid after spending countless hours staring at PDF screens, manually checking inclusion/exclusion criteria for hundreds of papers. It was tedious, prone to error, and burned me out. I needed an assistant that understood context, could handle messy PDF text, and gave me reproducible data I could export directly to Excel. ReviewAid is that assistant -fast, accurate, and completely free.
           </p>
@@ -832,8 +810,8 @@
         <h2>Confidence Scoring System</h2>
         <p>This system implements a <strong>hierarchical four-tier confidence model</strong> designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes <strong>deterministic rule-based decisions</strong> before progressively falling back to algorithmic and heuristic estimation only when necessary.</p>
         
-        <div class="highlight-section" style="margin-top: 30px;">
-          <h3>Overview</h3>
+        <div class="highlight-section" style="margin-top: 30px; border-left-color: #4189DC; background: #f0fdf4;">
+          <h3 style="margin-bottom: 20px; color: #1f2937;">Overview</h3>
           <p style="margin-bottom: 15px;">The confidence score reflects how reliably a paper has been classified or extracted. Scores range from <strong>0.0 to 1.0</strong>, where higher values indicate stronger certainty and lower values explicitly flag the need for manual review.</p>
           <p style="margin-bottom: 0;">The system operates in the following order:</p>
           <ul class="confidence-overview-list">
@@ -842,7 +820,7 @@
             <li><strong>Heuristic Keyword Estimation</strong></li>
             <li><strong>Low-Confidence Default</strong></li>
           </ul>
-          <p style="margin-top: 15px; font-size: 0.95rem; color: var(--text-muted);">Each tier is only activated if the previous tier fails to produce a valid and reliable result.</p>
+          <p style="margin-top: 15px; font-size: 0.95rem; color: #6b7280;">Each tier is only activated if the previous tier fails to produce a valid and reliable result.</p>
         </div>
 
         <div class="tiers-grid">
@@ -931,37 +909,37 @@
                     <tbody>
                         <tr>
                             <td><strong>1.0 (100%)</strong></td>
-                            <td><span class="confidence-badge">Definitive Match</span></td>
+                            <td><span class="confidence-badge" style="background:#dcfce7; color:#166534;">Definitive Match</span></td>
                             <td>Deterministic rule-based classification / No ambiguity.</td>
                             <td>Fully automated decision</td>
                         </tr>
                         <tr>
                             <td><strong>0.8 – 1.0</strong></td>
-                            <td><span class="confidence-badge">Very High</span></td>
+                            <td><span class="confidence-badge" style="background:#dbeafe; color:#1e40af;">Very High</span></td>
                             <td>AI strongly validates the decision using explicit textual evidence.</td>
                             <td>Safe to accept</td>
                         </tr>
                         <tr>
                             <td><strong>0.6 – 0.79</strong></td>
-                            <td><span class="confidence-badge">High</span></td>
+                            <td><span class="confidence-badge" style="background:#e0f2fe; color:#075985;">High</span></td>
                             <td>Criteria appear satisfied based on standard academic structure and content.</td>
                             <td>Review optional</td>
                         </tr>
                         <tr>
                             <td><strong>0.4 – 0.59</strong></td>
-                            <td><span class="confidence-badge">Moderate</span></td>
+                            <td><span class="confidence-badge" style="background:#ffedd5; color:#9a3412;">Moderate</span></td>
                             <td>Ambiguous context or loosely met criteria.</td>
                             <td>Manual verification recommended</td>
                         </tr>
                         <tr>
                             <td><strong>0.1 – 0.39</strong></td>
-                            <td><span class="confidence-badge">Low</span></td>
+                            <td><span class="confidence-badge" style="background:#fee2e2; color:#991b1b;">Low</span></td>
                             <td>Based mainly on heuristic keyword estimation.</td>
                             <td>High risk of error</td>
                         </tr>
                         <tr>
                             <td><strong>&lt; 0.1</strong></td>
-                            <td><span class="confidence-badge">Unreliable</span></td>
+                            <td><span class="confidence-badge" style="background:#f3f4f6; color:#374151;">Unreliable</span></td>
                             <td>Derived from fallback or failed extraction methods.</td>
                             <td>Mandatory manual review</td>
                         </tr>
@@ -980,7 +958,7 @@
         
         <div class="highlight-section">
             <h3>Flow</h3>
-            <ol style="margin-left: 20px; color: var(--text-secondary); line-height: 1.8;">
+            <ol style="margin-left: 20px; color: #4b5563; line-height: 1.8;">
                 <li><strong>If <code>raw_result</code> is <code>None</code></strong><br>
                 &rarr; Use regex to extract data locally.</li>
                 <li><strong>Clean the response</strong><br>
@@ -996,8 +974,8 @@
             </ol>
         </div>
 
-        <div class="motivation" style="background: rgba(16, 185, 129, 0.1); border-left-color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
-            <h3 style="margin-top: 0; color: #ecfdf5;">Guarantee</h3>
+        <div class="motivation" style="background: #f0fdf4; border-left-color: #16a34a;">
+            <h3 style="margin-top: 0; color: #14532d;">Guarantee</h3>
             <ul style="margin-left: 20px;">
                 <li>Never crashes</li>
                 <li>Always attempts to recover usable data</li>
@@ -1029,7 +1007,7 @@
         <div class="tools">
             <div class="tool" style="text-align: left;">
                 <h4>Workflow: Screener</h4>
-                <ul style="list-style-type: disc; padding-left: 20px; color: var(--text-secondary); margin-top: 10px;">
+                <ul style="list-style-type: disc; padding-left: 20px; color: #4b5563; margin-top: 10px;">
                     <li>Enter your PICO criteria (Inclusion/Exclusion) in the input fields.</li>
                     <li>Upload your PDF papers (Batch upload supported).</li>
                     <li>Click "Screen Papers".</li>
@@ -1041,7 +1019,7 @@
 
             <div class="tool" style="text-align: left;">
                 <h4>Workflow: Extractor</h4>
-                <ul style="list-style-type: disc; padding-left: 20px; color: var(--text-secondary); margin-top: 10px;">
+                <ul style="list-style-type: disc; padding-left: 20px; color: #4b5563; margin-top: 10px;">
                     <li>Enter the fields you want to extract (comma-separated).</li>
                     <li>Upload your PDF papers.</li>
                     <li>Click "Process Papers".</li>
@@ -1061,7 +1039,7 @@
           <div class="ack-text">
             <p>I gratefully acknowledge developers of <strong>GLM-4.6V-Flash (Z.ai)</strong> for providing the AI model used in ReviewAid.</p>
             <p>The visual and text-based reasoning capabilities of GLM-4.6V-Flash have greatly enhanced ReviewAid's full-text screening and data extraction workflows.</p>
-            <p>For more information, please see <a href="https://arxiv.org/abs/2507.01006" target="_blank">GLM-4.6V-Flash paper</a> and <a href="https://huggingface.co/zai-org/GLM-4.6V-Flash" target="_blank">GLM-4.6V-Flash Hugging Face</a>.</p>
+            <p>For more information, please see <a href="https://arxiv.org/abs/2507.01006" target="_blank" style="color: #4189DC; font-weight: 600;">GLM-4.6V-Flash paper</a> and <a href="https://huggingface.co/zai-org/GLM-4.6V-Flash" target="_blank" style="color: #4189DC; font-weight: 600;">GLM-4.6V-Flash Hugging Face</a>.</p>
           </div>
         </div>
       </div>
