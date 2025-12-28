@@ -145,42 +145,6 @@ This layered approach ensures that high-confidence decisions are automated safel
 | **0.1 – 0.39** | Low Confidence | Based mainly on heuristic keyword estimation. | High risk of error |
 | **< 0.1** | Unreliable | Derived from fallback or failed extraction methods. | Mandatory manual review |
 
-
----
-Here’s a **short & simple README version**:
-
----
-
-## 📦 Box 6: Bulletproof Parsing Pipeline
-
-**Purpose:** Safely parse API/AI responses, even if the JSON is broken or missing.
-
-### Flow
-
-1. **If `raw_result` is `None`**
-   → Use regex to extract data locally.
-
-2. **Clean the response**
-   → Remove Markdown, comments, and trailing commas.
-
-3. **Try standard JSON parsing**
-   → `json.loads`
-
-4. **If that fails, try JSON5**
-   → Handles loose / malformed JSON.
-
-5. **If that fails, use AI repair**
-   → Ask AI to fix the JSON.
-
-6. **Final fallback**
-   → Extract known keys using regex.
-
-### Guarantee
-
-* Never crashes
-* Always attempts to recover usable data
-
-
 ---
 
 ## 📦 Bulletproof Parsing Pipeline
