@@ -550,14 +550,20 @@ def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
         st.error("API key is missing. Please check your environment variables.")
         return None
     
-    update_terminal_log(f"Initializing ZAI Client...", "DEBUG")
-    
+   
+    try:
+        update_terminal_log(f"Initializing ZAI Client...", "DEBUG")
+    except:
+        pass
     
     max_retries = 10 
     
     for attempt in range(max_retries):
         try:
-            update_terminal_log(f"API Call Attempt {attempt + 1}/{max_retries}...", "DEBUG")
+            try:
+                update_terminal_log(f"API Call Attempt {attempt + 1}/{max_retries}...", "DEBUG")
+            except:
+                pass
             
             client = ZaiClient(api_key=api_key)
             
@@ -578,7 +584,10 @@ def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
             del response 
             del client 
             
-            update_terminal_log("Response received successfully.", "SUCCESS")
+            try:
+                update_terminal_log("Response received successfully.", "SUCCESS")
+            except:
+                pass
             return result_content
             
         except Exception as e:
@@ -588,21 +597,35 @@ def query_zai(prompt, api_key, temperature=0.1, max_tokens=2048):
                 is_rate_limit = True
             
             if is_rate_limit:
-                update_terminal_log(f"Rate Limit / Quota Exceeded detected.", "WARN")
+                try:
+                    update_terminal_log(f"Rate Limit / Quota Exceeded detected.", "WARN")
+                except:
+                    pass
                 
-            
                 wait_time = 15 * (2 ** attempt)
                 
                 if attempt < max_retries - 1:
-                    update_terminal_log(f"Rate limit hit. Waiting {wait_time} seconds before retry...", "WARN")
+                    try:
+                        update_terminal_log(f"Rate limit hit. Waiting {wait_time} seconds before retry...", "WARN")
+                    except:
+                        pass
                     time.sleep(wait_time)
-                    update_terminal_log(f"Resuming retry...", "INFO")
+                    try:
+                        update_terminal_log(f"Resuming retry...", "INFO")
+                    except:
+                        pass
                 else:
-                    update_terminal_log("Max retries reached for rate limit. Falling back to local processing.", "ERROR")
+                    try:
+                        update_terminal_log("Max retries reached for rate limit. Falling back to local processing.", "ERROR")
+                    except:
+                        pass
                     return None
             else:
-                update_terminal_log(f"API Error: {error_str}", "ERROR")
-             
+                try:
+                    update_terminal_log(f"API Error: {error_str}", "ERROR")
+                except:
+                    pass
+            
                 if attempt < 3:
                      time.sleep(2)
                 else:
@@ -648,44 +671,77 @@ def parse_result(raw_result, api_key, mode="screener", fields_list=None, origina
     Tries Standard JSON -> JSON5 -> AI Repair -> Re-extraction -> Regex Fallback.
     """
     if raw_result is None:
-        update_terminal_log("API response was None. Using Regex Fallback (Local Processing).", "WARN")
+        try:
+            update_terminal_log("API response was None. Using Regex Fallback (Local Processing).", "WARN")
+        except:
+            pass
         if original_text:
             return _regex_extract_fallback(original_text, mode, fields_list)
         else:
             return _get_default_result(mode, fields_list)
     
-    update_terminal_log("Starting Bulletproof JSON parsing pipeline...", "DEBUG")
+    try:
+        update_terminal_log("Starting Bulletproof JSON parsing pipeline...", "DEBUG")
+    except:
+        pass
     
     cleaned_json = clean_json_response(raw_result)
     
     if not cleaned_json or len(cleaned_json) < 10:
-        update_terminal_log("Cleaned JSON is empty or invalid. Structure likely missing.", "WARN")
+        try:
+            update_terminal_log("Cleaned JSON is empty or invalid. Structure likely missing.", "WARN")
+        except:
+            pass
         if original_text:
-            update_terminal_log("Attempting Re-extraction due to structural failure...", "WARN")
+            try:
+                update_terminal_log("Attempting Re-extraction due to structural failure...", "WARN")
+            except:
+                pass
             res = _attempt_re_extraction(original_text, api_key, mode, fields_list)
             del original_text 
             return res
         return _regex_extract_fallback(raw_result, mode, fields_list)
 
     try:
-        update_terminal_log("Attempting standard json.loads()...", "DEBUG")
+        try:
+            update_terminal_log("Attempting standard json.loads()...", "DEBUG")
+        except:
+            pass
         data = json.loads(cleaned_json)
-        update_terminal_log("Standard JSON parse successful.", "SUCCESS")
+        try:
+            update_terminal_log("Standard JSON parse successful.", "SUCCESS")
+        except:
+            pass
         del cleaned_json 
         return data
     except json.JSONDecodeError as e:
-        update_terminal_log(f"Standard JSON failed: {str(e)}", "WARN")
+        try:
+            update_terminal_log(f"Standard JSON failed: {str(e)}", "WARN")
+        except:
+            pass
 
     try:
-        update_terminal_log("Attempting JSON5 parser (relaxed standard)...", "DEBUG")
+        try:
+            update_terminal_log("Attempting JSON5 parser (relaxed standard)...", "DEBUG")
+        except:
+            pass
         data = json5.loads(cleaned_json)
-        update_terminal_log("JSON5 parse successful.", "SUCCESS")
+        try:
+            update_terminal_log("JSON5 parse successful.", "SUCCESS")
+        except:
+            pass
         del cleaned_json 
         return data
     except Exception as e:
-        update_terminal_log(f"JSON5 failed: {str(e)}", "WARN")
+        try:
+            update_terminal_log(f"JSON5 failed: {str(e)}", "WARN")
+        except:
+            pass
 
-    update_terminal_log("Attempting AI-based JSON repair...", "WARN")
+    try:
+        update_terminal_log("Attempting AI-based JSON repair...", "WARN")
+    except:
+        pass
     repair_prompt = f"""
 The system generated a malformed JSON response. Your task is to fix the syntax errors and return ONLY a valid JSON object.
 
@@ -704,24 +760,42 @@ Malformed JSON:
         fixed_cleaned = clean_json_response(fixed_raw)
         if fixed_cleaned:
             try:
-                update_terminal_log("Testing AI-Repaired JSON...", "DEBUG")
+                try:
+                    update_terminal_log("Testing AI-Repaired JSON...", "DEBUG")
+                except:
+                    pass
                 data = json.loads(fixed_cleaned)
-                update_terminal_log("AI repair successful.", "SUCCESS")
+                try:
+                    update_terminal_log("AI repair successful.", "SUCCESS")
+                except:
+                    pass
                 del fixed_raw, fixed_cleaned
                 return data
             except:
-                update_terminal_log("AI repair failed.", "ERROR")
+                try:
+                    update_terminal_log("AI repair failed.", "ERROR")
+                except:
+                    pass
     else:
-        update_terminal_log("AI repair skipped (empty/rate limit).", "WARN")
+        try:
+            update_terminal_log("AI repair skipped (empty/rate limit).", "WARN")
+        except:
+            pass
 
-    update_terminal_log("All parsers failed. Using Regex Extraction Fallback.", "ERROR")
+    try:
+        update_terminal_log("All parsers failed. Using Regex Extraction Fallback.", "ERROR")
+    except:
+        pass
     return _regex_extract_fallback(raw_result, mode, fields_list)
 
 def _attempt_re_extraction(original_text, api_key, mode, fields_list):
     """
     If first attempt failed (empty or bad structure), try once more with a very strict prompt.
     """
-    update_terminal_log("Re-extraction initiated...", "SYSTEM")
+    try:
+        update_terminal_log("Re-extraction initiated...", "SYSTEM")
+    except:
+        pass
     
 
     text_snippet = original_text[:MAX_INPUT_TOKENS_SCREENER*3] 
@@ -774,13 +848,19 @@ Return ONLY JSON object.
         cleaned = clean_json_response(re_raw)
         try:
             data = json.loads(cleaned)
-            update_terminal_log("Re-extraction successful.", "SUCCESS")
+            try:
+                update_terminal_log("Re-extraction successful.", "SUCCESS")
+            except:
+                pass
             del re_raw, cleaned
             return data
         except:
             pass
     
-    update_terminal_log("Re-extraction failed. Using default/regex.", "ERROR")
+    try:
+        update_terminal_log("Re-extraction failed. Using default/regex.", "ERROR")
+    except:
+        pass
     return _get_default_result(mode, fields_list)
 
 def _get_default_result(mode, fields_list):
@@ -805,7 +885,10 @@ def _regex_extract_fallback(text, mode, fields_list):
     Extracts specific key-value pairs from unstructured text using Regex.
     Used when JSON parsing fails completely. Improved to handle non-JSON formats.
     """
-    update_terminal_log("Running Regex Fallback extraction...", "DEBUG")
+    try:
+        update_terminal_log("Running Regex Fallback extraction...", "DEBUG")
+    except:
+        pass
     
     result = {}
     confidence = 0.2 
@@ -1196,13 +1279,20 @@ def extract_pdf_content(pdf_bytes):
     Modified to accept raw bytes to prevent duplicate reading into memory.
     Reads file bytes ONCE, calculates hash, and passes bytes to PyMuPDF.
     """
-    update_terminal_log("Initializing PDF extraction engine (PyMuPDF)...", "DEBUG")
+    try:
+        update_terminal_log("Initializing PDF extraction engine (PyMuPDF)...", "DEBUG")
+    except:
+        pass
+        
     doc = None
     try:
        
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
         page_count = doc.page_count
-        update_terminal_log(f"Document opened successfully. Total pages: {page_count}", "INFO")
+        try:
+            update_terminal_log(f"Document opened successfully. Total pages: {page_count}", "INFO")
+        except:
+            pass
         
         MAX_CHAR_LIMIT = 600000 
         
@@ -1212,7 +1302,10 @@ def extract_pdf_content(pdf_bytes):
         
         for i, page in enumerate(doc):
             if current_length > MAX_CHAR_LIMIT and not references_found:
-                 update_terminal_log(f"Token limit reached at Page {i+1}. Stopping PDF read.", "INFO")
+                 try:
+                     update_terminal_log(f"Token limit reached at Page {i+1}. Stopping PDF read.", "INFO")
+                 except:
+                     pass
                  break
             
             page_text = page.get_text()
@@ -1233,7 +1326,10 @@ def extract_pdf_content(pdf_bytes):
         if ref_match:
             main_text_end = ref_match.start()
             full_text = full_text[:main_text_end]
-            update_terminal_log("References section detected and removed to save tokens.", "INFO")
+            try:
+                update_terminal_log("References section detected and removed to save tokens.", "INFO")
+            except:
+                pass
             del ref_match
 
         metadata = doc.metadata
@@ -1241,7 +1337,10 @@ def extract_pdf_content(pdf_bytes):
         author = metadata.get('author', '')
         del metadata 
         
-        update_terminal_log(f"Metadata read -> Title: '{title}', Author: '{author}'", "DEBUG")
+        try:
+            update_terminal_log(f"Metadata read -> Title: '{title}', Author: '{author}'", "DEBUG")
+        except:
+            pass
         
         year = ''
         if not year:
@@ -1249,7 +1348,10 @@ def extract_pdf_content(pdf_bytes):
                 year_match = re.search(r'\b(19|20)\d{2}\b', full_text[:5000]) 
                 if year_match:
                     year = year_match.group()
-                    update_terminal_log(f"Year found on Page 1: {year}", "DEBUG")
+                    try:
+                        update_terminal_log(f"Year found on Page 1: {year}", "DEBUG")
+                    except:
+                        pass
         
         if not year:
             creation_date = doc.metadata.get('creationDate', '')
@@ -1257,12 +1359,18 @@ def extract_pdf_content(pdf_bytes):
                 year_match = re.search(r'\b(19|20)\d{2}\b', creation_date)
                 if year_match:
                     year = year_match.group()
-                    update_terminal_log(f"Year derived from creationDate: {year}", "DEBUG")
+                    try:
+                        update_terminal_log(f"Year derived from creationDate: {year}", "DEBUG")
+                    except:
+                        pass
         
         return full_text, title, author, year
         
     except Exception as e:
-        update_terminal_log(f"Error during PDF extraction: {str(e)}", "ERROR")
+        try:
+            update_terminal_log(f"Error during PDF extraction: {str(e)}", "ERROR")
+        except:
+            pass
         return "", "", "", ""
     finally:
         if doc:
@@ -1275,13 +1383,19 @@ def preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_SCREENER):
     
     char_limit = max_tokens * 4
     if len(text) > char_limit:
-        update_terminal_log(f"Text exceeds token limit ({len(text)} > {char_limit}). Truncating...", "WARN")
+        try:
+            update_terminal_log(f"Text exceeds token limit ({len(text)} > {char_limit}). Truncating...", "WARN")
+        except:
+            pass
         text = text[:char_limit]
     
     return text
 
 def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_data=None, fields_list=None):
-    update_terminal_log(f"Calculating heuristic confidence for mode: {mode}", "DEBUG")
+    try:
+        update_terminal_log(f"Calculating heuristic confidence for mode: {mode}", "DEBUG")
+    except:
+        pass
     
     if not text or len(text.strip()) < 30:
         return 0.1 
@@ -1314,7 +1428,10 @@ def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_dat
             count_matches(criteria_dict.get("outcome", ""))
 
         if total_criteria == 0:
-            update_terminal_log("No criteria provided for heuristic estimation. Defaulting to 0.4.", "DEBUG")
+            try:
+                update_terminal_log("No criteria provided for heuristic estimation. Defaulting to 0.4.", "DEBUG")
+            except:
+                pass
             return 0.4
         
         score = match_count / total_criteria
@@ -1322,12 +1439,18 @@ def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_dat
         if score > 0.8:
             score = min(score + 0.1, 1.0)
         
-        update_terminal_log(f"Screener Heuristic: {match_count}/{total_criteria} criteria matched. Score: {score:.2f}", "DEBUG")
+        try:
+            update_terminal_log(f"Screener Heuristic: {match_count}/{total_criteria} criteria matched. Score: {score:.2f}", "DEBUG")
+        except:
+            pass
         return round(score, 2)
 
     elif mode == "extractor":
         if not extracted_data or not isinstance(extracted_data, dict):
-            update_terminal_log("No extracted data available for validation. Defaulting to 0.4.", "DEBUG")
+            try:
+                update_terminal_log("No extracted data available for validation. Defaulting to 0.4.", "DEBUG")
+            except:
+                pass
             return 0.4
             
         valid_fields = 0
@@ -1353,7 +1476,10 @@ def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_dat
             return 0.1
         
         score = found_fields / valid_fields
-        update_terminal_log(f"Extractor Heuristic: {found_fields}/{valid_fields} fields verified in text. Score: {score:.2f}", "DEBUG")
+        try:
+            update_terminal_log(f"Extractor Heuristic: {found_fields}/{valid_fields} fields verified in text. Score: {score:.2f}", "DEBUG")
+        except:
+            pass
         return round(score, 2)
 
     return 0.4
@@ -1442,6 +1568,7 @@ def to_docx(df):
     
 
     generated_date = datetime.now().strftime("%Y-%m-%d")
+    
     footer_text = f"Generated by ReviewAid on {generated_date}"
     
     footer_run = footer_para.add_run(footer_text)
@@ -1601,15 +1728,24 @@ def to_excel(df):
 
 def find_exclusion_matches(text, exclusion_lists):
     matches = []
-    update_terminal_log("Scanning text for exclusion keywords...", "DEBUG")
+    try:
+        update_terminal_log("Scanning text for exclusion keywords...", "DEBUG")
+    except:
+        pass
     for criteria in exclusion_lists:
         criteria = criteria.strip()
         if criteria:
             if criteria.lower() in text.lower():
-                update_terminal_log(f"Match found for exclusion criteria: '{criteria}'", "INFO")
+                try:
+                    update_terminal_log(f"Match found for exclusion criteria: '{criteria}'", "INFO")
+                except:
+                    pass
                 matches.append(criteria)
             else:
-                update_terminal_log(f"No match for exclusion criteria: '{criteria}'", "DEBUG")
+                try:
+                    update_terminal_log(f"No match for exclusion criteria: '{criteria}'", "DEBUG")
+                except:
+                    pass
     return matches
 
 def update_terminal_log(msg, level="INFO"):
@@ -1655,7 +1791,12 @@ def update_terminal_log(msg, level="INFO"):
         </script>
         """
         
-        st.session_state.terminal_placeholder.markdown(full_log_html + scroll_script, unsafe_allow_html=True)
+     
+        try:
+            st.session_state.terminal_placeholder.markdown(full_log_html + scroll_script, unsafe_allow_html=True)
+        except Exception:
+         
+            pass
         st.session_state.last_log_update_time = current_time
 
 
@@ -1765,25 +1906,36 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
  
             gc.collect()
             
-            
+           
             matches_exc = []
             matches_inc = []
             result = None
             processing_successful = False
             text = ""
+            full_text_backup = ""
+            title, author, year = "", "", ""
             
-            update_terminal_log(f"--- Starting File {idx}/{total_pdfs}: {pdf.name} ---", "SYSTEM")
+            try:
+                update_terminal_log(f"--- Starting File {idx}/{total_pdfs}: {pdf.name} ---", "SYSTEM")
+            except:
+                pass
+            
             
             try:
                 start_time_file = time.time()
 
-     
+                if not pdf:
+                    raise ValueError("PDF object is None")
+
                 pdf.seek(0)
                 pdf_bytes = pdf.read()
                 pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
                 
                 if pdf_hash in st.session_state.batch_file_hashes:
-                    update_terminal_log(f"Duplicate file detected (Hash match). Using cached result.", "WARN")
+                    try:
+                        update_terminal_log(f"Duplicate file detected (Hash match). Using cached result.", "WARN")
+                    except:
+                        pass
                     cached_result = st.session_state.batch_file_hashes[pdf_hash]
         
                     cached_result["filename"] = pdf.name
@@ -1798,38 +1950,58 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                             st.session_state.maybe_results.append(cached_result)
                         else:
                             st.session_state.excluded_results.append(cached_result)
-                        update_processing_stats("screener", 1)
+                        try:
+                            update_processing_stats("screener", 1)
+                        except:
+                            pass
                     else:
                         st.session_state.extracted_results.append(cached_result)
-                        update_processing_stats("extractor", 1)
+                        try:
+                            update_processing_stats("extractor", 1)
+                        except:
+                            pass
                     
                     papers_processed_in_batch += 1
                     
-                 
-                    percent = int((idx / total_pdfs) * 100)
-                    status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span> (Cached)</h4>", unsafe_allow_html=True)
-                    progress_bar.progress(idx / total_pdfs)
-                    update_terminal_log("Skipped API call. Using cached data.", "SUCCESS")
+           
+                    try:
+                        percent = int((idx / total_pdfs) * 100)
+                        status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span> (Cached)</h4>", unsafe_allow_html=True)
+                        progress_bar.progress(idx / total_pdfs)
+                        update_terminal_log("Skipped API call. Using cached data.", "SUCCESS")
+                    except:
+                        pass
                     
-         
+                 
                     del pdf_bytes
                     continue
                 else:
-                    update_terminal_log("New file detected. Proceeding with extraction.", "DEBUG")
+                    try:
+                        update_terminal_log("New file detected. Proceeding with extraction.", "DEBUG")
+                    except:
+                        pass
                 
 
                 text, title, author, year = extract_pdf_content(pdf_bytes)
                 
-         
                 del pdf_bytes 
 
                 if not text.strip():
-                    update_terminal_log(f"PDF '{pdf.name}' appears empty or unreadable.", "WARN")
-                    update_terminal_log("Skipping this file.", "WARN")
+                    try:
+                        update_terminal_log(f"PDF '{pdf.name}' appears empty or unreadable.", "WARN")
+                    except:
+                        pass
+                    try:
+                        update_terminal_log("Skipping this file.", "WARN")
+                    except:
+                        pass
                     progress_bar.progress(idx / total_pdfs)
                     continue
                 
-                update_terminal_log(f"Text extracted. Length: {len(text)} chars.", "INFO")
+                try:
+                    update_terminal_log(f"Text extracted. Length: {len(text)} chars.", "INFO")
+                except:
+                    pass
 
                 full_text_backup = text
 
@@ -1838,10 +2010,13 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                 else:
                     text = preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_EXTRACTOR)
 
-                if st.session_state.app_mode == "screener":
-                    update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS_SCREENER}.", "INFO")
-                else:
-                    update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS_EXTRACTOR}.", "INFO")
+                try:
+                    if st.session_state.app_mode == "screener":
+                        update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS_SCREENER}.", "INFO")
+                    else:
+                        update_terminal_log(f"Text preprocessed. Input Tokens: ~{MAX_INPUT_TOKENS_EXTRACTOR}.", "INFO")
+                except:
+                    pass
  
                 criteria_dict = {
                     "pop_inc": population_inclusion,
@@ -1860,7 +2035,10 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                     extracted_data=None, 
                     fields_list=fields_list
                 )
-                update_terminal_log(f"Initial heuristic confidence score estimated: {confidence}", "INFO")
+                try:
+                    update_terminal_log(f"Initial heuristic confidence score estimated: {confidence}", "INFO")
+                except:
+                    pass
 
                 raw_result = None
                 prompt = ""
@@ -1871,7 +2049,10 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         if block.strip():
                             all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
                     
-                    update_terminal_log(f"Total exclusion criteria loaded: {len(all_exclusions)}", "INFO")
+                    try:
+                        update_terminal_log(f"Total exclusion criteria loaded: {len(all_exclusions)}", "INFO")
+                    except:
+                        pass
                     matches_exc = find_exclusion_matches(text, all_exclusions)
 
                     all_inclusions = []
@@ -1880,10 +2061,16 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                             all_inclusions.extend([c.strip() for c in block.split(",") if c.strip()])
                     
                     matches_inc = []
-                    update_terminal_log("Scanning text for inclusion keywords...", "DEBUG")
+                    try:
+                        update_terminal_log("Scanning text for inclusion keywords...", "DEBUG")
+                    except:
+                        pass
                     for criteria in all_inclusions:
                         if criteria.strip() and criteria.lower() in text.lower():
-                            update_terminal_log(f"Match found for inclusion criteria: '{criteria}'", "INFO")
+                            try:
+                                update_terminal_log(f"Match found for inclusion criteria: '{criteria}'", "INFO")
+                            except:
+                                pass
                             matches_inc.append(criteria)
                 
             
@@ -1907,25 +2094,43 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
                         }
                         st.session_state.batch_file_hashes[pdf_hash] = result
                         st.session_state.excluded_results.append(result)
-                        update_terminal_log(f"Found {len(matches_exc)} exclusion matches: {matches_exc}", "WARN")
-                        update_terminal_log(f"Result: EXCLUDED (Auto-rule) with Confidence 1.0", "WARN")
+                        try:
+                            update_terminal_log(f"Found {len(matches_exc)} exclusion matches: {matches_exc}", "WARN")
+                        except:
+                            pass
+                        try:
+                            update_terminal_log(f"Result: EXCLUDED (Auto-rule) with Confidence 1.0", "WARN")
+                        except:
+                            pass
                         
       
-                        percent = int((idx / total_pdfs) * 100)
-                        status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span></h4>", unsafe_allow_html=True)
-                        progress_bar.progress(idx / total_pdfs)
+                        try:
+                            percent = int((idx / total_pdfs) * 100)
+                            status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span></h4>", unsafe_allow_html=True)
+                            progress_bar.progress(idx / total_pdfs)
+                        except:
+                            pass
                         
-                        update_processing_stats("screener", 1)
+                        try:
+                            update_processing_stats("screener", 1)
+                        except:
+                            pass
                         papers_processed_in_batch += 1
 
-              
+             
                         del text, full_text_backup, matches_exc, matches_inc
                         continue
                     
                     elif len(matches_exc) >= 1 and len(matches_inc) >= 1:
-                        update_terminal_log("Conflict detected: Both Exclusion and Inclusion keywords found. Sending to AI for resolution.", "WARN")
+                        try:
+                            update_terminal_log("Conflict detected: Both Exclusion and Inclusion keywords found. Sending to AI for resolution.", "INFO")
+                        except:
+                            pass
                  
-                    update_terminal_log("Constructing PICO prompt for AI...", "INFO")
+                    try:
+                        update_terminal_log("Constructing PICO prompt for AI...", "INFO")
+                    except:
+                        pass
                     prompt = f"""
 You are an expert systematic reviewer. Your task is to screen a research paper based on specific PICO criteria.
 
@@ -1973,7 +2178,10 @@ Exclusion: {comparison_exclusion}
 }}
 """
                 else:
-                    update_terminal_log(f"Preparing extraction fields: {', '.join(fields_list)}", "INFO")
+                    try:
+                        update_terminal_log(f"Preparing extraction fields: {', '.join(fields_list)}", "INFO")
+                    except:
+                        pass
                     field_descriptions = {
                         "Paper Title": "The full title of the research paper",
                         "Author": "The main author(s) of the paper",
@@ -2029,7 +2237,10 @@ If a field is not found in the text, use the value "Not Found".
                 
                 for api_attempt in range(max_api_attempts):
                     if api_attempt > 0:
-                        update_terminal_log("Previous attempt failed after retries. Initiating NEW API call for this paper...", "WARN")
+                        try:
+                            update_terminal_log("Previous attempt failed after retries. Initiating NEW API call for this paper...", "WARN")
+                        except:
+                            pass
                     
                     for retry_idx in range(retries_per_api_attempt):
                         if st.session_state.app_mode == "extractor":
@@ -2039,7 +2250,10 @@ If a field is not found in the text, use the value "Not Found".
 
        
                         if raw_result is None:
-                            update_terminal_log("API returned None after exhaustive retries. Falling back to Regex.", "ERROR")
+                            try:
+                                update_terminal_log("API returned None after exhaustive retries. Falling back to Regex.", "ERROR")
+                            except:
+                                pass
                             processing_successful = False
                             break 
                         
@@ -2048,23 +2262,37 @@ If a field is not found in the text, use the value "Not Found".
                             break 
                         
                         if retry_idx < retries_per_api_attempt - 1:
-                             update_terminal_log(f"API returned empty response. Retry {retry_idx + 2}/{retries_per_api_attempt}...", "ERROR")
+                             try:
+                                 update_terminal_log(f"API returned empty response. Retry {retry_idx + 2}/{retries_per_api_attempt}...", "ERROR")
+                             except:
+                                 pass
                              time.sleep(2)
                     
                     if processing_successful:
                         break
                 
-              
                 del prompt 
 
                 if not processing_successful:
-                    update_terminal_log("AI processing failed. Switching to Regex Fallback (Local Processing) to ensure result is generated.", "WARN")
+                    try:
+                        update_terminal_log("AI processing failed. Switching to Regex Fallback (Local Processing) to ensure result is generated.", "WARN")
+                    except:
+                        pass
 
                 if raw_result:
-                     update_terminal_log(f"API response received. Length: {len(raw_result)} chars.", "SUCCESS")
-                     update_terminal_log("Parsing JSON response...", "INFO")
+                     try:
+                         update_terminal_log(f"API response received. Length: {len(raw_result)} chars.", "SUCCESS")
+                     except:
+                         pass
+                     try:
+                         update_terminal_log("Parsing JSON response...", "INFO")
+                     except:
+                         pass
                 else:
-                     update_terminal_log("Using Fallback Strategy for parsing...", "WARN")
+                     try:
+                         update_terminal_log("Using Fallback Strategy for parsing...", "WARN")
+                     except:
+                         pass
 
                 if st.session_state.app_mode == "screener":
                     result = parse_result(raw_result, api_key, mode="screener", original_text=full_text_backup, fields_list=fields_list)
@@ -2085,7 +2313,6 @@ If a field is not found in the text, use the value "Not Found".
                     if "filename" not in result:
                         result["filename"] = pdf.name
                 
-           
                 if raw_result:
                     del raw_result
                 
@@ -2094,7 +2321,10 @@ If a field is not found in the text, use the value "Not Found".
                 gc.collect()
 
                 if result and processing_successful:
-                    update_terminal_log("Result generation completed (AI or Fallback).", "SUCCESS")
+                    try:
+                        update_terminal_log("Result generation completed (AI or Fallback).", "SUCCESS")
+                    except:
+                        pass
 
                     ai_confidence = result.get("confidence", None)
                     if ai_confidence is not None:
@@ -2103,7 +2333,10 @@ If a field is not found in the text, use the value "Not Found".
                             confidence = max(0.0, min(1.0, confidence))
                             update_terminal_log(f"Using reported confidence: {confidence}", "INFO")
                         except ValueError:
-                            update_terminal_log(f"Confidence invalid format. Using fallback.", "WARN")
+                            try:
+                                update_terminal_log(f"Confidence invalid format. Using fallback.", "WARN")
+                            except:
+                                pass
 
                             confidence = estimate_confidence(
                                 text, 
@@ -2113,7 +2346,10 @@ If a field is not found in the text, use the value "Not Found".
                                 fields_list=fields_list
                             )
                     else:
-                        update_terminal_log(f"Confidence missing. Using heuristic fallback.", "WARN")
+                        try:
+                            update_terminal_log(f"Confidence missing. Using heuristic fallback.", "WARN")
+                        except:
+                            pass
 
                         confidence = estimate_confidence(
                             text, 
@@ -2127,7 +2363,10 @@ If a field is not found in the text, use the value "Not Found".
                     
                     if confidence < 0.5:
                         result["flags"] = ["low_confidence"]
-                        update_terminal_log("Flagged: Low confidence score.", "WARN")
+                        try:
+                            update_terminal_log("Flagged: Low confidence score.", "WARN")
+                        except:
+                            pass
 
                     if st.session_state.app_mode == "screener":
                         if "title" not in result or not result["title"] or result["title"] == "":
@@ -2155,18 +2394,33 @@ If a field is not found in the text, use the value "Not Found".
 
                         if status == "include":
                             st.session_state.included_results.append(result)
-                            update_terminal_log(f"Final Decision: INCLUDE", "SUCCESS")
+                            try:
+                                update_terminal_log(f"Final Decision: INCLUDE", "SUCCESS")
+                            except:
+                                pass
                         elif status == "exclude":
                             st.session_state.excluded_results.append(result)
-                            update_terminal_log(f"Final Decision: EXCLUDE", "SUCCESS")
+                            try:
+                                update_terminal_log(f"Final Decision: EXCLUDE", "SUCCESS")
+                            except:
+                                pass
                         elif status == "maybe":
                             st.session_state.maybe_results.append(result)
-                            update_terminal_log(f"Final Decision: MAYBE", "SUCCESS")
+                            try:
+                                update_terminal_log(f"Final Decision: MAYBE", "SUCCESS")
+                            except:
+                                pass
                         else:
                             st.session_state.excluded_results.append(result)
-                            update_terminal_log(f"Final Decision: EXCLUDE (Default)", "INFO")
+                            try:
+                                update_terminal_log(f"Final Decision: EXCLUDE (Default)", "INFO")
+                            except:
+                                pass
                         
-                        update_processing_stats("screener", 1)
+                        try:
+                            update_processing_stats("screener", 1)
+                        except:
+                            pass
                         papers_processed_in_batch += 1
 
                     else:
@@ -2175,40 +2429,69 @@ If a field is not found in the text, use the value "Not Found".
                                 result["extracted"][key] = result["extracted"][key][:1000] + "..."
 
                         st.session_state.extracted_results.append(result)
-                        update_terminal_log("Data extraction completed.", "SUCCESS")
-                        update_processing_stats("extractor", 1)
+                        try:
+                            update_terminal_log("Data extraction completed.", "SUCCESS")
+                        except:
+                            pass
+                        try:
+                            update_processing_stats("extractor", 1)
+                        except:
+                            pass
                         papers_processed_in_batch += 1
             
 
                     st.session_state.batch_file_hashes[pdf_hash] = result
                 
                 elapsed = time.time() - start_time_file
-                update_terminal_log(f"File processed in {elapsed:.2f}s.", "SYSTEM")
+                try:
+                    update_terminal_log(f"File processed in {elapsed:.2f}s.", "SYSTEM")
+                except:
+                    pass
 
-      
             except Exception as e:
-                update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
-                import traceback
-                update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
+              
+                try:
+                    update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
+                except:
+                    pass
+                try:
+                    import traceback
+                    update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
+                except:
+                    pass
         
+
                 gc.collect()
-                continue
+         
             
-            
-            percent = int((idx / total_pdfs) * 100)
-            status_placeholder.markdown(f"<h6 style='text-align: center; color: 'white';'>Processed {percent}% of papers... Processing <span style='color: #4189DC'> {pdf.name}</span></h6>", unsafe_allow_html=True)
-            progress_bar.progress(idx / total_pdfs)
-            
-        
+            finally:
+               
+                try:
+                    percent = int((idx / total_pdfs) * 100)
+                    status_placeholder.markdown(f"<h6 style='text-align: center; color: 'white';'>Processed {percent}% of papers... Processing <span style='color: #4189DC'> {pdf.name}</span></h6>", unsafe_allow_html=True)
+                    progress_bar.progress(idx / total_pdfs)
+                except:
+                    pass
+
     except Exception as e:
-        update_terminal_log(f"CRITICAL BATCH ERROR: {str(e)}", "ERROR")
-        import traceback
-        update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
+      
+        try:
+            update_terminal_log(f"CRITICAL BATCH ERROR: {str(e)}", "ERROR")
+        except:
+            pass
+        try:
+            import traceback
+            update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
+        except:
+            pass
 
 
     status_placeholder.empty()
-    update_terminal_log("=== Batch processing complete ===", "SYSTEM")
-    update_terminal_log(f"Processed {papers_processed_in_batch} papers in this session.", "SUCCESS")
+    try:
+        update_terminal_log("=== Batch processing complete ===", "SYSTEM")
+        update_terminal_log(f"Processed {papers_processed_in_batch} papers in this session.", "SUCCESS")
+    except:
+        pass
 
 if st.session_state.app_mode == "screener":
     included = len(st.session_state.included_results)
