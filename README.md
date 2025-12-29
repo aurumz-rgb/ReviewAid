@@ -34,9 +34,9 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 
 - **NOTE ‼️:** 
 
-- ReviewAid is used as a supplementary tool alongside manual screening and data extraction to minimise errors and improve research accuracy, without replacing human judgment. 
+1. ReviewAid is used as a supplementary tool alongside manual screening and data extraction to minimise errors and improve research accuracy, without replacing human judgment. 
   
-- Please restrict each submission to a maximum of **20 articles**. Submissions exceeding this limit will result in processing of only the first 20 articles, after which the process will **terminate** prematurely. Kindly adhere to this restriction. **Please respect this limit.**
+2. Please restrict each submission to a maximum of **20 articles**. Submissions exceeding this limit will result in processing of only the first 20 articles, after which the process will **terminate** prematurely. Kindly adhere to this restriction. **Please respect this limit.**
 
 ---
 
