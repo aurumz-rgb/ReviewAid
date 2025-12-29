@@ -255,7 +255,7 @@ The visual and text-based reasoning capabilities of GLM-4.6V-Flash have greatly 
 
 For more information, please see the [GLM-4.6V-Flash paper](https://arxiv.org/abs/2507.01006) and [GLM-4.6V-Flash Hugging Face](https://huggingface.co/zai-org/GLM-4.6V-Flash).
 
-I would also like to thank @Nightraven5115 for his thorough validation of ReviewAid, including batch testing, error checks, and confidence verification, which significantly improved the tool’s reliability and accuracy.
+I would also like to thank [@Nightraven5115](https://github.com/Nightraven5115) for his thorough validation of ReviewAid, including batch testing, error checks, and confidence verification, which significantly improved the tool’s reliability and accuracy.
 
 ---
 
