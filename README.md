@@ -33,7 +33,10 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 - **Open-source and extensible:** Built on Python and Streamlit for easy customization and community contributions.  
 
 - **NOTE ‼️:** 
-  ReviewAid is used as a supplementary tool alongside manual screening and data extraction to minimise errors and improve research accuracy, without replacing human judgment.
+
+- ReviewAid is used as a supplementary tool alongside manual screening and data extraction to minimise errors and improve research accuracy, without replacing human judgment. 
+  
+- Please restrict each submission to a maximum of **20 articles**. Submissions exceeding this limit will result in processing of only the first 20 articles, after which the process will **terminate** prematurely. Kindly adhere to this restriction. **Please respect this limit.**
 
 ---
 
@@ -239,7 +242,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ![Extractor2](screenshots/extractor2.png) 
 
-![Extractor3](screenshots/extractor2.png) 
+![Extractor3](screenshots/extractor3.png) 
 
 ---
 
@@ -252,6 +255,7 @@ The visual and text-based reasoning capabilities of GLM-4.6V-Flash have greatly 
 
 For more information, please see the [GLM-4.6V-Flash paper](https://arxiv.org/abs/2507.01006) and [GLM-4.6V-Flash Hugging Face](https://huggingface.co/zai-org/GLM-4.6V-Flash).
 
+I would also like to thank @Nightraven5115 for his thorough validation of ReviewAid, including batch testing, error checks, and confidence verification, which significantly improved the tool’s reliability and accuracy.
 
 ---
 

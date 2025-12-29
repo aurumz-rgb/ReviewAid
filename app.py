@@ -1232,7 +1232,7 @@ if st.session_state.app_mode is None:
     st.markdown("""
     <div class="important-note-box">
         <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process. 
-          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a> or  <a href="https://github.com/aurumz-rgb/ReviewAid/issues" target="_blank">Github Issues</a>.  
+          <strong>Have any Errors?</strong> Please visit this <a href="https://aurumz-rgb.github.io/ReviewAid" target="_blank">Web</a> or  <a href="https://github.com/aurumz-rgb/ReviewAid/issues" target="_blank">Github Issues</a>.  
     </div>
     """, unsafe_allow_html=True)
     
@@ -1922,7 +1922,7 @@ if st.session_state.app_mode == "screener":
     st.subheader("Outcome Criteria (Optional)")
     outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
 
-    uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats)", accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats, Strictly 20 papers in one time)", accept_multiple_files=True)
     
     
     fields_list = []
@@ -1940,7 +1940,7 @@ elif st.session_state.app_mode == "extractor":
     
     
 
-    uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats)", accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats, Strictly 20 papers in one time)", accept_multiple_files=True)
     
     population_inclusion = ""
     population_exclusion = ""
@@ -1995,7 +1995,7 @@ if st.button("Process Papers" if st.session_state.app_mode == "extractor" else "
         update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 2000)}", "INFO")
         update_terminal_log("Allocating resources...", "DEBUG")
 
-    max_papers = 101 #maxpapers temporary 
+    max_papers = 21 
     total_pdfs = min(len(uploaded_pdfs), max_papers)
     
     
@@ -2914,19 +2914,19 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("""
-    <div class="important-note-box">
-        <strong>INFO:</strong> If the extractor shows 'Not Found,' on all the extracted domains, please re-upload the file separately. In most cases, it extracts successfully. If issues persist, please report them on our GitHub. Checking the terminal output for the paper may also help—it could be a corrupt or unsupported file format.
-    </div>
- """, unsafe_allow_html=True)
-
 
 st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("""
     <div class="important-note-box">
+        <strong>IMPORTANT:</strong> Please restrict each submission to a maximum of 20 articles. Submissions exceeding this limit will result in processing of only the first 20 articles, after which the process will terminate prematurely. Kindly adhere to this restriction. Please respect this limit.
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("""
+    <div class="important-note-box">
         <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process. 
-          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a> or  <a href="https://github.com/aurumz-rgb/ReviewAid/issues" target="_blank">Github Issues</a>.  
+          <strong>Have any Errors?</strong> Please visit this <a href="https://aurumz-rgb.github.io/ReviewAid" target="_blank">Web</a> or  <a href="https://github.com/aurumz-rgb/ReviewAid/issues" target="_blank">Github Issues</a>.  
     </div>
     """, unsafe_allow_html=True)
 

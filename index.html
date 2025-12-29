@@ -754,6 +754,113 @@
       text-decoration: underline;
     }
     
+  
+    .citation-container {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 30px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .citation-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .citation-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .citation-select {
+      background: var(--bg-body);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: var(--font-main);
+      width: 100%;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+
+    .citation-display {
+      background: var(--bg-body);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      word-break: break-word;
+    }
+
+    .citation-display em {
+      font-style: normal;
+    }
+
+    .citation-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .citation-btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+    }
+    .btn-secondary:hover {
+
+      color: var(--text-primary);
+      background: rgba(255,255,255,0.05);
+    }
+
+    @media (min-width: 768px) {
+      .citation-container {
+        grid-template-columns: 1fr 2fr;
+      }
+      .citation-controls {
+        justify-content: start;
+      }
+    }
+
     
     footer {
       background: #000;
@@ -917,7 +1024,7 @@
 </head>
 <body>
 
-  <!-- Lightbox Modal -->
+
   <div id="lightbox" class="lightbox">
     <span class="close-lightbox">&times;</span>
     <img class="lightbox-content" id="lightbox-img">
@@ -1005,35 +1112,7 @@
         <a href="https://reviewaid-ai.streamlit.app" target="_blank" class="launch-btn">Launch ReviewAid</a>
       </div>
 
-      <div class="highlight-section reveal">
-        <h2>Key Features</h2>
-        <div class="tools">
-          <div class="tool">
-            <h4>1. PICO Screening</h4>
-            <p>AI-based inclusion/exclusion classification</p>
-          </div>
-          <div class="tool">
-            <h4>2. Data Extraction</h4>
-            <p>Custom field extraction from text</p>
-          </div>
-          <div class="tool">
-            <h4>3. Batch Processing</h4>
-            <p>Process up to 50 papers at once</p>
-          </div>
-          <div class="tool">
-            <h4>4. Multiple Exports</h4>
-            <p>CSV, Excel, and Word formats</p>
-          </div>
-          <div class="tool">
-            <h4>5. Live Terminal</h4>
-            <p>Real-time processing logs</p>
-          </div>
-          <div class="tool">
-            <h4>6. Confidence Scoring</h4>
-            <p>Estimates reliability of extraction</p>
-          </div>
-        </div>
-      </div>
+      
 
 
       <div class="section reveal">
@@ -1305,7 +1384,52 @@
             <p>I gratefully acknowledge developers of <strong>GLM-4.6V-Flash (Z.ai)</strong> for providing the AI model used in ReviewAid.</p>
             <p>The visual and text-based reasoning capabilities of GLM-4.6V-Flash have greatly enhanced ReviewAid's full-text screening and data extraction workflows.</p>
             <p>For more information, please see <a href="https://arxiv.org/abs/2507.01006" target="_blank">GLM-4.6V-Flash paper</a> and <a href="https://huggingface.co/zai-org/GLM-4.6V-Flash" target="_blank">GLM-4.6V-Flash Hugging Face</a>.</p>
+            <p>I would also like to thank <strong>Mohith Balakrishnan</strong>  for his thorough validation of ReviewAid, including batch testing, error checks, and confidence verification, which significantly improved the tool’s reliability and accuracy.</p>
           </div>
+        </div>
+      </div>
+
+
+      <div class="section reveal">
+        <h2>Citation</h2>
+        <p>If you use ReviewAid in your research, please cite it using the following format:</p>
+        
+        <div class="citation-container">
+            <div class="citation-controls">
+                <div>
+                    <div class="citation-label">Format</div>
+                    <select id="citationType" class="citation-select">
+                        <option value="apa">APA</option>
+                        <option value="vancouver">Vancouver</option>
+                        <option value="chicago">Chicago</option>
+                        <option value="harvard">Harvard</option>
+                        <option value="mla">MLA</option>
+                        <option value="ieee">IEEE</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <div class="citation-label">Actions</div>
+                    <div class="citation-actions">
+                        <button id="copyButton" class="citation-btn btn-primary">
+                            <span>Copy to Clipboard</span>
+                        </button>
+                    </div>
+                    <div style="margin-top: 10px;">
+                         <button class="citation-btn btn-secondary" onclick="downloadCitation('ris')" style="width: 100%; justify-content: center;">
+                            Download RIS
+                        </button>
+                        <button class="citation-btn btn-secondary" onclick="downloadCitation('bibtex')" style="width: 100%; justify-content: center; margin-top: 8px;">
+                            Download BibTeX
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="citation-label">Citation Text</div>
+                <div id="citationText" class="citation-display"></div>
+            </div>
         </div>
       </div>
 
@@ -1407,10 +1531,84 @@
         }
     });
 
+
+  
+    const citations = {
+      apa: "Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). Zenodo. DOI: 10.5281/zenodo.18060973",
+      vancouver: "Sahu V. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). Zenodo; 2025. DOI: 10.5281/zenodo.18060973",
+      chicago: "Sahu, V. 2025. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). Zenodo. DOI: 10.5281/zenodo.18060973",
+      harvard: "Sahu, V., 2025. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). Zenodo. DOI: 10.5281/zenodo.18060973",
+      mla: "Sahu, Vihaan. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0).\" 2025, Zenodo, DOI: 10.5281/zenodo.18060973.",
+      ieee: "V. Sahu, \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0),\" Zenodo, 2025. DOI: 10.5281/zenodo.18060973."
+    };
+
+    const citationSelect = document.getElementById("citationType");
+    const citationText = document.getElementById("citationText");
+    const copyButton = document.getElementById("copyButton");
+
+
+    citationText.innerHTML = "<em>" + citations['apa'] + "</em>";
+
+    citationSelect.addEventListener("change", () => {
+      const selected = citationSelect.value;
+      citationText.innerHTML = "<em>" + citations[selected] + "</em>";
+    });
+
+    function copyCitation() {
+      navigator.clipboard.writeText(citationText.innerText).then(() => {
+        const originalHTML = copyButton.innerHTML;
+        copyButton.innerHTML = "<span>Copied!</span>";
+        copyButton.classList.remove('btn-primary');
+        copyButton.classList.add('btn-secondary'); 
+        
+        setTimeout(() => {
+            copyButton.innerHTML = originalHTML;
+            copyButton.classList.remove('btn-secondary');
+            copyButton.classList.add('btn-primary');
+        }, 2000);
+      });
+    }
+    
+    copyButton.addEventListener("click", copyCitation);
+    
+    function downloadCitation(format) {
+      let content = "";
+      let filename = "reviewaid_citation";
+      
+      if (format === 'ris') {
+        content = `TY  - COMP
+T1  - ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis
+A1  - Sahu, Vihaan
+Y1  - 2025
+DO  - 10.5281/zenodo.18060973
+PB  - Zenodo
+PY  - 2025
+ER  - `;
+        filename += ".ris";
+      } else if (format === 'bibtex') {
+        content = `@software{reviewaid,
+  author = {Sahu, Vihaan},
+  title = {{ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis}},
+  year = {2025},
+  version = {v2.0.0},
+  publisher = {Zenodo},
+  doi = {10.5281/zenodo.18060973},
+  url = {https://doi.org/10.5281/zenodo.18060973}
+}`;
+        filename += ".bib";
+      }
+      
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   </script>
 
 </body>
 </html>
-
-
-
