@@ -22,12 +22,6 @@
   <meta property="og:description" content="Open-source AI tool for automating full-text screening and data extraction in systematic reviews using PICO criteria.">
   <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner.png">
   <meta property="og:image:alt" content="ReviewAid Banner">
-  <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/screenshots/screenshot1.png">
-  <meta property="og:image:alt" content="ReviewAid Use">
-  <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/screenshorts/screenshot2.png">
-  <meta property="og:image:alt" content="ReviewAid Interface">
-    <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/screenshorts/screenshot4.png">
-  <meta property="og:image:alt" content="ReviewAid Output">
   <meta property="og:url" content="https://aurumz-rgb.github.io/ReviewAid/">
   <meta property="og:site_name" content="ReviewAid">
 
@@ -35,8 +29,6 @@
   <meta name="twitter:title" content="ReviewAid | AI Screener & Extractor for Systematic Reviews">
   <meta name="twitter:description" content="Automate your systematic review workflow with AI-powered PICO screening and custom data extraction.">
   <meta name="twitter:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner1.png">
-  <meta name="twitter:image:alt" content="ReviewAid Banner">
-  <meta name="twitter:creator" content="@Vihaan">
 
   <meta name="citation_title" content="ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis">
   <meta name="citation_author" content="Vihaan Sahu">
@@ -64,10 +56,6 @@
       "url": "https://aurumz-rgb.github.io/ReviewAid/"
     },
     "license": "https://www.apache.org/licenses/LICENSE-2.0",
-    "sameAs": [
-      "https://github.com/aurumz-rgb/ReviewAid",
-      "https://doi.org/10.5281/zenodo.18060973"
-    ],
     "applicationSubCategory": "Systematic Review Automation",
     "featureList": [
       "PICO Screening",
@@ -75,19 +63,12 @@
       "Batch PDF Processing",
       "Publication-ready Exports",
       "Free and open-source"
-    ],
-    "image": [
-      "https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner1.png",
-      "https://aurumz-rgb.github.io/ReviewAid/screenshots/screenshot1.png",
-      "https://aurumz-rgb.github.io/ReviewAid/screenshots/screenshot2.png",
-      "https://aurumz-rgb.github.io/ReviewAid/screenshots/screenshot4.png"
     ]
   }
   </script>
   
   <style>
     :root {
-     
       --bg-body: #09090b;
       --bg-card: #18181b;
       --bg-card-hover: #27272a;
@@ -135,38 +116,22 @@
       --danger: #dc2626;
     }
 
-    
     [data-theme="light"] body {
        background-image: 
         linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
     }
-
-
-
+    
     [data-theme="light"] .motivation {
       background: rgba(37, 99, 235, 0.05);
       border-color: rgba(37, 99, 235, 0.2);
     }
     
-
     [data-theme="light"] .disclaimer-note {
       background: rgba(245, 158, 11, 0.05);
       border-color: rgba(245, 158, 11, 0.2);
     }
     
-
-    [data-theme="light"] .motivation[style*="#10b981"] {
-      background: rgba(22, 163, 74, 0.05);
-      border-color: rgba(22, 163, 74, 0.2);
-    }
-
-   
-    [data-theme="light"] .motivation[style*="#10b981"] h3 {
-      color: #000000 !important;
-    }
-
-
     [data-theme="light"] .confidence-table th {
       background-color: #f1f5f9;
     }
@@ -189,7 +154,6 @@
       line-height: 1.7;
       color: var(--text-primary);
       background-color: var(--bg-body);
-     
       background-image: 
         linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -289,7 +253,6 @@
       height: auto;
       margin: 30px auto;
       display: block;
-  
     }
     
     .badges {
@@ -299,7 +262,6 @@
       gap: 12px;
       margin-top: 30px;
       padding: 20px;
- 
     }
     
     .badges img {
@@ -316,7 +278,7 @@
     }
     
     .container {
-      max-width: 1000px;
+      max-width: 1200px; 
       margin: 0 auto;
       padding: 0 24px;
     }
@@ -499,50 +461,64 @@
     .highlight-section h2 {
       border-bottom: none;
     }
-    
 
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-      margin: 30px 0;
-    }
-    
-    .gallery-item {
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: all 0.3s ease;
-      background: var(--bg-card);
-    }
-    
-    .gallery-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
-      border-color: var(--border-highlight);
-    }
-    
-    .gallery-item img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      display: block;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .gallery-item .caption {
-      padding: 15px;
-      text-align: center;
-      color: var(--text-secondary);
-      font-weight: 500;
-      background: rgba(0,0,0,0.2);
+
+    .ui-showcase {
+        margin-top: 20px;
     }
 
-    [data-theme="light"] .gallery-item .caption {
-      background: rgba(0,0,0,0.03);
+    .showcase-group {
+        margin-bottom: 50px;
     }
 
-    
+    .showcase-group h3 {
+        font-size: 1.5rem;
+        color: var(--text-primary);
+        border-left: 4px solid var(--primary);
+        padding-left: 15px;
+        margin-bottom: 20px;
+        margin-top: 0;
+    }
+
+    .showcase-img {
+        width: 100%;
+        height: auto; 
+        display: block;
+        border-radius: 8px;
+   
+        cursor: zoom-in;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        background-color: var(--bg-card);
+    }
+
+    .showcase-img:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        border-color: var(--primary);
+    }
+
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+    }
+
+ 
+    @media (max-width: 900px) {
+        .grid-2, .grid-3 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+
     .confidence-overview-list {
       list-style-type: none;
       padding-left: 0;
@@ -852,16 +828,71 @@
       stroke-linejoin: round;
     }
 
-
     [data-theme="dark"] .icon-sun { display: none; }
     [data-theme="light"] .icon-moon { display: none; }
+
+    
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      padding-top: 60px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.95);
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .lightbox.show {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 1;
+    }
+
+    .lightbox-content {
+      margin: auto;
+      display: block;
+      max-width: 90%;
+      max-height: 90vh;
+      border-radius: 4px;
+      box-shadow: 0 0 50px rgba(0,0,0,0.5);
+      animation: zoom 0.3s ease;
+    }
+
+    @keyframes zoom {
+      from {transform:scale(0.9)} 
+      to {transform:scale(1)}
+    }
+
+    .close-lightbox {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+      z-index: 2001;
+    }
+
+    .close-lightbox:hover {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
 
 
     @media (max-width: 900px) {
       h1 { font-size: 2.8rem; }
       .tools { grid-template-columns: 1fr 1fr; }
       .tiers-grid { grid-template-columns: 1fr; }
-      .gallery { grid-template-columns: 1fr; }
       .ack-img { max-width: 250px; }
     }
 
@@ -874,6 +905,7 @@
       .badges img { height: 20px; }
       .footer-content { flex-direction: column; gap: 20px; text-align: center; }
       .ack-img { max-width: 200px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 480px) {
@@ -885,13 +917,16 @@
 </head>
 <body>
 
+  <!-- Lightbox Modal -->
+  <div id="lightbox" class="lightbox">
+    <span class="close-lightbox">&times;</span>
+    <img class="lightbox-content" id="lightbox-img">
+  </div>
 
   <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
-  
     <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
     </svg>
-
     <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="5"></circle>
       <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -1000,21 +1035,38 @@
         </div>
       </div>
 
+
       <div class="section reveal">
         <h2>Interface Previews</h2>
-        <div class="gallery">
-          <div class="gallery-item">
-            <img src="screenshots/screenshot1.png" alt="ReviewAid Interface">
-            <div class="caption">Main Dashboard</div>
-          </div>
-          <div class="gallery-item">
-            <img src="screenshots/screenshot2.png" alt="Data Extraction Interface">
-            <div class="caption">Data Extraction Mode</div>
-          </div>
-          <div class="gallery-item">
-            <img src="screenshots/screenshot4.png" alt="Results View">
-            <div class="caption">Results & Export Options</div>
-          </div>
+        <div class="ui-showcase">
+            
+            
+            <div class="showcase-group">
+                <h3>User Interface</h3>
+                <div class="showcase-item">
+                    <img src="screenshots/1.png" alt="User Interface" class="showcase-img">
+                </div>
+            </div>
+
+   
+            <div class="showcase-group">
+                <h3>Screener</h3>
+                <div class="grid-2">
+                    <img src="screenshots/screener1.png" alt="Screener View 1" class="showcase-img">
+                    <img src="screenshots/screener2.png" alt="Screener View 2" class="showcase-img">
+                </div>
+            </div>
+
+      
+            <div class="showcase-group">
+                <h3>Extractor</h3>
+                <div class="grid-3">
+                    <img src="screenshots/extractor1.png" alt="Extractor View 1" class="showcase-img">
+                    <img src="screenshots/extractor2.png" alt="Extractor View 2" class="showcase-img">
+                    <img src="screenshots/extractor3.png" alt="Extractor View 3" class="showcase-img">
+                </div>
+            </div>
+
         </div>
       </div>
 
@@ -1279,7 +1331,6 @@
     const toggleBtn = document.getElementById('theme-toggle');
     const htmlElement = document.documentElement;
 
-  
     const currentTheme = localStorage.getItem('theme') || 'dark';
     htmlElement.setAttribute('data-theme', currentTheme);
 
@@ -1308,9 +1359,58 @@
             }
         }
     }
-
     reveal();
+
+
+  
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const closeBtn = document.getElementsByClassName('close-lightbox')[0];
+    const showcaseImages = document.querySelectorAll('.showcase-img');
+
+
+    showcaseImages.forEach(img => {
+        img.addEventListener('click', function() {
+            lightbox.style.display = 'flex';
+            
+            setTimeout(() => {
+                lightbox.classList.add('show');
+            }, 10);
+            lightboxImg.src = this.src;
+            document.body.style.overflow = 'hidden'; 
+        });
+    });
+
+    
+    function hideLightbox() {
+        lightbox.classList.remove('show');
+        setTimeout(() => {
+            lightbox.style.display = 'none';
+            lightboxImg.src = '';
+            document.body.style.overflow = 'auto';
+        }, 300); 
+    }
+
+    closeBtn.addEventListener('click', hideLightbox);
+
+    
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox) {
+            hideLightbox();
+        }
+    });
+
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+            hideLightbox();
+        }
+    });
+
   </script>
 
 </body>
 </html>
+
+
+
