@@ -42,7 +42,7 @@
 This system implements a **hierarchical four-tier confidence model** designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes **deterministic rule-based decisions** before progressively falling back to algorithmic and heuristic estimation only when necessary.
 
 
-## Overview
+## ❓ Overview
 
 The confidence score reflects how reliably a paper has been classified or extracted. Scores range from **0.0 to 1.0**, where higher values indicate stronger certainty and lower values explicitly flag the need for manual review.
 
@@ -64,7 +64,7 @@ Text: Tier 1 (Deterministic)
 Each tier is only activated if the previous tier fails to produce a valid and reliable result.
 
 
-## ❓ Tier 1: Deterministic Rule-Based Classification (Highest Priority) 
+## ✔️ Tier 1: Deterministic Rule-Based Classification (Highest Priority) 
 
 **Purpose:** Eliminate ambiguity using explicit user-defined rules. For screener, Extractor starts directly from Tier 2.
 
