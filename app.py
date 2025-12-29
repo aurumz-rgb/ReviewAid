@@ -1232,7 +1232,7 @@ if st.session_state.app_mode is None:
     st.markdown("""
     <div class="important-note-box">
         <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process. 
-          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a>.  
+          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a> or  <a href="https://github.com/aurumz-rgb/ReviewAid/issues" target="_blank">Github Issues</a>.  
     </div>
     """, unsafe_allow_html=True)
     
@@ -1922,7 +1922,7 @@ if st.session_state.app_mode == "screener":
     st.subheader("Outcome Criteria (Optional)")
     outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
 
-    uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats)", accept_multiple_files=True)
     
     
     fields_list = []
@@ -1940,7 +1940,7 @@ elif st.session_state.app_mode == "extractor":
     
     
 
-    uploaded_pdfs = st.file_uploader("Upload PDF Files", accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats)", accept_multiple_files=True)
     
     population_inclusion = ""
     population_exclusion = ""
@@ -2926,7 +2926,7 @@ st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("""
     <div class="important-note-box">
         <strong>Note:</strong> The purpose of ReviewAid is not to substitute manual screening and data extraction but to serve as an additional, independent reference that helps minimise manual errors and improve the precision and reliability of the research process. 
-          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a>.  
+          <strong>Have any Errors?</strong> Please visit the <a href="https://reviewaid.github.io/Documentation" target="_blank">Documentation section</a> or  <a href="https://github.com/aurumz-rgb/ReviewAid/issues" target="_blank">Github Issues</a>.  
     </div>
     """, unsafe_allow_html=True)
 
