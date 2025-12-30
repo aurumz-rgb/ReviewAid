@@ -995,11 +995,67 @@
     }
     
 
+    .errors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+    
+    .error-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      border-left: 3px solid var(--border-highlight);
+    }
+    
+    .error-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--text-muted);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .error-card h3 {
+      font-size: 1.1rem;
+      margin-top: 0;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+      font-weight: 700;
+      padding-right: 20px;
+    }
+    
+    .error-label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 800;
+      margin-bottom: 6px;
+      margin-top: 16px;
+    }
+    
+    .error-label:first-of-type {
+      margin-top: 0;
+    }
+    
+    .error-label.meaning { color: var(--text-muted); }
+    .error-label.fix { color: var(--success); }
+    
+    .error-text {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-bottom: 0;
+      line-height: 1.6;
+    }
+    
 
     @media (max-width: 900px) {
       h1 { font-size: 2.8rem; }
       .tools { grid-template-columns: 1fr 1fr; }
       .tiers-grid { grid-template-columns: 1fr; }
+      .errors-grid { grid-template-columns: 1fr; }
       .ack-img { max-width: 250px; }
     }
 
@@ -1019,6 +1075,7 @@
       h1 { font-size: 1.8rem; }
       .main-links a { display: block; width: 100%; margin: 8px 0; }
       .highlight-section { padding: 25px; }
+      .errors-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1372,6 +1429,64 @@
                     <li>Download extracted data as CSV, XLSX, or DOCX.</li>
                 </ul>
             </div>
+        </div>
+      </div>
+
+      
+      <div class="section reveal">
+        <h2>Errors</h2>
+        <p>While ReviewAid is designed to be robust and self-healing, you may encounter certain behaviors during operation. Below is an explanation of common scenarios and their fixes.</p>
+
+        <div class="errors-grid">
+            
+            <div class="error-card">
+                <h3>API limit error (Rate/Quota exceeded)</h3>
+                <span class="error-label meaning">Meaning</span>
+                <p class="error-text">The API sometimes does this when since it throttles with too many requests at the time.</p>
+                <span class="error-label fix">Fix</span>
+                <p class="error-text">No need to worry, the code is written in such a way that the tool will retry 3 times and if not, it will send a brand new API request for the paper.</p>
+            </div>
+
+            <div class="error-card">
+                <h3>Empty JSON</h3>
+                <span class="error-label meaning">Meaning</span>
+                <p class="error-text">Irrespective of building a really good json parser, sometimes the parser might fail because the json itself is empty.</p>
+                <span class="error-label fix">Fix</span>
+                <p class="error-text">No need to do anything, the code will fetch another API request for the same paper to get a valid json.</p>
+            </div>
+
+            <div class="error-card">
+                <h3>All domains to be extracted shown as 'Not Found' (Extractor)</h3>
+                <span class="error-label meaning">Meaning</span>
+                <p class="error-text">If it was 1 or 2 domains, it is understandable that the paper might geniunely lack the information. however if all the domains for a paper show 'Not found', please do process the paper seperately in the extractor.</p>
+                <span class="error-label fix">Fix</span>
+                <p class="error-text">Please do process the paper separately in the extractor.</p>
+            </div>
+
+            <div class="error-card">
+                <h3>Abrupt Stopping</h3>
+                <span class="error-label meaning">Meaning</span>
+                <p class="error-text">Streamlit abruptly stops in order to conserve its resources and hence the user should follow our request to upload a maximum of 20 papers in one time.</p>
+                <span class="error-label fix">Fix</span>
+                <p class="error-text">However, if issue persists for papers below this number in one session, please do open an issue on Github.</p>
+            </div>
+
+            <div class="error-card">
+                <h3>Empty API Response</h3>
+                <span class="error-label meaning">Meaning</span>
+                <p class="error-text">The AI mighty sometimes throttle and might return no response.</p>
+                <span class="error-label fix">Fix</span>
+                <p class="error-text">No need to worry, the code will handle this by waiting for 15,20,60 seconds per retry. I would request the users to check the terminal processing.</p>
+            </div>
+
+            <div class="error-card">
+                <h3>skipping file (NOT AN ERROR)</h3>
+                <span class="error-label meaning">Meaning</span>
+                <p class="error-text">File like .docx / html etc are not supported. As a result, the parser won't be able to read and such skips the file. If it is skipping the pdf, it could most likely be that the file is corrupt.</p>
+                <span class="error-label fix">Fix</span>
+                <p class="error-text">Ensure the file is a valid PDF and not corrupt.</p>
+            </div>
+
         </div>
       </div>
 
