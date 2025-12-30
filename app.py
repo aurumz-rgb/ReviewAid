@@ -1341,6 +1341,36 @@ def extract_pdf_content(pdf_bytes):
             update_terminal_log(f"Metadata read -> Title: '{title}', Author: '{author}'", "DEBUG")
         except:
             pass
+    
+        if not title or len(title) < 5 or "microsoft" in title.lower() or ".doc" in title.lower() or title.isdigit():
+            try:
+                update_terminal_log("Metadata title appears empty or invalid. Scanning first page text for title...", "DEBUG")
+            except:
+                pass
+            
+
+            first_page_text = full_text[:3000]
+            lines = first_page_text.split('\n')
+            
+            for line in lines:
+                clean_line = line.strip()
+
+                if len(clean_line) > 10 and len(clean_line) < 200:
+                    if not re.match(r'^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$', clean_line, re.IGNORECASE) and \
+                       not clean_line.startswith("http") and \
+                       "abstract" not in clean_line.lower() and \
+                       "introduction" not in clean_line.lower() and \
+                       "keywords" not in clean_line.lower() and \
+                       "page" not in clean_line.lower() and \
+                       "vol." not in clean_line.lower():
+                        
+
+                        title = clean_line
+                        try:
+                            update_terminal_log(f"Found candidate title in text: '{title[:50]}...'", "INFO")
+                        except:
+                            pass
+                        break
         
         year = ''
         if not year:
@@ -1936,8 +1966,9 @@ elif st.session_state.app_mode == "extractor":
         fields_list.insert(0, "Paper Title")
     
     if len(fields_list) == 1 and fields_list[0] == "Paper Title":
-        st.info("If left Empty, Only Paper Title will be extracted. Add more fields to extract additional information.")
-    
+        st.info("If left Empty, Only Paper Title will be extracted.")
+        st.info("Important: Short-form field names (e.g., Intervention_Mean, Control_N) are not supported. You must use fully expanded descriptions (e.g., Intervention_Mean: mean value of the continuous outcome in the intervention group). Using short forms will result in failed or incomplete extraction.")
+   
     
 
     uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats, Strictly 20 papers in one time)", accept_multiple_files=True)
@@ -2549,6 +2580,12 @@ If a field is not found in the text, use the value "Not Found".
                         papers_processed_in_batch += 1
 
                     else:
+             
+                        if "Paper Title" in result["extracted"]:
+                            if result["extracted"]["Paper Title"] == "Not Found" or not result["extracted"]["Paper Title"]:
+                       
+                                result["extracted"]["Paper Title"] = title
+                        
                         for key in result["extracted"]:
                             if isinstance(result["extracted"][key], str) and len(result["extracted"][key]) > 1000:
                                 result["extracted"][key] = result["extracted"][key][:1000] + "..."

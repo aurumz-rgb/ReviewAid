@@ -1050,6 +1050,13 @@
       line-height: 1.6;
     }
     
+    .error-text img {
+        width: 100%;
+        border-radius: 8px;
+        margin-top: 10px;
+        border: 1px solid var(--border-color);
+        display: block;
+    }
 
     @media (max-width: 900px) {
       h1 { font-size: 2.8rem; }
@@ -1461,6 +1468,18 @@
                 <p class="error-text">The API sometimes does this when since it throttles with too many requests at the time.</p>
                 <span class="error-label fix">Fix</span>
                 <p class="error-text">No need to worry, the code is written in such a way that the tool will retry 3 times and if not, it will send a brand new API request for the paper.</p>
+            </div>
+
+            <div class="error-card">
+                <h3>'Not found' for extracting domains like "Intervention_Mean, Intervention_SD"</h3>
+                <span class="error-label meaning">Meaning</span>
+                <p class="error-text">The AI is unfortunately not a researcher and as such is unable to know the abbreviations meaning. As a result, the AI doesnt know what to extract. as seen in below image (errors/error1.png)<br>
+                <img src="errors/error1.png" alt="Error Example" class="showcase-img">
+                </p>
+                <span class="error-label fix">Fix</span>
+                <p class="error-text">You can extract such domains by simply expanding such abbreviations in the Extractor field. (Example: Intervention_Mean: mean value of the continuous outcome in the intervention group, Intervention_SD: standard deviation of the outcome in the intervention group). As seen in the below image for the same paper. (errors/error_fix1.png)<br>
+                <img src="errors/error_fix1.png" alt="Error Fix Example" class="showcase-img">
+                </p>
             </div>
 
             <div class="error-card">
