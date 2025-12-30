@@ -235,6 +235,8 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ![Screener2](screenshots/screener2.png) 
 
+![Screener3](screenshots/screener-results1.png) 
+
 
 
 ### Extractor
@@ -243,6 +245,10 @@ This layered approach ensures that high-confidence decisions are automated safel
 ![Extractor2](screenshots/extractor2.png) 
 
 ![Extractor3](screenshots/extractor3.png) 
+
+![Extractor4](screenshots/extractor-results1.png) 
+
+![Extractor5](screenshots/extractor-results2.png) 
 
 ---
 
