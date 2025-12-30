@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it using the following metadata."
 title: "ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis"
 version: "2.0.0"
-doi: "10.5281/zenodo.18060973"
+doi: "10.5281/zenodo.18060972"
 date-released: 2025-12-26
 authors:
   - family-names: "Sahu"
@@ -14,8 +14,8 @@ preferred-citation:
       given-names: "Vihaan"
   title: "ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0)"
   version: "2.0.0"
-  doi: "10.5281/zenodo.18060973"
+  doi: "10.5281/zenodo.18060972"
   year: 2025
-  url: "https://doi.org/10.5281/zenodo.18060973"
+  url: "https://doi.org/10.5281/zenodo.18060972"
   repository-code: "https://github.com/aurumz-rgb/reviewaid"
   license: "Apache-2.0"

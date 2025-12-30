@@ -951,46 +951,46 @@ def display_citation_section():
 
     apa_citation = (
         "Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
-        "Zenodo. https://doi.org/10.5281/zenodo.18060973"
+        "Zenodo. https://doi.org/10.5281/zenodo.18060972"
     )
 
     harvard_citation = (
         "Sahu, V., 2025. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
-        "Zenodo. Available at: https://doi.org/10.5281/zenodo.18060973"
+        "Zenodo. Available at: https://doi.org/10.5281/zenodo.18060972"
     )
 
     mla_citation = (
         "Sahu, Vihaan. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0).\" "
-        "2025, Zenodo, https://doi.org/10.5281/zenodo.18060973."
+        "2025, Zenodo, https://doi.org/10.5281/zenodo.18060972."
     )
 
     chicago_citation = (
         "Sahu, Vihaan. 2025. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0).\" "
-        "Zenodo. https://doi.org/10.5281/zenodo.18060973."
+        "Zenodo. https://doi.org/10.5281/zenodo.18060972."
     )
 
     ieee_citation = (
         "V. Sahu, \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0),\" "
-        "Zenodo, 2025. doi: 10.5281/zenodo.18060973."
+        "Zenodo, 2025. doi: 10.5281/zenodo.18060972."
     )
 
     vancouver_citation = (
         "Sahu V. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
-        "Zenodo. 2025. doi:10.5281/zenodo.18060973"
+        "Zenodo. 2025. doi:10.5281/zenodo.18060972"
     )
 
     ris_data = """TY  - JOUR
 AU  - Sahu, V
 TI  - ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0)
 PY  - 2025
-DO  - 10.5281/zenodo.18060973
+DO  - 10.5281/zenodo.18060972
 ER  -"""
 
     bib_data = """@misc{Sahu2025,
   author={Sahu, V.},
   title={ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0)},
   year={2025},
-  doi={10.5281/zenodo.18060973}
+  doi={10.5281/zenodo.18060972}
 }"""
 
     citation_style = st.selectbox(
