@@ -949,6 +949,10 @@ def display_citation_section():
     st.markdown("---")
     st.markdown("## Citation")
 
+ 
+    st.markdown("You can check ReviewAid's preprint paper here: [ReviewAid MetaArXiV](https://osf.io/preprints/metaarxiv/3vhmt). If you are to use ReviewAid, please don't forget to cite the tool:")
+
+
     apa_citation = (
         "Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). "
         "Zenodo. https://doi.org/10.5281/zenodo.18060972"
@@ -1012,6 +1016,7 @@ ER  -"""
         citation_text = vancouver_citation
 
     escaped_citation = html.escape(citation_text)
+
     
     st.markdown(f'<div class="citation-box"><p style="margin:0; color: #F0F4F8;">{escaped_citation}</p></div>', unsafe_allow_html=True)
 
@@ -1245,7 +1250,7 @@ if st.session_state.app_mode is None:
     st.markdown("## Support")
     st.markdown("""
     <div class="support-description">
-        ReviewAid is an open-source academic tool designed to streamline the literature review and evidence synthesis process. If this tool benefits your research, your support is greatly appreciated. I will be adding links to the <a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub repository</a> — please check it out to explore the source code, contribute, or support ongoing development.
+        ReviewAid is an open-source academic tool designed to streamline the literature review and evidence synthesis process. If this tool benefits your research, your support is greatly appreciated. I will be adding links to the <a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub repository</a>, please check it out to explore the source code, contribute, or support ongoing development. Here is ReviewAid's preprint paper: <a href="https://osf.io/preprints/metaarxiv/3vhmt" target="_blank">ReviewAid MetaArXiV</a>
     </div>
     <div class="support-description">
         I will also include my personal link to my other projects, where you can discover additional research-focused tools and resources. Check out my personal link <a href="https://aurumz-rgb.github.io" target="_blank">here</a>. If you have questions, or are interested in collaborating, feel free to reach out. I am always happy to connect with fellow researchers.

@@ -82,6 +82,8 @@ Text: Tier 1 (Deterministic)
 
 Each tier is only activated if the previous tier fails to produce a valid and reliable result.
 
+![Fig1](screenshots/Fig1.png)  
+
 
 ## ✔️ Tier 1: Deterministic Rule-Based Classification (Highest Priority) 
 
@@ -169,6 +171,8 @@ This layered approach ensures that high-confidence decisions are automated safel
 ## 📦 Bulletproof Parsing Pipeline
 
 **Purpose:** Safely parse API/AI responses, even if the JSON is broken or missing.
+
+![Fig2](screenshots/Fig2.png) 
 
 ### Flow
 
