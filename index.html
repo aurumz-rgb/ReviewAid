@@ -510,6 +510,12 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
     }
+    
+    .grid-1 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
 
  
     @media (max-width: 900px) {
@@ -727,6 +733,16 @@
       align-items: flex-start;
       text-align: left;
     }
+    
+
+    .logo-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      margin-bottom: 30px;
+      align-items: center;
+      justify-content: flex-start;
+    }
 
     .ack-img {
       max-width: 300px;
@@ -735,6 +751,16 @@
       border-radius: 8px;
       border: 1px solid var(--border-color);
       background: var(--bg-card);
+    }
+    
+    
+    .logo-row .ack-img {
+      max-width: 280px; 
+      max-height: 200px; 
+      object-fit: contain;
+      margin-bottom: 0;
+      border: none; 
+      background: transparent;
     }
 
     .ack-text p {
@@ -1063,7 +1089,7 @@
       .tools { grid-template-columns: 1fr 1fr; }
       .tiers-grid { grid-template-columns: 1fr; }
       .errors-grid { grid-template-columns: 1fr; }
-      .ack-img { max-width: 250px; }
+      
     }
 
     @media (max-width: 768px) {
@@ -1074,7 +1100,7 @@
       .badges { padding: 15px; gap: 8px; }
       .badges img { height: 20px; }
       .footer-content { flex-direction: column; gap: 20px; text-align: center; }
-      .ack-img { max-width: 200px; }
+
       .grid-2, .grid-3 { grid-template-columns: 1fr; }
     }
 
@@ -1563,14 +1589,19 @@
       <div class="section acknowledgements-section reveal">
         <h2>Configuration</h2>
         <div class="acknowledgement-content">
-          <img src="assets/openai.png" alt="OpenAI Logo" class="ack-img">
-          <img src="assets/anthropic.png" alt="Anthropic Logo" class="ack-img">
-          <img src="assets/deepseek.png" alt="Anthropic Logo" class="ack-img">
-          <img src="assets/cohere.png" alt="Cohere Logo" class="ack-img">
-          <img src="assets/zai.png" alt="GLMV Logo" class="ack-img">
-          <img src="assets/ollama.png" alt="Ollama Logo" class="ack-img">
+          
+
+          <div class="logo-row">
+            <img src="assets/openai.png" alt="OpenAI Logo" class="ack-img">
+            <img src="assets/anthropic.png" alt="Anthropic Logo" class="ack-img">
+            <img src="assets/deepseek.png" alt="DeepSeek Logo" class="ack-img">
+            <img src="assets/cohere1.png" alt="Cohere Logo" class="ack-img">
+            <img src="assets/zai.png" alt="GLMV Logo" class="ack-img">
+            <img src="assets/ollama.png" alt="Ollama Logo" class="ack-img">
+          </div>
+
           <div class="ack-text">
-            <p>ReviewAid supports <a href="https://openai.com" target="_blank">OpenAI</a>, <a href="https://claude.ai" target="_blank">Claude</a>, <a href="https://www.deepseek.com" target="_blank">Deepseek</a>, <a href="https://cohere.com" target="_blank">Cohere</a>, <a href="https://z.ai" target="_blank">Z.ai</a> and <a href="https://ollama.com" target="_blank">Ollama (locally)</a> via API key as well.</p>
+            <p>ReviewAid also supports configuration of <a href="https://openai.com" target="_blank">OpenAI</a>, <a href="https://claude.ai" target="_blank">Claude</a>, <a href="https://www.deepseek.com" target="_blank">Deepseek</a>, <a href="https://cohere.com" target="_blank">Cohere</a>, <a href="https://z.ai" target="_blank">Z.ai</a> and <a href="https://ollama.com" target="_blank">Ollama (locally)</a> via API key as well. To protect your privacy, API keys are not stored at any time.</p>
             <p>For the tested tasks, the following models were successful:</p>
             <p>OpenAI – GPT-4o</p>
             <p>Deepseek – deepseek-chat</p>

@@ -56,6 +56,12 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 
 ---
 
+## 🏛️ System Architecture 
+
+![Layers1](screenshots/Layers11.png)  
+
+---
+
 ## 🌟 Confidence Scoring System
 
 This system implements a **hierarchical four-tier confidence model** designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes **deterministic rule-based decisions** before progressively falling back to algorithmic and heuristic estimation only when necessary.
@@ -225,11 +231,6 @@ This layered approach ensures that high-confidence decisions are automated safel
     *   View extracted data in the dashboard.
     *   Download extracted data as CSV, XLSX, or DOCX.
 
----
-## Layers
-
-### System Architecture Layers
-![Layers1](screenshots/Layers11.png)  
 
 ---
 
@@ -258,6 +259,44 @@ This layered approach ensures that high-confidence decisions are automated safel
 ![Extractor4](screenshots/extractor-results1.png) 
 
 ![Extractor5](screenshots/extractor-results2.png) 
+
+---
+
+## ⚙️ Configuration
+
+![OpenAI](assets/openai.png)
+![Anthropic](assets/anthropic.png)
+![DeepSeek](assets/deepseek.png)
+![Cohere](assets/cohere1.png)
+![Z.ai](assets/zai.png)
+![Ollama](assets/ollama.png)
+
+ReviewAid supports configuration with the following AI providers via API keys:
+
+* [OpenAI](https://openai.com)
+* [Anthropic (Claude)](https://claude.ai)
+* [DeepSeek](https://www.deepseek.com)
+* [Cohere](https://cohere.com)
+* [Z.ai](https://z.ai)
+* [Ollama (local execution)](https://ollama.com)
+
+> **Privacy Note**
+> To protect user privacy, API keys are never stored at any time.
+
+
+### ✅ Tested & Supported Models
+
+The following models were successfully tested for the supported tasks:
+
+* **OpenAI** — `GPT-4o`
+* **DeepSeek** — `deepseek-chat`
+* **Cohere** — `command-a-03-2025`
+* **Z.ai** — `GLM-4.6V-Flash`, `GLM-4.5V-Flash`
+* **Anthropic** — `Claude-Sonnet-4-20250514`
+* **Ollama (local)** — `Llama3`
+
+**Default model:** `GLM-4.6V-Flash`
+
 
 ---
 
