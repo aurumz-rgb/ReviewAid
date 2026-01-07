@@ -186,10 +186,12 @@ def _regex_extract_fallback(text, mode, fields_list):
         if fields_list:
             for field in fields_list:
                 val = "Not Found"
-                pattern = rf'"{field}"\s*:\s*"([^"]*)"'
+                # FIX: Wrapped field in re.escape() to handle special chars like parentheses
+                pattern = rf'"{re.escape(field)}"\s*:\s*"([^"]*)"'
                 match = re.search(pattern, text, re.IGNORECASE)
                 if not match:
-                    pattern = rf'{field}\s*[:\-]\s*"?([^"\n]+)"?'
+                    # FIX: Wrapped field in re.escape() here as well
+                    pattern = rf'{re.escape(field)}\s*[:\-]\s*"?([^"\n]+)"?'
                     match = re.search(pattern, text, re.IGNORECASE)
                 
                 if match:
