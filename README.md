@@ -14,11 +14,40 @@
 
 ---
 
-##  Demo Video
+## ⚙️ Configuration
 
-Check out the full walkthrough and demonstration of ReviewAid on YouTube:
+![OpenAI](assets/openai.png)
+![Anthropic](assets/anthropic1.png)
+![DeepSeek](assets/deepseek.png)
+![Cohere](assets/cohere.png)
+![Z.ai](assets/zai.png)
+![Ollama](assets/ollama1.png)
 
-[![ReviewAid Demo](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=M2S32pPaQE4)
+ReviewAid supports configuration with the following AI providers via API keys:
+
+* [OpenAI](https://openai.com)
+* [Anthropic (Claude)](https://claude.ai)
+* [DeepSeek](https://www.deepseek.com)
+* [Cohere](https://cohere.com)
+* [Z.ai](https://z.ai)
+* [Ollama (local execution)](https://ollama.com)
+
+> **Privacy Note**
+> To protect user privacy, API keys are never stored at any time.
+
+
+### ✅ Tested & Supported Models
+
+The following models were successfully tested for the supported tasks:
+
+* **OpenAI** — `GPT-4o`
+* **DeepSeek** — `deepseek-chat`
+* **Cohere** — `command-a-03-2025`
+* **Z.ai** — `GLM-4.6V-Flash`, `GLM-4.5V-Flash`
+* **Anthropic** — `Claude-Sonnet-4-20250514`
+* **Ollama (local)** — `Llama3`
+
+**Default model:** `GLM-4.6V-Flash`
 
 ---
 
@@ -39,6 +68,16 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 2. Please restrict each submission to a maximum of **20 articles**. Submissions exceeding this limit will result in processing of only the first 20 articles, after which the process will **terminate** prematurely. Kindly adhere to this restriction. **Please respect this limit.**
 
 ---
+
+##  Demo Video
+
+Check out the full walkthrough and demonstration of ReviewAid on YouTube:
+
+[![ReviewAid Demo](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=M2S32pPaQE4)
+
+
+---
+
 
 ## 📝 Important Notes
 
@@ -351,43 +390,6 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ---
 
-## ⚙️ Configuration
-
-![OpenAI](assets/openai.png)
-![Anthropic](assets/anthropic1.png)
-![DeepSeek](assets/deepseek.png)
-![Cohere](assets/cohere.png)
-![Z.ai](assets/zai.png)
-![Ollama](assets/ollama1.png)
-
-ReviewAid supports configuration with the following AI providers via API keys:
-
-* [OpenAI](https://openai.com)
-* [Anthropic (Claude)](https://claude.ai)
-* [DeepSeek](https://www.deepseek.com)
-* [Cohere](https://cohere.com)
-* [Z.ai](https://z.ai)
-* [Ollama (local execution)](https://ollama.com)
-
-> **Privacy Note**
-> To protect user privacy, API keys are never stored at any time.
-
-
-### ✅ Tested & Supported Models
-
-The following models were successfully tested for the supported tasks:
-
-* **OpenAI** — `GPT-4o`
-* **DeepSeek** — `deepseek-chat`
-* **Cohere** — `command-a-03-2025`
-* **Z.ai** — `GLM-4.6V-Flash`, `GLM-4.5V-Flash`
-* **Anthropic** — `Claude-Sonnet-4-20250514`
-* **Ollama (local)** — `Llama3`
-
-**Default model:** `GLM-4.6V-Flash`
-
-
----
 
 ## 🔗 Acknowledgements
 
