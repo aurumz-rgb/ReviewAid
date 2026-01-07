@@ -265,7 +265,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ![ZAI](assets/GLM-4.6V-Flash.png)
 
-I gratefully acknowledge the developers of **GLM-4.6V-Flash (Z.ai)** for providing the AI model used in ReviewAid.  
+I gratefully acknowledge the developers of **GLM-4.6V-Flash (Z.ai)** for providing the **Default** AI model used in ReviewAid.  
 The visual and text-based reasoning capabilities of GLM-4.6V-Flash have greatly enhanced ReviewAid's full-text screening and data extraction workflows.
 
 For more information, please see the [GLM-4.6V-Flash paper](https://arxiv.org/abs/2507.01006) and [GLM-4.6V-Flash Hugging Face](https://huggingface.co/zai-org/GLM-4.6V-Flash).
