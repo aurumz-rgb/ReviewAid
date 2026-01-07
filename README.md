@@ -229,7 +229,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 ## Layers
 
 ### System Architecture Layers
-![Layers1](screenshots/Layers1.png)  
+![Layers1](screenshots/Layers11.png)  
 
 ---
 
