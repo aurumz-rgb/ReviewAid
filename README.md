@@ -226,7 +226,12 @@ This layered approach ensures that high-confidence decisions are automated safel
     *   Download extracted data as CSV, XLSX, or DOCX.
 
 ---
+## Layers
 
+### System Architecture Layers
+![Layers1](screenshots/Layers1.png)  
+
+---
 
 ## 📸 Screenshots
 

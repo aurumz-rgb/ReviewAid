@@ -1,7 +1,13 @@
 {\rtf1\ansi\ansicpg1252\cocoartf2822
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;\f2\fnil\fcharset0 .SFNSMono-Light_YAXS144F07C_wght2580000;
+\f3\fnil\fcharset0 .SFNS-Regular_wdth_opsz110000_GRAD_wght2580000;\f4\fnil\fcharset0 HelveticaNeue-Italic;\f5\froman\fcharset0 Times-Roman;
+}
+{\colortbl;\red255\green255\blue255;\red255\green255\blue255;\red23\green23\blue23;\red38\green38\blue38;
+\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c100000\c100000\c100000\c80000;\cssrgb\c11765\c11765\c11765;\cssrgb\c20000\c20000\c20000;
+\cssrgb\c100000\c100000\c100000;\cssrgb\c0\c0\c0;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}}{\leveltext\leveltemplateid1\'01\'00;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
 \paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
@@ -18,4 +24,34 @@ pip install streamlit PyMuPDF json5 plotly pandas python-dotenv cryptography fpd
 {\field{\*\fldinst{HYPERLINK "https://toml.io/en/v1.1.0"}}{\fldrslt https://toml.io/en/v1.1.0}}\
 \
 \
-Streamlit env uses \'91 \'91 \'91  instead of \'91 for multiple lines string in .env secrets}
+Streamlit env uses \'91 \'91 \'91  instead of \'91 for multiple lines string in .env secrets\
+\
+\
+OLLAMA LOCAL Testing:\
+\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0
+\f1\fs32 \cf2 \cb3 {\listtext	1	}\expnd0\expndtw0\kerning0
+Open your terminal/command prompt and type: 
+\f2\b\fs25\fsmilli12800 \cb4 ollama run llama3
+\f1\b0\fs32 \cb3  (This downloads a ~4GB model). \cb1 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf2 \cb3 \kerning1\expnd0\expndtw0 {\listtext	2	}\expnd0\expndtw0\kerning0
+Once it finishes chatting, close it. \cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 {\listtext	3	}\expnd0\expndtw0\kerning0
+Open ReviewAid, select 
+\f3\b \cf5 Ollama (Local)
+\f1\b0 \cf2 , and run a PDF. No need to put API key plus let the local host link for Ollama be 
+\f2\b\fs25\fsmilli12800 \cb4 http://localhost:11434\
+\pard\pardeftab720\partightenfactor0
+
+\f4\i\b0\fs32 \cf2 \cb3 Explanation:
+\f1\i0  This is the address where Ollama lives on your computer. 
+\f2\b\fs25\fsmilli12800 \cb4 11434
+\f1\b0\fs32 \cb3  is the default port it uses.\
+\
+\pard\pardeftab720\partightenfactor0
+
+\f5\fs24 \cf0 \cb1 \outl0\strokewidth0 \strokec6 deepseek is largely open AI compatible so no need to download it 
+\f1\fs32 \cf2 \outl0\strokewidth0 \
+}
