@@ -56,6 +56,122 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 
 ---
 
+
+## ⚡ Usage
+
+1.  **Run the online Streamlit web app**
+
+2.  **Select Mode:**
+    *   **Full-text Paper Screener:** Choose this mode to screen papers based on PICO (Population, Intervention, Comparison, Outcome) criteria.
+    *   **Full-text Data Extractor:** Choose this mode to extract specific fields (Author, Year, Conclusion, etc.) from research papers.
+
+3.  **Workflow (Screener):**
+    *   Enter your PICO criteria (Inclusion/Exclusion) in the input fields.
+    *   Upload your PDF papers (Batch upload supported).
+    *   Click "Screen Papers".
+    *   Monitor the "System Terminal" for real-time logs of extraction, API calls, and processing status.
+    *   View the "Screening Dashboard" for a pie chart of Included/Excluded/Maybe decisions.
+    *   Download results as CSV, XLSX, or DOCX.
+
+4.  **Workflow (Extractor):**
+    *   Enter the fields you want to extract (comma-separated).
+    *   Upload your PDF papers.
+    *   Click "Process Papers".
+    *   Monitor the "System Terminal" for logs.
+    *   View extracted data in the dashboard.
+    *   Download extracted data as CSV, XLSX, or DOCX.
+
+
+5. **Configuration:**
+    *  For using API key, you can select the respective AI model in either Screener/Extractor.
+
+---
+
+## 🖥️ Running ReviewAid Locally with Ollama (No API Key Required)
+
+ReviewAid supports **local inference using Ollama**, allowing you to run the application **without any external API keys**. This is ideal for users who prefer offline usage, enhanced privacy, or full local control.
+
+### ✅ Prerequisites
+
+Ensure the following are installed on your system:
+
+* **Python 3.12+**
+* **Ollama** (installed and running locally)
+
+  * Download: [https://ollama.com](https://ollama.com)
+* At least one supported Ollama model (e.g., `llama3`)
+
+Pull a model (example):
+
+```bash
+ollama pull llama3
+```
+
+Verify Ollama is running:
+
+```bash
+ollama list
+```
+
+---
+
+### ▶️ Running ReviewAid with Ollama
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/aurumz-rgb/ReviewAid.git
+   cd ReviewAid
+   ```
+
+2. **Create and activate a virtual environment (recommended)**
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate        # macOS / Linux
+   venv\Scripts\activate           # Windows
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Start the Streamlit application**
+
+   ```bash
+   streamlit run app.py
+   ```
+
+5. **Configure Ollama inside the UI**
+
+   * Select **Ollama (Local)** as the provider
+   * Choose a local model (e.g., `llama3`)
+   * No API key is required
+
+---
+
+### 🔒 Privacy Advantage
+
+When using Ollama:
+
+* All inference runs **entirely on your local machine**
+* No data is sent to external servers
+* No API keys are required or stored
+
+This makes Ollama the **most privacy-preserving configuration** supported by ReviewAid.
+
+---
+
+### ⚠️ Notes
+
+* Performance depends on your local hardware (CPU/GPU/RAM)
+* Large PDFs or batch sizes may take longer on CPU-only systems
+* For best results, ensure Ollama is running **before** launching Streamlit
+
+---
+
 ## 🏛️ System Architecture 
 
 ![Layers1](screenshots/Layers11.png)  
@@ -207,33 +323,6 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ---
 
-## ⚡ Usage
-
-1.  **Run the Streamlit web app**
-
-2.  **Select Mode:**
-    *   **Full-text Paper Screener:** Choose this mode to screen papers based on PICO (Population, Intervention, Comparison, Outcome) criteria.
-    *   **Full-text Data Extractor:** Choose this mode to extract specific fields (Author, Year, Conclusion, etc.) from research papers.
-
-3.  **Workflow (Screener):**
-    *   Enter your PICO criteria (Inclusion/Exclusion) in the input fields.
-    *   Upload your PDF papers (Batch upload supported).
-    *   Click "Screen Papers".
-    *   Monitor the "System Terminal" for real-time logs of extraction, API calls, and processing status.
-    *   View the "Screening Dashboard" for a pie chart of Included/Excluded/Maybe decisions.
-    *   Download results as CSV, XLSX, or DOCX.
-
-4.  **Workflow (Extractor):**
-    *   Enter the fields you want to extract (comma-separated).
-    *   Upload your PDF papers.
-    *   Click "Process Papers".
-    *   Monitor the "System Terminal" for logs.
-    *   View extracted data in the dashboard.
-    *   Download extracted data as CSV, XLSX, or DOCX.
-
-
----
-
 ## 📸 Screenshots
 
 ### User Interface
@@ -269,7 +358,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 ![DeepSeek](assets/deepseek.png)
 ![Cohere](assets/cohere.png)
 ![Z.ai](assets/zai.png)
-![Ollama](assets/ollama.png)
+![Ollama](assets/ollama1.png)
 
 ReviewAid supports configuration with the following AI providers via API keys:
 
@@ -317,7 +406,7 @@ I would also like to thank [@Nightraven5115](https://github.com/Nightraven5115) 
 
 If you use ReviewAid, please cite:
 
-**Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.0.0). Zenodo.** DOI: [10.5281/zenodo.18060972](https://doi.org/10.5281/zenodo.18060972)
+**Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). Zenodo.** DOI: [10.5281/zenodo.18060972](https://doi.org/10.5281/zenodo.18060972)
 
 ---
 
@@ -335,6 +424,6 @@ Contributions are always welcome!
 
 ---
 
-*Happy reviewing! :))*
+*Happy reviewing! :)*
 
 
