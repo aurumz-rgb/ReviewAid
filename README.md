@@ -265,9 +265,9 @@ This layered approach ensures that high-confidence decisions are automated safel
 ## ⚙️ Configuration
 
 ![OpenAI](assets/openai.png)
-![Anthropic](assets/anthropic.png)
+![Anthropic](assets/anthropic1.png)
 ![DeepSeek](assets/deepseek.png)
-![Cohere](assets/cohere1.png)
+![Cohere](assets/cohere.png)
 ![Z.ai](assets/zai.png)
 ![Ollama](assets/ollama.png)
 
