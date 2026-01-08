@@ -1171,7 +1171,7 @@
 
         <a href="#"><img src="https://img.shields.io/badge/Built%20for-Researchers-9cf?style=for-the-badge" alt="Built For Researchers"></a>
 
-        <img src="https://img.shields.io/badge/Made%20with-:)-FF69B4?style=for-the-badge" alt="Made with :)">
+        <img src="https://img.shields.io/badge/Made%20with-:)-FF69B4?style=for-the-badge" alt="Made with :)" alt="Made with">
       </div>
     </div>
   </div>
@@ -1263,7 +1263,6 @@
                     <img src="figures/Build.png" alt="Build" class="showcase-img">
                 </div>
             </div>
-
             
 
 
@@ -1476,127 +1475,170 @@
       </div>
 
      
-      <div class="section reveal">
-        <h2>Usage</h2>
-        <p>Follow these steps to get started with ReviewAid for your systematic review. You can use any AI model using your API key in Configuration as well.</p>
-
-        <div class="tiers-grid">
-            <div class="tier-card" style="border-top-color: #4189DC;">
-                <h3>1. Run the App</h3>
-                <p>Launch the <strong>Streamlit web app</strong> to begin your session.</p>
-            </div>
-            
-            <div class="tier-card" style="border-top-color: #4189DC;">
-                <h3>2. Select Mode</h3>
-                <p>Choose the workflow that suits your current needs:</p>
-                <ul>
-                    <li><strong>Full-text Paper Screener:</strong> Screen papers based on PICO (Population, Intervention, Comparison, Outcome) criteria.</li>
-                    <li><strong>Full-text Data Extractor:</strong> Extract specific fields (Author, Year, Conclusion, etc.) from research papers.</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="tools">
-            <div class="tool" style="text-align: left;">
-                <h4>Workflow: Screener</h4>
-                <ul style="list-style-type: disc; padding-left: 20px; color: var(--text-secondary); margin-top: 10px;">
-                    <li>Enter your PICO criteria (Inclusion/Exclusion) in the input fields.</li>
-                    <li>Upload your PDF papers (Batch upload supported).</li>
-                    <li>Click "Screen Papers".</li>
-                    <li>Monitor the "System Terminal" for real-time logs of extraction, API calls, and processing status.</li>
-                    <li>View the "Screening Dashboard" for a pie chart of Included/Excluded/Maybe decisions.</li>
-                    <li>Download results as CSV, XLSX, or DOCX.</li>
-                </ul>
-            </div>
-
-            <div class="tool" style="text-align: left;">
-                <h4>Workflow: Extractor</h4>
-                <ul style="list-style-type: disc; padding-left: 20px; color: var(--text-secondary); margin-top: 10px;">
-                    <li>Enter the fields you want to extract (comma-separated).</li>
-                    <li>Upload your PDF papers.</li>
-                    <li>Click "Process Papers".</li>
-                    <li>Monitor the "System Terminal" for logs.</li>
-                    <li>View extracted data in the dashboard.</li>
-                    <li>Download extracted data as CSV, XLSX, or DOCX.</li>
-                </ul>
-            </div>
-        </div>
-
-     
-        <div class="showcase-group">
-            <div class="grid-2">
-                <img src="figures/screener.png" alt="Screener" class="showcase-img">
-                <img src="figures/extractor.png" alt="Extractor" class="showcase-img">
-            </div>
-        </div>
-
-
-      </div>
-
 
       <div class="section reveal">
-        <h2> Running ReviewAid Locally with Ollama</h2>
-        <p>ReviewAid supports <strong>local inference using Ollama</strong>, allowing you to run the application <strong>without any external API keys</strong>. This is ideal for users who prefer offline usage, enhanced privacy, or full local control.</p>
+        <h2>Usage & Installation</h2>
+        <p>Follow these instructions to run ReviewAid online or locally.</p>
 
-        <h3>Prerequisites</h3>
-        <p>Ensure the following are installed on your system:</p>
-        <ul style="margin-left: 20px; color: var(--text-secondary); margin-bottom: 20px;">
-            <li><strong>Python 3.12+</strong></li>
-            <li><strong>Ollama</strong> (installed and running locally) — Download: <a href="https://ollama.com" target="_blank" style="color: var(--primary);">ollama.com</a></li>
-            <li>At least one supported Ollama model (e.g., <code>llama3</code>)</li>
-        </ul>
+  
+        <div class="highlight-section">
+            <h3>⚡ Usage (Online)</h3>
+            <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary);">
+                <li style="margin-bottom: 15px;">
+                    <strong>Launch Online Streamlit hosted web app</strong>
+                    <br>
+                    <span style="font-size: 0.9em; color: var(--text-muted);">Access the application directly from your browser without installation.</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Select Mode:</strong>
+                    <ul style="margin-top: 5px; margin-bottom: 5px;">
+                        <li><strong>Full-text Paper Screener:</strong> Choose this mode to screen papers based on PICO (Population, Intervention, Comparison, Outcome) criteria.</li>
+                        <li><strong>Full-text Data Extractor:</strong> Choose this mode to extract specific fields (Author, Year, Conclusion, etc.) from research papers.</li>
+                    </ul>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Workflow (Screener):</strong>
+                    <ul style="margin-top: 5px; margin-bottom: 5px;">
+                        <li>Enter your PICO criteria (Inclusion/Exclusion) in the input fields.</li>
+                        <li>Upload your PDF papers (Batch upload supported).</li>
+                        <li>Click "Screen Papers".</li>
+                        <li>Monitor the "System Terminal" for real-time logs of extraction, API calls, and processing status.</li>
+                        <li>View the "Screening Dashboard" for a pie chart of Included/Excluded/Maybe decisions.</li>
+                        <li>Download results as CSV, XLSX, or DOCX.</li>
+                    </ul>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Workflow (Extractor):</strong>
+                    <ul style="margin-top: 5px; margin-bottom: 5px;">
+                        <li>Enter the fields you want to extract (comma-separated).</li>
+                        <li>Upload your PDF papers.</li>
+                        <li>Click "Process Papers".</li>
+                        <li>Monitor the "System Terminal" for logs.</li>
+                        <li>View extracted data in the dashboard.</li>
+                        <li>Download extracted data as CSV, XLSX, or DOCX.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Configuration:</strong>
+                    <ul style="margin-top: 5px; margin-bottom: 0;">
+                        <li>For using API key, you can select the respective AI model in either Screener/Extractor.</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
 
         <div class="highlight-section">
-            <p style="margin-bottom: 10px;"><strong>Pull a model (example):</strong></p>
-            <code>ollama pull llama3</code>
-            <br><br>
-            <p style="margin-bottom: 10px;"><strong>Verify Ollama is running:</strong></p>
-            <code>ollama list</code>
+            <h3>⚡ Usage (run streamlit Locally)</h3>
+            <p style="margin-bottom: 20px;">To run ReviewAid locally with your own API keys (OpenAI, DeepSeek, etc.), follow these steps:</p>
+            <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary);">
+                <li style="margin-bottom: 15px;">
+                    <strong>Clone the repository</strong><br>
+                    <code>git clone https://github.com/aurumz-rgb/ReviewAid.git</code><br>
+                    <code>cd ReviewAid</code>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Create and activate a virtual environment (recommended)</strong><br>
+                    <code>python -m venv venv</code><br>
+                    <code>source venv/bin/activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># macOS / Linux</span><br>
+                    <code>venv\Scripts\activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># Windows</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Install dependencies</strong><br>
+                    <code>pip install -r requirements.txt</code>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Start the Streamlit application</strong><br>
+                    <code>streamlit run app.py</code>
+                </li>
+                <li style="margin-bottom: 0;">
+                    <strong>Configure Ai model along with API key inside the UI</strong>
+                    <ul style="margin-top: 5px;">
+                        <li>Select <strong>AI model</strong> as the provider</li>
+                        <li>Enter your API Key</li>
+                    </ul>
+                </li>
+            </ol>
         </div>
 
-        <h3>▶️ Running ReviewAid with Ollama</h3>
-        <ol style="margin-left: 20px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 40px;">
-            <li><strong>Clone the repository</strong><br>
-            <code>git clone https://github.com/aurumz-rgb/ReviewAid.git</code><br>
-            <code>cd ReviewAid</code></li>
-            <li style="margin-top: 15px;"><strong>Create and activate a virtual environment (recommended)</strong><br>
-            <code>python -m venv venv</code><br>
-            <code>source venv/bin/activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># macOS / Linux</span><br>
-            <code>venv\Scripts\activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># Windows</span></li>
-            <li style="margin-top: 15px;"><strong>Install dependencies</strong><br>
-            <code>pip install -r requirements.txt</code></li>
-            <li style="margin-top: 15px;"><strong>Start the Streamlit application</strong><br>
-            <code>streamlit run app.py</code></li>
-            <li style="margin-top: 15px;"><strong>Configure Ollama inside the UI</strong>
-                <ul style="list-style-type: disc; margin-top: 8px;">
-                    <li>Select <strong>Ollama (Local)</strong> as the provider</li>
-                    <li>Choose a local model (e.g., <code>llama3</code>)</li>
-                    <li>No API key is required</li>
+
+        <div class="highlight-section">
+            <h3>🖥️ Running ReviewAid Locally with Ollama (No API Key Required)</h3>
+            <p style="margin-bottom: 20px;">ReviewAid supports <strong>local inference using Ollama</strong>, allowing you to run the application <strong>without any external API keys</strong>. This is ideal for users who prefer offline usage, enhanced privacy, or full local control.</p>
+            
+            <h4>Prerequisites</h4>
+            <p style="margin-bottom: 10px;">Ensure the following are installed on your system:</p>
+            <ul style="margin-left: 20px; color: var(--text-secondary); margin-bottom: 20px;">
+                <li><strong>Python 3.12+</strong></li>
+                <li><strong>Ollama</strong> (installed and running locally)
+                    <ul style="margin-left: 20px; list-style-type: circle;">
+                        <li>Download: <a href="https://ollama.com" target="_blank" style="color: var(--primary);">https://ollama.com</a></li>
+                    </ul>
+                </li>
+                <li>At least one supported Ollama model (e.g., <code>llama3</code>)</li>
+            </ul>
+
+            <div class="highlight-section" style="background: rgba(0,0,0,0.2); padding: 20px;">
+                <p style="margin-bottom: 10px;"><strong>Pull a model (example):</strong></p>
+                <code>ollama pull llama3</code>
+                <br><br>
+                <p style="margin-bottom: 0;"><strong>Verify Ollama is running:</strong></p>
+                <code>ollama list</code>
+            </div>
+
+            <h4 style="margin-top: 25px;">▶️ Running ReviewAid with Ollama</h4>
+            <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary); margin-top: 15px;">
+                <li style="margin-bottom: 15px;">
+                    <strong>Clone the repository</strong><br>
+                    <code>git clone https://github.com/aurumz-rgb/ReviewAid.git</code><br>
+                    <code>cd ReviewAid</code>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Create and activate a virtual environment (recommended)</strong><br>
+                    <code>python -m venv venv</code><br>
+                    <code>source venv/bin/activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># macOS / Linux</span><br>
+                    <code>venv\Scripts\activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># Windows</span>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Install dependencies</strong><br>
+                    <code>pip install -r requirements.txt</code>
+                </li>
+                <li style="margin-bottom: 15px;">
+                    <strong>Start the Streamlit application</strong><br>
+                    <code>streamlit run app.py</code>
+                </li>
+                <li style="margin-bottom: 20px;">
+                    <strong>Configure Ollama inside the UI</strong>
+                    <ul style="margin-top: 8px;">
+                        <li>Select <strong>Ollama (Local)</strong> as the provider</li>
+                        <li>Choose a local model (e.g., <code>llama3</code>)</li>
+                        <li>No API key is required</li>
+                    </ul>
+                </li>
+            </ol>
+
+            <div class="motivation" style="background: rgba(65, 137, 220, 0.1); border-left-color: var(--primary);">
+                <h3> Privacy Advantage</h3>
+                <p style="margin-bottom: 10px;">When using Ollama:</p>
+                <ul style="margin-left: 20px;">
+                    <li>All inference runs <strong>entirely on your local machine</strong></li>
+                    <li>No data is sent to external servers</li>
+                    <li>No API keys are required or stored</li>
                 </ul>
-            </li>
-        </ol>
+                <p style="margin-top: 15px; margin-bottom: 0;">This makes Ollama the <strong>most privacy-preserving configuration</strong> supported by ReviewAid.</p>
+            </div>
 
-        <div class="motivation" style="background: rgba(65, 137, 220, 0.1); border-left-color: var(--primary);">
-            <h3> Privacy Advantage</h3>
-            <p style="margin-bottom: 10px;">When using Ollama:</p>
-            <ul style="margin-left: 20px;">
-                <li>All inference runs <strong>entirely on your local machine</strong></li>
-                <li>No data is sent to external servers</li>
-                <li>No API keys are required or stored</li>
-            </ul>
-            <p style="margin-top: 15px; margin-bottom: 0;">This makes Ollama the <strong>most privacy-preserving configuration</strong> supported by ReviewAid.</p>
+            <div class="disclaimer-note">
+                <strong>⚠️ Notes</strong>
+                <ul style="margin-left: 20px; margin-top: 10px; margin-bottom: 0;">
+                    <li>Performance depends on your local hardware (CPU/GPU/RAM)</li>
+                    <li>Large PDFs or batch sizes may take longer on CPU-only systems</li>
+                    <li>For best results, ensure Ollama is running before launching Streamlit</li>
+                </ul>
+            </div>
         </div>
 
-        <div class="disclaimer-note">
-            <strong>⚠️ Notes</strong>
-            <ul style="margin-left: 20px; margin-top: 10px; margin-bottom: 0;">
-                <li>Performance depends on your local hardware (CPU/GPU/RAM)</li>
-                <li>Large PDFs or batch sizes may take longer on CPU-only systems</li>
-                <li>For best results, ensure Ollama is running before launching Streamlit</li>
-            </ul>
-        </div>
       </div>
-    
 
 
 

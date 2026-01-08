@@ -97,9 +97,10 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 ---
 
 
-## ⚡ Usage
+## ⚡ Usage (Online)
 
-1.  **Run the online Streamlit web app**
+1.  **Launch Online Streamlit hosted web app**
+
 
 2.  **Select Mode:**
     *   **Full-text Paper Screener:** Choose this mode to screen papers based on PICO (Population, Intervention, Comparison, Outcome) criteria.
@@ -121,9 +122,44 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
     *   View extracted data in the dashboard.
     *   Download extracted data as CSV, XLSX, or DOCX.
 
-
 5. **Configuration:**
     *  For using API key, you can select the respective AI model in either Screener/Extractor.
+
+---
+
+## ⚡ Usage (run streamlit Locally)
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/aurumz-rgb/ReviewAid.git
+   cd ReviewAid
+   ```
+
+2. **Create and activate a virtual environment (recommended)**
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate        # macOS / Linux
+   venv\Scripts\activate           # Windows
+   ```
+
+3. **Install dependencies**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Start the Streamlit application**
+
+   ```bash
+   streamlit run app.py
+   ```
+
+5. **Configure Ai model along with API key inside the UI**
+
+   * Select **AI model** as the provider
+   * Use API key
 
 ---
 
