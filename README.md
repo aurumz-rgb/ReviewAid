@@ -83,7 +83,7 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 ## 📝 Important Notes
 
 - **Performance:**  
-  Depending on the number and size of PDFs uploaded and your internet connection, AI processing can take some time. Please be patient — progress indicators and termianl will keep you updated. 
+  Depending on the number and size of PDFs uploaded and your internet connection, AI processing can take some time. Please be patient — progress indicators and terminal will keep you updated. 
 
 
 - **Limitations:**  
@@ -128,6 +128,8 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 ---
 
 ## ⚡ Usage (run streamlit Locally)
+
+![Terminal](screenshots/terminal.png)
 
 1. **Clone the repository**
 
@@ -323,7 +325,7 @@ This tier captures nuanced contextual understanding that deterministic rules can
 - The LLM fails to return a valid confidence value (e.g., formatting or JSON parsing errors)
 
 **Screener Logic:**
-- The system analyzes the users input **Inclusions and Exclusions critiera** and matches with the paper's full-text and determines the confidence level.
+- The system analyzes the users input **Inclusions and Exclusions criteria** and matches with the paper's full-text and determines the confidence level.
 
 **Extractor Logic:**
 - The system analyzes **Extracted data** with the paper's full-text and determines the confidence level.
