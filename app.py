@@ -667,11 +667,11 @@ if st.session_state.app_mode is None:
 
     stats = get_firebase_stats()
     st.markdown("---")
-    st.markdown("## 🌟 Global Platform Statistics")
+    st.markdown("## 🌟 Global Statistics")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Papers Screened", stats["papers_screened"])
     c2.metric("Papers Extracted", stats["papers_extracted"])
-    c3.metric("Total Visits", stats["total_visits"])
+
   
     
     st.markdown("""
