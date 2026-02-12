@@ -78,7 +78,7 @@ MAX_OUTPUT_TOKENS = 8192
 
 def get_firebase_stats():
     if db is None:
-        return {"papers_screened": 0, "papers_extracted": 0, "total_visits": 0}
+        return {"papers_screened": 0, "papers_extracted": 0}
     try:
         doc_ref = db.collection("ReviewAidAnalytics").document("counters")
         doc = doc_ref.get()
@@ -87,14 +87,14 @@ def get_firebase_stats():
             return {
                 "papers_screened": doc.to_dict().get("papers_screened", 0),
                 "papers_extracted": doc.to_dict().get("papers_extracted", 0),
-                "total_visits": doc.to_dict().get("total_visits", 0)
+   
             }
         else:
             
-            return {"papers_screened": 0, "papers_extracted": 0, "total_visits": 0}
+            return {"papers_screened": 0, "papers_extracted": 0}
     except Exception:
      
-        return {"papers_screened": 0, "papers_extracted": 0, "total_visits": 0}
+        return {"papers_screened": 0, "papers_extracted": 0}
 
 def display_citation_section():
     """
@@ -217,11 +217,8 @@ ER  -"""
 
 
 def init_analytics():
-    if db is None: return
-    if "visit_recorded" not in st.session_state:
-        doc_ref = db.collection("ReviewAidAnalytics").document("counters")
-        doc_ref.update({"total_visits": firestore.Increment(1)})
-        st.session_state.visit_recorded = True
+    pass
+
 
 def increment_firebase_counter(field):
     if db is None: return
