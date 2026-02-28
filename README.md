@@ -6,6 +6,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18060972.svg)](https://doi.org/10.5281/zenodo.18060972)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/pteroisvolitans12/ReviewAid/graphs/commit-activity)
 [![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+[![CI](https://github.com/aurumz-rgb/ReviewAid/actions/workflows/python-app.yml/badge.svg)](https://github.com/aurumz-rgb/ReviewAid/actions/workflows/python-app.yml)
 
 
 **Code & Archive (Zenodo DOI):** [10.5281/zenodo.18060972](https://doi.org/10.5281/zenodo.18060972)
