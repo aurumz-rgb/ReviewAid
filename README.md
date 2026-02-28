@@ -91,7 +91,7 @@
 ---
 
 <details>
- <summary>## ⚙️ Configuration</summary>
+ <summary>##⚙️ Configuration</summary>
 
 
 ![OpenAI](assets/openai.png)
