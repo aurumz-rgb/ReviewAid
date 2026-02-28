@@ -17,7 +17,7 @@
 ---
 
 <details>
- <summary>🚀 Quick Start</summary>
+ <summary>## 🚀 Quick Start</summary>
 
 
 ## ⚡ Usage (Online)
@@ -91,7 +91,7 @@
 ---
 
 <details>
- <summary>⚙️ Configuration</summary>
+ <summary>## ⚙️ Configuration</summary>
 
 
 ![OpenAI](assets/openai.png)
