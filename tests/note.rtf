@@ -1,0 +1,168 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 HelveticaNeue;\f2\froman\fcharset0 Times-Roman;
+\f3\froman\fcharset0 Times-Bold;\f4\froman\fcharset0 Times-Italic;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c100000\c0;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid101\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid2}
+{\list\listtemplateid3\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid201\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid3}
+{\list\listtemplateid4\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid301\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid4}
+{\list\listtemplateid5\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid401\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid5}
+{\list\listtemplateid6\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid501\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid6}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}{\listoverride\listid3\listoverridecount0\ls3}{\listoverride\listid4\listoverridecount0\ls4}{\listoverride\listid5\listoverridecount0\ls5}{\listoverride\listid6\listoverridecount0\ls6}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf2 \expnd0\expndtw0\kerning0
+# Run all tests in the tests folder\
+pytest tests/ -v\
+\
+# Run with coverage report (shows which % of code is tested)\
+pytest tests/ --cov=. --cov-report=html
+\f1\fs32 \
+\
+
+\f2\fs28 \cb3 \
+\
+\pard\pardeftab720\ri-618\sl278\slmult1\sa283\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 Add automated testing and CI \uc0\u8232 Consider adding a unit test suite (e.g., pytest) and automated smoke/integration test wired into CI (e.g., GitHub Actions).\expnd0\expndtw0\kerning0
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf2 \
+\
+\
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 The Big Picture \
+We set up an Automated Testing Suite. Before this, you had to manually run the app, upload a PDF, and click buttons to see if anything broke. Now, Python does this automatically in seconds to verify your logic is sound. \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 We created three main test files and one automation file. Here is what each one does: \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 1. 
+\f3\b tests/test_parser.py
+\f2\b0  (Testing the Data Logic) \
+What it does: Tests the code that processes the raw text returned by AI.\
+Why it matters: AI often returns messy data (e.g., inside markdown code blocks 
+\f3\b ```json ...
+\f2\b0  ). This file ensures your code is robust enough to clean that up. \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls1\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ 
+\f3\b test_clean_json...
+\f2\b0 : Verifies that the code removes markdown backticks and fixes syntax errors (like trailing commas) so Python can read the JSON.\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ 
+\f3\b test_regex_fallback...
+\f2\b0 : If the AI fails completely, your code uses "Regex" (pattern matching) to find data like 
+\f3\b Title: ...
+\f2\b0  or 
+\f3\b Year: ...
+\f2\b0 . These tests check if that backup plan works.\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ 
+\f3\b test_parse_result_success
+\f2\b0 : Uses Mocking to simulate a perfect AI response. It ensures your code correctly converts that response into the final result format.\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 2. 
+\f3\b tests/test_utils.py
+\f2\b0  (Testing the Tools) \
+What it does: Tests helper functions, specifically PDF reading and text resizing.\
+Why it matters: Reading PDFs is slow and unpredictable. We tested it without actually opening a PDF file. \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls2\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ 
+\f3\b test_preprocess_text...
+\f2\b0 : Checks if long text is correctly shortened to save money on API tokens.\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ 
+\f3\b test_extract_pdf_content
+\f2\b0 : This used Mocking heavily. We pretended to be PyMuPDF (the PDF library). We told the test: 
+\f4\i "If the app asks for a PDF, don't open a real one\'97just give it this fake text instead."
+\f2\i0  This proves your PDF reading logic works without needing a physical file.\
+\ls2\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 3. 
+\f3\b tests/test_app.py
+\f2\b0  (Testing the User Interface) \
+What it does: Tests the Streamlit app flow itself.\
+Why it matters: Ensures the app doesn't crash when a user interacts with it. \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls3\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ 
+\f3\b test_app_initial_render
+\f2\b0 : Loads the app in a "headless" browser (no UI). It simulates a user who has already accepted the disclaimer and checks if the main menu appears.\
+\ls3\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ 
+\f3\b test_screener_mode_selection
+\f2\b0 : Simulates a user clicking the "Select Screener" button. It checks if the app correctly switches the mode from the menu to the screener.\
+\ls3\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 4. 
+\f3\b .github/workflows/python-app.yml
+\f2\b0  \
+What it does: This is the CI/CD Pipeline.\
+Why it matters: It automates the tests so you don't have to run them. \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls4\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ The Process: Every time you push code to GitHub, this file wakes up a virtual server on GitHub. It installs Python, installs your requirements, and runs 
+\f3\b pytest
+\f2\b0 .\
+\ls4\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ The Result: If you break something (e.g., a syntax error), GitHub will send you a red "X" and tell you which test failed. If it passes, you get a green checkmark.\
+\ls4\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 Key Concept: "Mocking" \
+You probably noticed we used 
+\f3\b @patch
+\f2\b0  and 
+\f3\b MagicMock
+\f2\b0  a lot. \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls5\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ Real World: Calling OpenAI costs money and takes time. Reading a PDF requires a file on your disk.\
+\ls5\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ Testing World: We don't want to spend money or need files. We Mock these dependencies.\
+\ls5\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ Translation: "Hey Python, when the code tries to call 
+\f3\b openai.chat
+\f2\b0 , don't actually call it. Just pretend it happened and return this fake string I wrote down."\
+\ls5\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sa320\partightenfactor0
+\cf2 Summary of Status \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\partightenfactor0
+\ls6\ilvl0\cf2 \kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ Coverage: We tested the JSON parser, the Regex fallback, the PDF reader, and the App navigation.\
+\ls6\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ Automation: We linked these tests to GitHub Actions.\
+\ls6\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+ Outcome: You now have a safety net. If you change a line of code tomorrow and break the PDF reader, the tests will catch it immediately before you deploy it.\
+}
