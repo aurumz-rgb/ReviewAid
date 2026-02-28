@@ -16,86 +16,8 @@
 
 ---
 
-## ⚙️ Configuration
-
-![OpenAI](assets/openai.png)
-![Anthropic](assets/anthropic1.png)
-![DeepSeek](assets/deepseek.png)
-![Cohere](assets/cohere.png)
-![Z.ai](assets/zai.png)
-![Ollama](assets/ollama1.png)
-
-ReviewAid supports configuration with the following AI providers via API keys:
-
-* [OpenAI](https://openai.com)
-* [Anthropic (Claude)](https://claude.ai)
-* [DeepSeek](https://www.deepseek.com)
-* [Cohere](https://cohere.com)
-* [Z.ai](https://z.ai)
-* [Ollama (local execution)](https://ollama.com)
-
-> **Privacy Note**
-> To protect user privacy, API keys are never stored at any time.
-
-
-### ✅ Tested & Supported Models
-
-The following models were successfully tested for the supported tasks:
-
-* **OpenAI** — `GPT-4o`
-* **DeepSeek** — `deepseek-chat`
-* **Cohere** — `command-a-03-2025`
-* **Z.ai** — `GLM-4.6V-Flash`, `GLM-4.5V-Flash`
-* **Anthropic** — `Claude-Sonnet-4-20250514`
-* **Ollama (local)** — `Llama3`
-
-**Default model:** `GLM-4.6V-Flash`
-
----
-
-## 🚀 Features
-
-- **AI-based full-text screening:** Quickly filter large batches of research articles based on your custom inclusion and exclusion criteria.  
-- **Extraction:** Extract any part of the paper you want! 
-- **Customizable data extraction:** Define exactly what data fields you want extracted, and let's AI do the heavy lifting.  
-- **Bulk PDF upload & management:** Easily upload and organize hundreds of research articles in PDF format.
-- **Clean, modern, and responsive UI:** Focus on your research without distractions thanks to a sleek interface built with Streamlit.  
-- **Privacy-first approach:** Your uploaded documents and API keys stay private and are never stored or shared.  
-- **Open-source and extensible:** Built on Python and Streamlit for easy customization and community contributions.  
-
-- **NOTE ‼️:** 
-
-1. ReviewAid is used as a supplementary tool alongside manual screening and data extraction to minimise errors and improve research accuracy, without replacing human judgment. 
-  
-2. Please restrict each submission to a maximum of **20 articles**. Submissions exceeding this limit will result in processing of only the first 20 articles, after which the process will **terminate** prematurely. Kindly adhere to this restriction. **Please respect this limit.**
-
----
-
-##  Demo Video
-
-Check out the full walkthrough and demonstration of ReviewAid on YouTube:
-
-[![ReviewAid Demo](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=M2S32pPaQE4)
-
-
----
-
-
-## 📝 Important Notes
-
-- **Performance:**  
-  Depending on the number and size of PDFs uploaded and your internet connection, AI processing can take some time. Please be patient — progress indicators and terminal will keep you updated. 
-
-
-- **Limitations:**  
-  The web is hosted on Streamlit and hence users may face **cold starts** when the user has to wait **30 seconds** for the web to initialise. 
-  As per tool usage, the developer may decide to host it on better sources to avoid such **cold starts**.
-
-
-- **New Features:**  
-  In future, as per demand, I might add a feature which will enable Researchers to use any Ai API they want with ReviewAid. Simply use your personal API key and use the tool. Fast, Private, Any AI.
-
----
+<details>
+ <summary>🚀 Quick Start</summary>
 
 
 ## ⚡ Usage (Online)
@@ -163,6 +85,100 @@ Check out the full walkthrough and demonstration of ReviewAid on YouTube:
 
    * Select **AI model** as the provider
    * Use API key
+
+</details>
+
+---
+
+<details>
+ <summary>⚙️ Configuration</summary>
+
+
+![OpenAI](assets/openai.png)
+![Anthropic](assets/anthropic1.png)
+![DeepSeek](assets/deepseek.png)
+![Cohere](assets/cohere.png)
+![Z.ai](assets/zai.png)
+![Ollama](assets/ollama1.png)
+
+ReviewAid supports configuration with the following AI providers via API keys:
+
+* [OpenAI](https://openai.com)
+* [Anthropic (Claude)](https://claude.ai)
+* [DeepSeek](https://www.deepseek.com)
+* [Cohere](https://cohere.com)
+* [Z.ai](https://z.ai)
+* [Ollama (local execution)](https://ollama.com)
+
+> **Privacy Note**
+> To protect user privacy, API keys are never stored at any time.
+
+
+| Feature              | Cloud Providers (OpenAI, Anthropic, etc.) | Ollama (Local Execution)          |
+| -------------------- | ----------------------------------------- | --------------------------------- |
+| Internet Required    | ✅ Yes                                     | ❌ No                              |
+| API Key Required     | ✅ Yes                                     | ❌ No                              |
+| Data Sent Externally | ✅ Yes (to provider API)                   | ❌ No (runs locally)               |
+| Setup Complexity     | Low (just API key)                        | Moderate (install Ollama + model) |
+| Performance          | Depends on provider infrastructure        | Depends on your local hardware    |
+| Privacy Level        | Standard API-based                        | Maximum (fully offline)           |
+| Cost                 | Pay-per-usage (API billing)               | Free after local setup            |
+
+
+### ✅ Tested & Supported Models
+
+The following models were successfully tested for the supported tasks:
+
+* **OpenAI** — `GPT-4o`
+* **DeepSeek** — `deepseek-chat`
+* **Cohere** — `command-a-03-2025`
+* **Z.ai** — `GLM-4.6V-Flash`, `GLM-4.5V-Flash`
+* **Anthropic** — `Claude-Sonnet-4-20250514`
+* **Ollama (local)** — `Llama3`
+
+**Default model:** `GLM-4.6V-Flash`
+
+
+## ⚙️ Configuration File
+
+ReviewAid does not require a separate configuration file.
+
+All API keys and AI model selections are securely entered directly within the Streamlit user interface during runtime.
+
+No `.env`, YAML, or JSON configuration files are required.
+
+</details>
+
+---
+
+## 🚀 Features
+
+- **AI-based full-text screening:** Quickly filter large batches of research articles based on your custom inclusion and exclusion criteria.  
+- **Extraction:** Extract any part of the paper you want! 
+- **Customizable data extraction:** Define exactly what data fields you want extracted, and let's AI do the heavy lifting.  
+- **Bulk PDF upload & management:** Easily upload and organize hundreds of research articles in PDF format.
+- **Clean, modern, and responsive UI:** Focus on your research without distractions thanks to a sleek interface built with Streamlit.  
+- **Privacy-first approach:** Your uploaded documents and API keys stay private and are never stored or shared.  
+- **Open-source and extensible:** Built on Python and Streamlit for easy customization and community contributions.  
+
+- **NOTE ‼️:** 
+
+1. ReviewAid is used as a supplementary tool alongside manual screening and data extraction to minimise errors and improve research accuracy, without replacing human judgment. 
+  
+2. Please restrict each submission to a maximum of **20 articles**. Submissions exceeding this limit will result in processing of only the first 20 articles, after which the process will **terminate** prematurely. Kindly adhere to this restriction. **Please respect this limit.**
+
+---
+
+
+## 📝 Important Notes
+
+- **Performance:**  
+  Depending on the number and size of PDFs uploaded and your internet connection, AI processing can take some time. Please be patient — progress indicators and terminal will keep you updated. 
+
+
+- **Limitations:**  
+  The web is hosted on Streamlit and hence users may face **cold starts** when the user has to wait **30 seconds** for the web to initialise. 
+  As per tool usage, the developer may decide to host it on better sources to avoid such **cold starts**.
 
 ---
 
@@ -449,6 +465,12 @@ I would also like to thank [@Nightraven5115](https://github.com/Nightraven5115) 
 If you use ReviewAid, please cite:
 
 **Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). Zenodo.** DOI: [10.5281/zenodo.18060972](https://doi.org/10.5281/zenodo.18060972)
+
+---
+
+You can check out the full walkthrough and demonstration of ReviewAid on YouTube:
+
+[![ReviewAid Demo](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=M2S32pPaQE4)
 
 ---
 
