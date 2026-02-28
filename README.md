@@ -182,7 +182,8 @@ No `.env`, YAML, or JSON configuration files are required.
 
 ---
 
-## 🖥️ Running ReviewAid Locally with Ollama (No API Key Required)
+<details>
+<summary>🖥️ Running ReviewAid Locally with Ollama</summary>
 
 ReviewAid supports **local inference using Ollama**, allowing you to run the application **without any external API keys**. This is ideal for users who prefer offline usage, enhanced privacy, or full local control.
 
@@ -265,6 +266,8 @@ This makes Ollama the **most privacy-preserving configuration** supported by Rev
 * Large PDFs or batch sizes may take longer on CPU-only systems
 * For best results, ensure Ollama is running **before** launching Streamlit
 
+</details>
+
 ---
 
 ## 🏛️ System Architecture 
@@ -273,7 +276,8 @@ This makes Ollama the **most privacy-preserving configuration** supported by Rev
 
 ---
 
-## 🌟 Confidence Scoring System
+<details>
+<summary> 🌟 Confidence Scoring System</summary>
 
 This system implements a **hierarchical four-tier confidence model** designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes **deterministic rule-based decisions** before progressively falling back to algorithmic and heuristic estimation only when necessary.
 
@@ -383,9 +387,12 @@ This layered approach ensures that high-confidence decisions are automated safel
 | **0.1 – 0.39** | Low Confidence | Based mainly on heuristic keyword estimation. | High risk of error |
 | **< 0.1** | Unreliable | Derived from fallback or failed extraction methods. | Mandatory manual review |
 
+</details>
+
 ---
 
-## 📦 Bulletproof Parsing Pipeline
+<details>
+<summary>📦 Bulletproof Parsing Pipeline</summary>
 
 **Purpose:** Safely parse API/AI responses, even if the JSON is broken or missing.
 
@@ -415,6 +422,8 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 * Never crashes
 * Always attempts to recover usable data
+
+</details>
 
 ---
 
@@ -446,6 +455,11 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ---
 
+You can check out the full walkthrough and demonstration of ReviewAid on YouTube:
+
+[![ReviewAid Demo](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=M2S32pPaQE4)
+
+---
 
 ## 🔗 Acknowledgements
 
@@ -466,11 +480,6 @@ If you use ReviewAid, please cite:
 
 **Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). Zenodo.** DOI: [10.5281/zenodo.18060972](https://doi.org/10.5281/zenodo.18060972)
 
----
-
-You can check out the full walkthrough and demonstration of ReviewAid on YouTube:
-
-[![ReviewAid Demo](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=M2S32pPaQE4)
 
 ---
 
