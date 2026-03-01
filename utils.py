@@ -773,7 +773,7 @@ class DeepSeekProvider(BaseLLMProvider):
 
 class GLMProvider(BaseLLMProvider):
     """Z.ai (GLM) provider using existing ZaiClient logic"""
-    def __init__(self, api_key, model_name="GLM-4.6V-Flash"):
+    def __init__(self, api_key, model_name="GLM-4.7-Flash"):
         super().__init__(api_key, model_name)
         if not ZaiClient: raise ImportError("Zai library not found.")
         self.client = ZaiClient(api_key=api_key)

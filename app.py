@@ -467,7 +467,7 @@ init_analytics()
 if 'provider_name' not in st.session_state:
     st.session_state.provider_name = "Default"
     st.session_state.api_key = ""
-    st.session_state.model_name = "GLM-4.6V-Flash"
+    st.session_state.model_name = "GLM-4.7-Flash"
 
 if st.session_state.app_mode is not None:
     st.markdown("""
