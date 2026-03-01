@@ -30,11 +30,11 @@ def run_extractor():
             st.info("""
                 **Default Mode Selected.**
                 - **Provider:** GLM (Z.ai)
-                - **Model:** GLM-4.6V-Flash
+                - **Model:** GLM-4.7-Flash
                 - **API Keys:** Loaded from `.env` file (`SCREENER_API_KEY` or `EXTRACTOR_API_KEY`).
                 """)
             st.session_state['provider_name'] = "Default"
-            st.session_state['model_name'] = "GLM-4.6V-Flash"
+            st.session_state['model_name'] = "GLM-4.7-Flash"
             st.session_state['api_key'] = "HIDDEN" 
         elif provider_name == "OpenAI":
             model_name = st.text_input("Model Name", value="gpt-4o", help="e.g. gpt-4o")
@@ -61,7 +61,7 @@ def run_extractor():
             st.session_state['model_name'] = model_name
             st.session_state['api_key'] = api_key
         elif provider_name == "GLM (Z.ai)":
-            model_name = st.text_input("Model Name", value="GLM-4.6V-Flash", help="e.g. GLM-4.6V-Flash")
+            model_name = st.text_input("Model Name", value="GLM-4.7-Flash", help="e.g. GLM-4.7-Flash")
             api_key = st.text_input("API Key", type="password", help="Enter your Z.ai API Key")
             st.session_state['provider_name'] = "GLM (Z.ai)"
             st.session_state['model_name'] = model_name
@@ -113,9 +113,9 @@ def run_extractor():
                 st.error("SCREENER_API_KEY or EXTRACTOR_API_KEY not found in environment variables (.env).")
                 st.stop()
                 
-            model_name = "GLM-4.6V-Flash"
+            model_name = "GLM-4.7-Flash"
             provider_for_call = "GLM (Z.ai)"
-            update_terminal_log(f"Using Default Provider (GLM 4.6V-Flash) with Env Key.", "INFO")
+            update_terminal_log(f"Using Default Provider (GLM-4.7-Flash) with Env Key.", "INFO")
         else:
 
             api_key = st.session_state.get('api_key', '')
