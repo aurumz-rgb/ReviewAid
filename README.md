@@ -7,9 +7,12 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/pteroisvolitans12/ReviewAid/graphs/commit-activity)
 [![Open Source](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 [![CI](https://github.com/aurumz-rgb/ReviewAid/actions/workflows/python-app.yml/badge.svg)](https://github.com/aurumz-rgb/ReviewAid/actions/workflows/python-app.yml)
+[![Journal of Open Research Software](https://img.shields.io/badge/JORS-14(1):21-4b8bbe)](https://doi.org/10.5334/jors.672)
 
 
 **Code & Archive (Zenodo DOI):** [10.5281/zenodo.18060972](https://doi.org/10.5281/zenodo.18060972)
+
+**Journal of Open Research Software:** [10.5334/jors.672](https://doi.org/10.5334/jors.672)
 
 **ReviewAid Validation Repository:** [ReviewAid Validation GitHub Repo](https://github.com/ReviewAid/Validation)
 
@@ -488,12 +491,16 @@ I would also like to thank [@Nightraven5115](https://github.com/Nightraven5115) 
 
 If you use ReviewAid, please cite:
 
-**Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). Zenodo.** DOI: [10.5281/zenodo.18060972](https://doi.org/10.5281/zenodo.18060972)
+**Sahu, V. and Balakrishnan, M. (2026) ‘ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews’, Journal of Open Research Software, 14(1), p. 21.** Available at: [https://doi.org/10.5334/jors.672](https://doi.org/10.5334/jors.672)
 
 
 ---
 
 ## 📄 License
+
+<a href="https://opensource.org/licenses/Apache-2.0">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Apache_Feather_Logo.svg" alt="Apache 2.0 License" height="60">
+</a>
 
 This project is licensed under the Apache 2.0 License.
 

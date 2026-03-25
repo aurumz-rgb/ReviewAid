@@ -655,7 +655,7 @@ if st.session_state.app_mode is None:
     st.markdown("## Support")
     st.markdown("""
     <div class="support-description">
-        ReviewAid is an open-source academic tool designed to streamline the literature review and evidence synthesis process. If this tool benefits your research, your support is greatly appreciated. I will be adding links to the <a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub repository</a>, please check it out to explore the source code, contribute, or support ongoing development. Here is ReviewAid's preprint paper: <a href="https://osf.io/preprints/metaarxiv/3vhmt" target="_blank">ReviewAid MetaArXiV</a>
+        ReviewAid is an open-source academic tool designed to streamline the literature review and evidence synthesis process. If this tool benefits your research, your support is greatly appreciated. I will be adding links to the <a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub repository</a>, please check it out to explore the source code, contribute, or support ongoing development. Here is ReviewAid's journal paper: <a href="https://doi.org/10.5334/jors.672" target="_blank">Journal of Open Research Software (2026)</a>
         <br><br>
         <strong>Supported AI Models:</strong> This tool supports a wide range of AI providers including <a href="https://openai.com" target="_blank">OpenAI</a>, <a href="https://www.anthropic.com" target="_blank">Anthropic</a>, <a href="https://cohere.com" target="_blank">Cohere</a>, <a href="https://www.deepseek.com" target="_blank">Deepseek</a>, <a href="https://huggingface.co/zai-org" target="_blank">GLM (Z.ai)</a>, and local <a href="https://ollama.com/" target="_blank">Ollama</a> models. You can configure these in the Configuration section within the application modes.
     </div>
@@ -676,7 +676,7 @@ if st.session_state.app_mode is None:
     
     st.markdown("""
     <div class="mode-selection-footer">
-        <div>© 2025 Vihaan Sahu – Licensed under Apache 2.0</div>
+        <div>© 2025-26 Vihaan Sahu – Licensed under Apache 2.0</div>
         <div class="center-text"><a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub Repository</a></div>
         <div class="right-text">Open-source</div>
     </div>

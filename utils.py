@@ -105,52 +105,60 @@ def display_citation_section():
 
     st.markdown("---")
     st.markdown("## Citation")
-    st.markdown("You can check ReviewAid's preprint paper here: [ReviewAid MetaArXiV](https://osf.io/preprints/metaarxiv/3vhmt). If you are to use ReviewAid, please don't forget to cite the tool:")
+    st.markdown("You can check ReviewAid's journal paper here: [Journal of Open Research Software](https://doi.org/10.5334/jors.672). If you are to use ReviewAid, please don't forget to cite the tool:")
 
     apa_citation = (
-        "Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). "
-        "Zenodo. https://doi.org/10.5281/zenodo.18060972"
+        "Sahu, V., & Balakrishnan, M. (2026). ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews. "
+        "Journal of Open Research Software, 14(1), 21. https://doi.org/10.5334/jors.672"
     )
 
     harvard_citation = (
-        "Sahu, V., 2025. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). "
-        "Zenodo. Available at: https://doi.org/10.5281/zenodo.18060972"
+        "Sahu, V. and Balakrishnan, M., 2026. ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews. "
+        "Journal of Open Research Software, 14(1), p. 21. Available at: https://doi.org/10.5334/jors.672"
     )
 
     mla_citation = (
-        "Sahu, Vihaan. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0).\" "
-        "2025, Zenodo, https://doi.org/10.5281/zenodo.18060972."
+        "Sahu, Vihaan, and Mohith Balakrishnan. \"ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews.\" "
+        "Journal of Open Research Software, vol. 14, no. 1, 2026, p. 21."
     )
 
     chicago_citation = (
-        "Sahu, Vihaan. 2025. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0).\" "
-        "Zenodo. https://doi.org/10.5281/zenodo.18060972."
+        "Sahu, Vihaan, and Mohith Balakrishnan. 2026. \"ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews.\" "
+        "Journal of Open Research Software 14 (1): 21. https://doi.org/10.5334/jors.672."
     )
 
     ieee_citation = (
-        "V. Sahu, \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0),\" "
-        "Zenodo, 2025. doi: 10.5281/zenodo.18060972."
+        "V. Sahu and M. Balakrishnan, \"ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews,\" "
+        "Journal of Open Research Software, vol. 14, no. 1, p. 21, 2026. doi: 10.5334/jors.672."
     )
 
     vancouver_citation = (
-        "Sahu V. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). "
-        "Zenodo. 2025. doi:10.5281/zenodo.18060972"
+        "Sahu V, Balakrishnan M. ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews. "
+        "J Open Res Softw. 2026;14(1):21. doi:10.5334/jors.672"
     )
 
     ris_data = """TY  - JOUR
-AU  - Sahu, V
-TI  - ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0)
-PY  - 2025
-DO  - 10.5281/zenodo.18060972
+AU  - Sahu, V.
+AU  - Balakrishnan, M.
+TI  - ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews
+JO  - Journal of Open Research Software
+PY  - 2026
+VL  - 14
+IS  - 1
+SP  - 21
+DO  - 10.5334/jors.672
 ER  -"""
 
-    bib_data = """@misc{Sahu2025,
-  author={Sahu, V.},
-  title={ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0)},
-  year={2025},
-  doi={10.5281/zenodo.18060972}
+    bib_data = """@article{Sahu2026,
+  author = {Sahu, V. and Balakrishnan, M.},
+  title = {ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews},
+  journal = {Journal of Open Research Software},
+  year = {2026},
+  volume = {14},
+  number = {1},
+  pages = {21},
+  doi = {10.5334/jors.672}
 }"""
-
    
     try:
         citation_style = st.selectbox(

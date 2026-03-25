@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
- <meta name="google-site-verification" content="" />
- 
+  <meta name="google-site-verification" content="" />
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ReviewAid / AI Screener & Extractor</title>
-  <meta name="description" content="ReviewAid is an open-source AI-driven tool for full-text screening and data extraction for systematic reviews, featuring PICO analysis and publication-ready exports.">
-  <meta name="keywords" content="ReviewAid, Ai Screener, Data Extractor, Systematic Review, PICO, Data Extraction, AI Screening, Literature Review, Research-articles">
+  <meta name="description"
+    content="ReviewAid is an open-source AI-driven tool for full-text screening and data extraction for systematic reviews, featuring PICO analysis and publication-ready exports.">
+  <meta name="keywords"
+    content="ReviewAid, Ai Screener, Data Extractor, Systematic Review, PICO, Data Extraction, AI Screening, Literature Review, Research-articles">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Vihaan Sahu">
   <meta name="copyright" content="© 2025 Vihaan Sahu">
   <meta name="language" content="en">
   <link rel="canonical" href="https://aurumz-rgb.github.io/ReviewAid/">
   <link rel="icon" href="favicon.ico" type="image/png">
-  
+
   <meta name="theme-color" content="#09090b">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="ReviewAid | AI-Driven Full-Text Screening & Extraction">
-  <meta property="og:description" content="Open-source AI tool for automating full-text screening and data extraction in systematic reviews using PICO criteria.">
+  <meta property="og:description"
+    content="Open-source AI tool for automating full-text screening and data extraction in systematic reviews using PICO criteria.">
   <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner.png">
   <meta property="og:image:alt" content="ReviewAid Banner">
   <meta property="og:url" content="https://aurumz-rgb.github.io/ReviewAid/">
@@ -27,10 +31,12 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="ReviewAid | AI Screener & Extractor for Systematic Reviews">
-  <meta name="twitter:description" content="Automate your systematic review workflow with AI-powered PICO screening and custom data extraction.">
+  <meta name="twitter:description"
+    content="Automate your systematic review workflow with AI-powered PICO screening and custom data extraction.">
   <meta name="twitter:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner1.png">
 
-  <meta name="citation_title" content="ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis">
+  <meta name="citation_title"
+    content="ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis">
   <meta name="citation_author" content="Vihaan Sahu">
   <meta name="citation_publication_date" content="2025">
   <meta name="citation_doi" content="10.5281/zenodo.18060972">
@@ -66,75 +72,76 @@
     ]
   }
   </script>
-  
+
   <style>
     :root {
       --bg-body: #09090b;
       --bg-card: #18181b;
       --bg-card-hover: #27272a;
       --bg-accent: #0c1929;
-      
+
       --text-primary: #f4f4f5;
       --text-secondary: #a1a1aa;
       --text-muted: #71717a;
-      
+
       --border-color: #27272a;
       --border-highlight: #3f3f46;
-      
-      --primary: #4189DC; 
+
+      --primary: #4189DC;
       --primary-glow: rgba(65, 137, 220, 0.25);
       --primary-hover: #5da9ea;
-      
+
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      
+
       --font-main: 'Inter', system-ui, -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
     }
 
-    
+
     [data-theme="light"] {
       --bg-body: #f8fafc;
       --bg-card: #ffffff;
       --bg-card-hover: #f1f5f9;
       --bg-accent: #eff6ff;
-      
+
       --text-primary: #0f172a;
       --text-secondary: #475569;
       --text-muted: #64748b;
-      
+
       --border-color: #e2e8f0;
       --border-highlight: #cbd5e1;
-      
-      --primary: #2563eb; 
+
+      --primary: #2563eb;
       --primary-glow: rgba(37, 99, 235, 0.2);
       --primary-hover: #1d4ed8;
-      
+
       --success: #16a34a;
       --warning: #d97706;
       --danger: #dc2626;
     }
 
     [data-theme="light"] body {
-       background-image: 
+      background-image:
         linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
     }
-    
+
     [data-theme="light"] .motivation {
       background: rgba(37, 99, 235, 0.05);
       border-color: rgba(37, 99, 235, 0.2);
     }
-    
+
     [data-theme="light"] .disclaimer-note {
       background: rgba(245, 158, 11, 0.05);
       border-color: rgba(245, 158, 11, 0.2);
     }
-    
+
     [data-theme="light"] .confidence-table th {
       background-color: #f1f5f9;
     }
+
     [data-theme="light"] .confidence-table tr:hover td {
       background-color: #f8fafc;
     }
@@ -144,17 +151,17 @@
       padding: 0;
       box-sizing: border-box;
     }
-    
+
     html {
       scroll-behavior: smooth;
     }
-    
+
     body {
       font-family: var(--font-main);
       line-height: 1.7;
       color: var(--text-primary);
       background-color: var(--bg-body);
-      background-image: 
+      background-image:
         linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
       background-size: 40px 40px;
@@ -162,42 +169,47 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
-    
+
     ::-webkit-scrollbar {
       width: 10px;
     }
+
     ::-webkit-scrollbar-track {
       background: var(--bg-body);
     }
+
     ::-webkit-scrollbar-thumb {
       background: var(--border-color);
       border-radius: 5px;
       border: 2px solid var(--bg-body);
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: var(--text-muted);
     }
+
     html {
       scrollbar-width: thin;
       scrollbar-color: var(--border-color) var(--bg-body);
     }
 
-   
+
     .reveal {
       position: relative;
       transform: translateY(30px);
       opacity: 0;
       transition: all 0.6s cubic-bezier(0.5, 0, 0, 1);
     }
+
     .reveal.active {
       transform: translateY(0);
       opacity: 1;
     }
-    
-  
+
+
     .header {
       position: relative;
-      background: radial-gradient(circle at center, #0c1929 0%, #000000 100%); 
+      background: radial-gradient(circle at center, #0c1929 0%, #000000 100%);
       color: white;
       padding: 60px 0;
       text-align: center;
@@ -205,7 +217,7 @@
       overflow: hidden;
       transition: background 0.3s;
     }
-    
+
     .header::before {
       content: '';
       position: absolute;
@@ -227,7 +239,7 @@
       padding: 0 20px;
       z-index: 1;
     }
-    
+
     h1 {
       font-size: 4rem;
       margin-bottom: 15px;
@@ -239,7 +251,7 @@
       line-height: 1.1;
       transition: background 0.3s;
     }
-    
+
     .tagline {
       font-size: 1.25rem;
       margin-bottom: 30px;
@@ -249,12 +261,12 @@
 
     .banner-img {
       width: 100%;
-      max-width: 1000px; 
+      max-width: 1000px;
       height: auto;
       margin: 30px auto;
       display: block;
     }
-    
+
     .badges {
       display: flex;
       flex-wrap: wrap;
@@ -263,30 +275,31 @@
       margin-top: 30px;
       padding: 20px;
     }
-    
+
     .badges img {
       height: 24px;
       filter: grayscale(0.7);
       transition: filter 0.2s;
     }
+
     .badges img:hover {
       filter: grayscale(0);
     }
-    
+
     .main-content {
       padding: 60px 0 100px;
     }
-    
+
     .container {
-      max-width: 1200px; 
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 24px;
     }
-    
+
     .section {
       margin-bottom: 80px;
     }
-    
+
     h2 {
       font-size: 2.5rem;
       color: var(--text-primary);
@@ -296,6 +309,7 @@
       display: flex;
       align-items: center;
     }
+
     h2::after {
       content: '';
       display: block;
@@ -313,7 +327,7 @@
       font-weight: 600;
       margin-top: 25px;
     }
-    
+
     p {
       margin-bottom: 24px;
       color: var(--text-secondary);
@@ -326,26 +340,26 @@
     }
 
     code {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
       padding: 2px 6px;
       border-radius: 4px;
       font-family: var(--font-mono);
       font-size: 0.9em;
       color: #e2e8f0;
-      display: inline-block; 
+      display: inline-block;
     }
-    
+
     [data-theme="light"] code {
-      background: rgba(0,0,0,0.08);
+      background: rgba(0, 0, 0, 0.08);
       color: #334155;
     }
 
-  
+
     .main-links {
       text-align: center;
       margin: 60px 0;
     }
-    
+
     .main-links a {
       display: inline-flex;
       align-items: center;
@@ -360,33 +374,33 @@
       font-size: 1rem;
       border: 1px solid transparent;
     }
-    
+
     .main-links a:not(.primary) {
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       border-color: var(--border-color);
       color: var(--text-primary);
     }
-    
+
     [data-theme="light"] .main-links a:not(.primary) {
-      background: rgba(0,0,0,0.03);
+      background: rgba(0, 0, 0, 0.03);
       border-color: var(--border-color);
       color: var(--text-primary);
     }
-    
+
     .main-links a:not(.primary):hover {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
     }
 
     [data-theme="light"] .main-links a:not(.primary):hover {
-      background: rgba(0,0,0,0.06);
+      background: rgba(0, 0, 0, 0.06);
       border-color: var(--text-muted);
     }
- 
+
     .main-links a.primary {
       background: var(--primary);
       box-shadow: 0 0 20px var(--primary-glow);
     }
-    
+
     .main-links a.primary:hover {
       background: var(--primary-hover);
       transform: translateY(-2px);
@@ -395,59 +409,59 @@
 
 
     .launch-btn {
-      background-color: #0970e5; 
+      background-color: #0970e5;
       color: white;
     }
 
     .launch-btn:hover {
-      background-color: #044b76; 
+      background-color: #044b76;
       transform: translateY(-2px);
       box-shadow: 0 0 30px rgba(9, 115, 229, 0.4);
     }
-    
-   
+
+
     .tools {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 20px;
       margin: 30px 0;
     }
-    
+
     .tool {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 12px;
       padding: 25px;
-      text-align: left; 
+      text-align: left;
       transition: all 0.3s ease;
       height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
     }
-    
+
     .tool:hover {
       transform: translateY(-5px);
       border-color: var(--primary);
-      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     }
-    
+
     .tool h4 {
       color: var(--text-primary);
       margin-bottom: 10px;
       font-size: 1.15rem;
       margin-top: 0;
     }
-    
+
     .tool p {
       color: var(--text-secondary);
       margin-bottom: 0;
       font-size: 0.95rem;
     }
 
-  
+
     .highlight-section {
-      background: linear-gradient(145deg, rgba(24, 24, 27, 0.5), rgba(0,0,0,0));
+      background: linear-gradient(145deg, rgba(24, 24, 27, 0.5), rgba(0, 0, 0, 0));
       padding: 40px;
       border-radius: 16px;
       margin-bottom: 50px;
@@ -456,73 +470,75 @@
     }
 
     [data-theme="light"] .highlight-section {
-      background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(0,0,0,0));
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(0, 0, 0, 0));
     }
-    
+
     .highlight-section h2 {
       border-bottom: none;
     }
 
 
     .ui-showcase {
-        margin-top: 20px;
+      margin-top: 20px;
     }
 
     .showcase-group {
-        margin-bottom: 50px;
+      margin-bottom: 50px;
     }
 
     .showcase-group h3 {
-        font-size: 1.5rem;
-        color: var(--text-primary);
-        border-left: 4px solid var(--primary);
-        padding-left: 15px;
-        margin-bottom: 20px;
-        margin-top: 0;
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      border-left: 4px solid var(--primary);
+      padding-left: 15px;
+      margin-bottom: 20px;
+      margin-top: 0;
     }
 
     .showcase-img {
-        width: 100%;
-        height: auto; 
-        display: block;
-        border-radius: 8px;
-   
-        cursor: zoom-in;
-        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        background-color: var(--bg-card);
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+
+      cursor: zoom-in;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      background-color: var(--bg-card);
     }
 
     .showcase-img:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.4);
-        border-color: var(--primary);
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+      border-color: var(--primary);
     }
 
 
     .grid-2 {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
     }
 
 
     .grid-3 {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-    }
-    
-    .grid-1 {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
     }
 
- 
+    .grid-1 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+
     @media (max-width: 900px) {
-        .grid-2, .grid-3 {
-            grid-template-columns: 1fr;
-        }
+
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
     }
 
 
@@ -530,14 +546,14 @@
       list-style-type: none;
       padding-left: 0;
     }
-    
+
     .confidence-overview-list li {
       position: relative;
       padding-left: 25px;
       margin-bottom: 12px;
       color: var(--text-secondary);
     }
-    
+
     .confidence-overview-list li::before {
       content: "→";
       color: var(--primary);
@@ -546,7 +562,7 @@
       left: 0;
     }
 
- 
+
     .tiers-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -573,16 +589,24 @@
       height: 4px;
       background: var(--border-color);
     }
-    
-   
-    .tier-card[style*="#ef4444"]::before { background: #ef4444; } 
-    .tier-card[style*="#4189DC"]::before { background: #4189DC; } 
-    .tier-card[style*="#16a34a"]::before { background: #16a34a; } 
+
+
+    .tier-card[style*="#ef4444"]::before {
+      background: #ef4444;
+    }
+
+    .tier-card[style*="#4189DC"]::before {
+      background: #4189DC;
+    }
+
+    .tier-card[style*="#16a34a"]::before {
+      background: #16a34a;
+    }
 
     .tier-card:hover {
       transform: translateY(-5px);
       border-color: var(--border-highlight);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
     .tier-card h3 {
@@ -613,12 +637,12 @@
       color: var(--text-secondary);
       font-size: 0.95rem;
     }
-    
+
     .tier-card ul li {
       margin-bottom: 8px;
     }
 
-    
+
     .table-responsive {
       overflow-x: auto;
       margin-top: 30px;
@@ -630,10 +654,10 @@
       width: 100%;
       border-collapse: collapse;
       background: var(--bg-card);
-      min-width: 600px; 
+      min-width: 600px;
     }
 
-    .confidence-table th, 
+    .confidence-table th,
     .confidence-table td {
       padding: 18px 24px;
       text-align: left;
@@ -654,7 +678,7 @@
     }
 
     .confidence-table tr:hover td {
-      background-color: rgba(255,255,255,0.02);
+      background-color: rgba(255, 255, 255, 0.02);
     }
 
     .confidence-table td:first-child {
@@ -670,14 +694,14 @@
       border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 700;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     [data-theme="light"] .confidence-badge {
-      background: rgba(0,0,0,0.05);
+      background: rgba(0, 0, 0, 0.05);
     }
 
     .rationale {
@@ -686,16 +710,16 @@
       font-size: 0.9rem;
       margin-top: 20px;
       padding-top: 20px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     [data-theme="light"] .rationale {
-      border-top: 1px solid rgba(0,0,0,0.1);
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
     }
 
-   
+
     .motivation {
-      background: rgba(24, 40, 75, 0.2); 
+      background: rgba(24, 40, 75, 0.2);
       padding: 30px;
       border-radius: 12px;
       margin: 30px 0;
@@ -705,10 +729,14 @@
       border: 1px solid rgba(65, 137, 220, 0.2);
       transition: background 0.3s;
     }
-    .motivation h3 { color: var(--text-primary); margin-top: 0; }
+
+    .motivation h3 {
+      color: var(--text-primary);
+      margin-top: 0;
+    }
 
     .disclaimer-note {
-      background: rgba(245, 158, 11, 0.1); 
+      background: rgba(245, 158, 11, 0.1);
       padding: 30px;
       border-radius: 12px;
       margin: 30px 0;
@@ -734,7 +762,7 @@
       align-items: flex-start;
       text-align: left;
     }
-    
+
 
     .logo-row {
       display: flex;
@@ -753,14 +781,14 @@
       border: 1px solid var(--border-color);
       background: var(--bg-card);
     }
-    
-    
+
+
     .logo-row .ack-img {
-      max-width: 280px; 
-      max-height: 200px; 
+      max-width: 280px;
+      max-height: 200px;
       object-fit: contain;
       margin-bottom: 0;
-      border: none; 
+      border: none;
       background: transparent;
     }
 
@@ -768,20 +796,22 @@
       margin: 0 0 15px 0;
       max-width: 100%;
     }
-    
+
     .ack-text strong {
       color: var(--primary);
     }
+
     .ack-text a {
       color: var(--primary-hover);
       text-decoration: none;
       font-weight: 500;
     }
+
     .ack-text a:hover {
       text-decoration: underline;
     }
-    
-  
+
+
     .citation-container {
       background: var(--bg-card);
       border-radius: 16px;
@@ -863,6 +893,7 @@
       background: var(--primary);
       color: white;
     }
+
     .btn-primary:hover {
       background: var(--primary-hover);
       transform: translateY(-1px);
@@ -873,22 +904,24 @@
       border: 1px solid var(--border-color);
       color: var(--text-secondary);
     }
+
     .btn-secondary:hover {
 
       color: var(--text-primary);
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
     }
 
     @media (min-width: 768px) {
       .citation-container {
         grid-template-columns: 1fr 2fr;
       }
+
       .citation-controls {
         justify-content: start;
       }
     }
 
-    
+
     footer {
       background: #000;
       color: var(--text-muted);
@@ -900,7 +933,7 @@
     [data-theme="light"] footer {
       background: #ffffff;
     }
-    
+
     .footer-content {
       max-width: 1200px;
       margin: 0 auto;
@@ -909,20 +942,20 @@
       justify-content: space-between;
       align-items: center;
     }
-    
+
     footer p {
       color: var(--text-muted);
       margin-bottom: 0;
       font-size: 0.9rem;
     }
-    
+
     footer a {
       color: var(--text-primary);
       text-decoration: none;
       font-weight: 500;
       transition: color 0.2s;
     }
-    
+
     footer a:hover {
       color: var(--primary);
     }
@@ -962,10 +995,15 @@
       stroke-linejoin: round;
     }
 
-    [data-theme="dark"] .icon-sun { display: none; }
-    [data-theme="light"] .icon-moon { display: none; }
+    [data-theme="dark"] .icon-sun {
+      display: none;
+    }
 
-    
+    [data-theme="light"] .icon-moon {
+      display: none;
+    }
+
+
     .lightbox {
       display: none;
       position: fixed;
@@ -976,7 +1014,7 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      background-color: rgba(0,0,0,0.95);
+      background-color: rgba(0, 0, 0, 0.95);
       backdrop-filter: blur(5px);
       opacity: 0;
       transition: opacity 0.3s ease;
@@ -995,13 +1033,18 @@
       max-width: 90%;
       max-height: 90vh;
       border-radius: 4px;
-      box-shadow: 0 0 50px rgba(0,0,0,0.5);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
       animation: zoom 0.3s ease;
     }
 
     @keyframes zoom {
-      from {transform:scale(0.9)} 
-      to {transform:scale(1)}
+      from {
+        transform: scale(0.9)
+      }
+
+      to {
+        transform: scale(1)
+      }
     }
 
     .close-lightbox {
@@ -1020,7 +1063,7 @@
       color: var(--primary);
       text-decoration: none;
     }
-    
+
 
     .errors-grid {
       display: grid;
@@ -1028,7 +1071,7 @@
       gap: 24px;
       margin-top: 30px;
     }
-    
+
     .error-card {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
@@ -1037,13 +1080,13 @@
       transition: all 0.3s ease;
       border-left: 3px solid var(--border-highlight);
     }
-    
+
     .error-card:hover {
       transform: translateY(-3px);
       border-color: var(--text-muted);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-    
+
     .error-card h3 {
       font-size: 1.1rem;
       margin-top: 0;
@@ -1052,7 +1095,7 @@
       font-weight: 700;
       padding-right: 20px;
     }
-    
+
     .error-label {
       display: block;
       font-size: 0.7rem;
@@ -1062,57 +1105,113 @@
       margin-bottom: 6px;
       margin-top: 16px;
     }
-    
+
     .error-label:first-of-type {
       margin-top: 0;
     }
-    
-    .error-label.meaning { color: var(--text-muted); }
-    .error-label.fix { color: var(--success); }
-    
+
+    .error-label.meaning {
+      color: var(--text-muted);
+    }
+
+    .error-label.fix {
+      color: var(--success);
+    }
+
     .error-text {
       font-size: 0.95rem;
       color: var(--text-secondary);
       margin-bottom: 0;
       line-height: 1.6;
     }
-    
+
     .error-text img {
-        width: 100%;
-        border-radius: 8px;
-        margin-top: 10px;
-        border: 1px solid var(--border-color);
-        display: block;
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+      border: 1px solid var(--border-color);
+      display: block;
     }
 
     @media (max-width: 900px) {
-      h1 { font-size: 2.8rem; }
-      .tools { grid-template-columns: 1fr 1fr; }
-      .tiers-grid { grid-template-columns: 1fr; }
-      .errors-grid { grid-template-columns: 1fr; }
-      
+      h1 {
+        font-size: 2.8rem;
+      }
+
+      .tools {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .tiers-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .errors-grid {
+        grid-template-columns: 1fr;
+      }
+
     }
 
     @media (max-width: 768px) {
-      .header { padding: 40px 0; }
-      h1 { font-size: 2.2rem; }
-      h2 { font-size: 1.8rem; }
-      .tools { grid-template-columns: 1fr; }
-      .badges { padding: 15px; gap: 8px; }
-      .badges img { height: 20px; }
-      .footer-content { flex-direction: column; gap: 20px; text-align: center; }
+      .header {
+        padding: 40px 0;
+      }
 
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      h1 {
+        font-size: 2.2rem;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+      }
+
+      .tools {
+        grid-template-columns: 1fr;
+      }
+
+      .badges {
+        padding: 15px;
+        gap: 8px;
+      }
+
+      .badges img {
+        height: 20px;
+      }
+
+      .footer-content {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+      }
+
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 480px) {
-      h1 { font-size: 1.8rem; }
-      .main-links a { display: block; width: 100%; margin: 8px 0; }
-      .highlight-section { padding: 25px; }
-      .errors-grid { grid-template-columns: 1fr; }
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .main-links a {
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+      }
+
+      .highlight-section {
+        padding: 25px;
+      }
+
+      .errors-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
 
 
@@ -1143,38 +1242,72 @@
       <img src="assets/RA_banner1.png" alt="ReviewAid Banner" class="banner-img">
 
       <div class="badges">
-        <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12%2B-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python Version"></a>
-        <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge" alt="License"></a>
-        <a href="https://doi.org/10.5281/zenodo.18060972"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.18060972.svg?style=for-the-badge" alt="DOI"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid/releases"><img src="https://img.shields.io/github/v/release/aurumz-rgb/ReviewAid?style=for-the-badge" alt="Version"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid/commits/main"><img src="https://img.shields.io/github/last-commit/aurumz-rgb/ReviewAid?style=for-the-badge" alt="Last Commit"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid/issues"><img src="https://img.shields.io/github/issues-raw/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Issues"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid"><img src="https://img.shields.io/badge/uses-Streamlit-red?style=for-the-badge&logo=streamlit" alt="Uses streamlit"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid"><img src="https://img.shields.io/badge/Repo_Size-Large-blue?style=for-the-badge" alt="Repo Size"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid/graphs/contributors"><img src="https://img.shields.io/github/contributors/aurumz-rgb/ReviewAid?style=for-the-badge" alt="Contributors"></a>
-         <a href="https://github.com/aurumz-rgb/ReviewAid/stargazers"><img src="https://img.shields.io/github/stars/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Stars"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid/network/members"><img src="https://img.shields.io/github/forks/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Forks"></a>
-        <a href="https://github.com/aurumz-rgb/ReviewAid/watchers"><img src="https://img.shields.io/github/watchers/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Watchers"></a>
+        <a href="https://www.python.org/"><img
+            src="https://img.shields.io/badge/Python-3.12%2B-blue?style=for-the-badge&logo=python&logoColor=white"
+            alt="Python Version"></a>
+        <a href="https://opensource.org/licenses/Apache-2.0"><img
+            src="https://img.shields.io/badge/License-Apache_2.0-blue.svg?style=for-the-badge" alt="License"></a>
+        <a href="https://doi.org/10.5334/jors.672">
+          <img src="https://img.shields.io/badge/DOI-10.5334%2Fjors.672-blue?style=for-the-badge" alt="DOI">
+        </a>
+
+        <a href="https://doi.org/10.5281/zenodo.18060972"><img
+            src="https://zenodo.org/badge/DOI/10.5281/zenodo.18060972.svg?style=for-the-badge" alt="DOI"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/releases"><img
+            src="https://img.shields.io/github/v/release/aurumz-rgb/ReviewAid?style=for-the-badge" alt="Version"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/commits/main"><img
+            src="https://img.shields.io/github/last-commit/aurumz-rgb/ReviewAid?style=for-the-badge"
+            alt="Last Commit"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/issues"><img
+            src="https://img.shields.io/github/issues-raw/aurumz-rgb/ReviewAid?style=for-the-badge"
+            alt="GitHub Issues"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid"><img
+            src="https://img.shields.io/badge/uses-Streamlit-red?style=for-the-badge&logo=streamlit"
+            alt="Uses streamlit"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid"><img
+            src="https://img.shields.io/badge/Repo_Size-Large-blue?style=for-the-badge" alt="Repo Size"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/graphs/contributors"><img
+            src="https://img.shields.io/github/contributors/aurumz-rgb/ReviewAid?style=for-the-badge"
+            alt="Contributors"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/stargazers"><img
+            src="https://img.shields.io/github/stars/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Stars"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/network/members"><img
+            src="https://img.shields.io/github/forks/aurumz-rgb/ReviewAid?style=for-the-badge" alt="GitHub Forks"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid/watchers"><img
+            src="https://img.shields.io/github/watchers/aurumz-rgb/ReviewAid?style=for-the-badge"
+            alt="GitHub Watchers"></a>
         <a href="https://github.com/aurumz-rgb/ReviewAid/actions/workflows/python-app.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/aurumz-rgb/ReviewAid/python-app.yml?style=for-the-badge&label=CI" alt="CI Status">
-</a>
+          <img
+            src="https://img.shields.io/github/actions/workflow/status/aurumz-rgb/ReviewAid/python-app.yml?style=for-the-badge&label=CI"
+            alt="CI Status">
+        </a>
 
 
 
-        <a href="https://github.com/aurumz-rgb/ReviewAid"><img src="https://img.shields.io/badge/commit-activity/m/aurumz-rgb/ReviewAid?style=for-the-badge" alt="Commit Activity"></a>
+        <a href="https://github.com/aurumz-rgb/ReviewAid"><img
+            src="https://img.shields.io/badge/commit-activity/m/aurumz-rgb/ReviewAid?style=for-the-badge"
+            alt="Commit Activity"></a>
 
 
-        <a href="#"><img src="https://img.shields.io/badge/IDE-VS%20Code-007ACC?style=for-the-badge&logo=visual-studio-code" alt="VS Code"></a>
-        <a href="#"><img src="https://img.shields.io/badge/PDF-PyMuPDF-red?style=for-the-badge&logo=adobeacrobatreader" alt="PDF Parsing"></a>
+        <a href="#"><img
+            src="https://img.shields.io/badge/IDE-VS%20Code-007ACC?style=for-the-badge&logo=visual-studio-code"
+            alt="VS Code"></a>
+        <a href="#"><img src="https://img.shields.io/badge/PDF-PyMuPDF-red?style=for-the-badge&logo=adobeacrobatreader"
+            alt="PDF Parsing"></a>
 
-        <a href="#"><img src="https://img.shields.io/badge/JSON-parsing-success?style=for-the-badge" alt="JSON Parsing"></a>
+        <a href="#"><img src="https://img.shields.io/badge/JSON-parsing-success?style=for-the-badge"
+            alt="JSON Parsing"></a>
 
-        <a href="#"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=for-the-badge" alt="Maintenance"></a>
-        <a href="#"><img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" alt="Status Active"></a>
+        <a href="#"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=for-the-badge"
+            alt="Maintenance"></a>
+        <a href="#"><img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge"
+            alt="Status Active"></a>
 
-        <a href="#"><img src="https://img.shields.io/badge/Built%20for-Researchers-9cf?style=for-the-badge" alt="Built For Researchers"></a>
+        <a href="#"><img src="https://img.shields.io/badge/Built%20for-Researchers-9cf?style=for-the-badge"
+            alt="Built For Researchers"></a>
 
-        <img src="https://img.shields.io/badge/Made%20with-♡-FF69B4?style=for-the-badge" alt="Made with ♡" alt="Made with">
+        <img src="https://img.shields.io/badge/Made%20with-♡-FF69B4?style=for-the-badge" alt="Made with ♡"
+          alt="Made with">
       </div>
     </div>
   </div>
@@ -1184,19 +1317,26 @@
       <div class="section reveal">
         <h2>About</h2>
         <p>
-          ReviewAid is an open-source AI-driven tool designed to streamline full-text screening and data extraction phases of systematic reviews. It leverages advanced large language models to classify papers based on PICO criteria and extract custom data fields, drastically reducing the manual workload for researchers.
+          ReviewAid is an open-source AI-driven tool designed to streamline full-text screening and data extraction
+          phases of systematic reviews. It leverages advanced large language models to classify papers based on PICO
+          criteria and extract custom data fields, drastically reducing the manual workload for researchers.
         </p>
-        
+
         <div class="motivation">
           <h3>Why did I make this?</h3>
           <p>
-            I built ReviewAid to act as an assistant for Researchers especially those involved in Evidence synthesis. The idea was simple, manual work will be never be replaced but more likely will be aided by this tool. Researchers can manually do the work and then check their accuracy by such a tool so as to not miss any potential important papers. Thus, acting as an "Aid". ReviewAid.
+            I built ReviewAid to act as an assistant for Researchers especially those involved in Evidence synthesis.
+            The idea was simple, manual work will be never be replaced but more likely will be aided by this tool.
+            Researchers can manually do the work and then check their accuracy by such a tool so as to not miss any
+            potential important papers. Thus, acting as an "Aid". ReviewAid.
           </p>
         </div>
 
         <div class="disclaimer-note">
-          <strong>Note:</strong> 
-          Please do not replace manual done screening and data extraction completely with ReviewAid. The main aim of this tool is to use it as a 3rd person reference to minimise any errors done manually and to make the research as precise as possible.
+          <strong>Note:</strong>
+          Please do not replace manual done screening and data extraction completely with ReviewAid. The main aim of
+          this tool is to use it as a 3rd person reference to minimise any errors done manually and to make the research
+          as precise as possible.
         </div>
       </div>
 
@@ -1206,54 +1346,54 @@
         <a href="https://reviewaid-ai.streamlit.app" target="_blank" class="launch-btn">Launch ReviewAid</a>
       </div>
 
-      
+
 
 
       <div class="section reveal">
         <h2>Interface Previews</h2>
         <div class="ui-showcase">
-            
-            
-            <div class="showcase-group">
-                <h3>User Interface</h3>
-                <div class="showcase-item">
-                    <img src="screenshots/1.png" alt="User Interface" class="showcase-img">
-                </div>
-            </div>
 
-   
-            <div class="showcase-group">
-                <h3>Screener</h3>
-                <div class="grid-2">
-                    <img src="screenshots/screener1.png" alt="Screener View 1" class="showcase-img">
-                    <img src="screenshots/screener2.png" alt="Screener View 2" class="showcase-img">
-                    <img src="screenshots/screener-results1.png" alt="Screener View 3" class="showcase-img">
-                </div>
-            </div>
 
-      
-            <div class="showcase-group">
-                <h3>Extractor</h3>
-                <div class="grid-2">
-                    <img src="screenshots/extractor1.png" alt="Extractor View 1" class="showcase-img">
-                    <img src="screenshots/extractor3.png" alt="Extractor View 3" class="showcase-img">
-                    <img src="screenshots/extractor-results1.png" alt="Extractor View 4" class="showcase-img">
-                    <img src="screenshots/extractor-results2.png" alt="Extractor View 5" class="showcase-img">
-                </div>
+          <div class="showcase-group">
+            <h3>User Interface</h3>
+            <div class="showcase-item">
+              <img src="screenshots/1.png" alt="User Interface" class="showcase-img">
             </div>
+          </div>
 
-          
-            <div class="showcase-group">
-                <h3>Additional Views</h3>
-                <div class="grid-2">
-                    <img src="screenshots/screenshot1.png" alt="Additional View 1" class="showcase-img">
-                    <img src="screenshots/screenshot2.png" alt="Additional View 2" class="showcase-img">
-                </div>
-                <div class="grid-2" style="margin-top: 20px;">
-                    <img src="screenshots/screenshot4.png" alt="Additional View 4" class="showcase-img">
-                    <img src="screenshots/banner.png" alt="Additional Banner" class="showcase-img">
-                </div>
+
+          <div class="showcase-group">
+            <h3>Screener</h3>
+            <div class="grid-2">
+              <img src="screenshots/screener1.png" alt="Screener View 1" class="showcase-img">
+              <img src="screenshots/screener2.png" alt="Screener View 2" class="showcase-img">
+              <img src="screenshots/screener-results1.png" alt="Screener View 3" class="showcase-img">
             </div>
+          </div>
+
+
+          <div class="showcase-group">
+            <h3>Extractor</h3>
+            <div class="grid-2">
+              <img src="screenshots/extractor1.png" alt="Extractor View 1" class="showcase-img">
+              <img src="screenshots/extractor3.png" alt="Extractor View 3" class="showcase-img">
+              <img src="screenshots/extractor-results1.png" alt="Extractor View 4" class="showcase-img">
+              <img src="screenshots/extractor-results2.png" alt="Extractor View 5" class="showcase-img">
+            </div>
+          </div>
+
+
+          <div class="showcase-group">
+            <h3>Additional Views</h3>
+            <div class="grid-2">
+              <img src="screenshots/screenshot1.png" alt="Additional View 1" class="showcase-img">
+              <img src="screenshots/screenshot2.png" alt="Additional View 2" class="showcase-img">
+            </div>
+            <div class="grid-2" style="margin-top: 20px;">
+              <img src="screenshots/screenshot4.png" alt="Additional View 4" class="showcase-img">
+              <img src="screenshots/banner.png" alt="Additional Banner" class="showcase-img">
+            </div>
+          </div>
 
         </div>
       </div>
@@ -1262,20 +1402,25 @@
 
       <div class="showcase-group">
         <h3>System Architecture Layers</h3>
-                <div class="grid-2">
-                    <img src="figures/Build.png" alt="Build" class="showcase-img">
-                </div>
-            </div>
-            
+        <div class="grid-2">
+          <img src="figures/Build.png" alt="Build" class="showcase-img">
+        </div>
+      </div>
+
 
 
       <div class="section reveal">
         <h2>Confidence Scoring System</h2>
-        <p>This system implements a <strong>hierarchical four-tier confidence model</strong> designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes <strong>deterministic rule-based decisions</strong> before progressively falling back to algorithmic and heuristic estimation only when necessary.</p>
-        
+        <p>This system implements a <strong>hierarchical four-tier confidence model</strong> designed to maximize
+          precision and minimize false classifications during automated paper screening and data extraction. The logic
+          prioritizes <strong>deterministic rule-based decisions</strong> before progressively falling back to
+          algorithmic and heuristic estimation only when necessary.</p>
+
         <div class="highlight-section" style="margin-top: 30px;">
           <h3>Overview</h3>
-          <p style="margin-bottom: 15px;">The confidence score reflects how reliably a paper has been classified or extracted. Scores range from <strong>0.0 to 1.0</strong>, where higher values indicate stronger certainty and lower values explicitly flag the need for manual review.</p>
+          <p style="margin-bottom: 15px;">The confidence score reflects how reliably a paper has been classified or
+            extracted. Scores range from <strong>0.0 to 1.0</strong>, where higher values indicate stronger certainty
+            and lower values explicitly flag the need for manual review.</p>
           <p style="margin-bottom: 0;">The system operates in the following order:</p>
           <ul class="confidence-overview-list">
             <li><strong>Deterministic Rule-Based Classification (For Screener)</strong></li>
@@ -1283,20 +1428,21 @@
             <li><strong>Heuristic Keyword Estimation</strong></li>
             <li><strong>Low-Confidence Default</strong></li>
           </ul>
-          <p style="margin-top: 15px; font-size: 0.95rem; color: var(--text-muted);">Each tier is only activated if the previous tier fails to produce a valid and reliable result.</p>
+          <p style="margin-top: 15px; font-size: 0.95rem; color: var(--text-muted);">Each tier is only activated if the
+            previous tier fails to produce a valid and reliable result.</p>
         </div>
 
 
-         <div class="showcase-group">
-                <div class="grid-1">
-                    <img src="screenshots/Fig1.png" alt="Fig 1" class="showcase-img">
-                </div>
+        <div class="showcase-group">
+          <div class="grid-1">
+            <img src="screenshots/Fig1.png" alt="Fig 1" class="showcase-img">
           </div>
-         <div class="showcase-group">
-                <div class="grid-3">
-                    <img src="figures/Multi-Tier.png" alt="Multi-Tier" class="showcase-img">
-                </div>
-         </div>
+        </div>
+        <div class="showcase-group">
+          <div class="grid-3">
+            <img src="figures/Multi-Tier.png" alt="Multi-Tier" class="showcase-img">
+          </div>
+        </div>
 
 
 
@@ -1308,12 +1454,17 @@
             <p><strong>Purpose:</strong> Eliminate ambiguity using explicit user-defined rules.</p>
             <p><strong>Logic:</strong></p>
             <ul>
-              <li>The system performs a preliminary scan for <strong>exclusion</strong> and <strong>inclusion</strong> keywords.</li>
-              <li>If <strong>exclusion keywords are detected without any corresponding inclusion keywords</strong>, the paper is automatically classified as <strong>Excluded</strong> with a confidence score of <strong>1.0 (100%)</strong>.</li>
-              <li>If <strong>both exclusion and inclusion keywords</strong> are present, this tier is <strong>bypassed</strong> to avoid false positives, delegating the decision to the AI.</li>
+              <li>The system performs a preliminary scan for <strong>exclusion</strong> and <strong>inclusion</strong>
+                keywords.</li>
+              <li>If <strong>exclusion keywords are detected without any corresponding inclusion keywords</strong>, the
+                paper is automatically classified as <strong>Excluded</strong> with a confidence score of <strong>1.0
+                  (100%)</strong>.</li>
+              <li>If <strong>both exclusion and inclusion keywords</strong> are present, this tier is
+                <strong>bypassed</strong> to avoid false positives, delegating the decision to the AI.</li>
             </ul>
             <div class="rationale">
-              <strong>Rationale:</strong> Explicit rules provide deterministic certainty and override probabilistic inference when applicable.
+              <strong>Rationale:</strong> Explicit rules provide deterministic certainty and override probabilistic
+              inference when applicable.
             </div>
           </div>
 
@@ -1324,41 +1475,48 @@
             <p><strong>Purpose:</strong> Leverage the model’s internal reasoning and evidence-based judgment.</p>
             <p><strong>Logic:</strong></p>
             <ul>
-              <li>The Large Language Model (LLM) is explicitly instructed to evaluate its own screening or extraction decision.</li>
+              <li>The Large Language Model (LLM) is explicitly instructed to evaluate its own screening or extraction
+                decision.</li>
               <li>It assigns a <strong>confidence score between 0.0 and 1.0</strong>.</li>
               <li>The score is based strictly on <strong>explicit textual evidence</strong> found in the paper.</li>
               <li>The confidence value is parsed directly from the model’s structured JSON output.</li>
             </ul>
             <div class="rationale">
-              <strong>Rationale:</strong> Captures nuanced contextual understanding that deterministic rules cannot, while maintaining transparency through self-reported certainty.
+              <strong>Rationale:</strong> Captures nuanced contextual understanding that deterministic rules cannot,
+              while maintaining transparency through self-reported certainty.
             </div>
           </div>
 
-  
+
           <div class="tier-card">
             <h3>Tier 3: Heuristic Estimation</h3>
             <h4>Fallback</h4>
             <p><strong>Purpose:</strong> Provide a probabilistic estimate when LLM confidence is unavailable.</p>
-            <p><strong>Triggered when:</strong> The LLM fails to return a valid confidence value (e.g., formatting or JSON parsing errors).</p>
+            <p><strong>Triggered when:</strong> The LLM fails to return a valid confidence value (e.g., formatting or
+              JSON parsing errors).</p>
             <p><strong>Screener Logic:</strong></p>
             <ul>
-              <li>The system analyzes the users input <strong>Inclusions and Exclusions critiera</strong> and matches with the paper's full-text and determines the confidence level.</li>
+              <li>The system analyzes the users input <strong>Inclusions and Exclusions critiera</strong> and matches
+                with the paper's full-text and determines the confidence level.</li>
             </ul>
             <p><strong>Extractor Logic:</strong></p>
             <ul>
-              <li>The system analyzes <strong>Extracted data</strong> with the paper's full-text and determines the confidence level.</li>
+              <li>The system analyzes <strong>Extracted data</strong> with the paper's full-text and determines the
+                confidence level.</li>
             </ul>
             <div class="rationale">
-              <strong>Rationale:</strong> Offers a best-effort estimate derived from text structure rather than semantic certainty.
+              <strong>Rationale:</strong> Offers a best-effort estimate derived from text structure rather than semantic
+              certainty.
             </div>
           </div>
 
-       
+
           <div class="tier-card" style="border-top-color: #ef4444;">
             <h3>Tier 4: Low-Confidence Default</h3>
             <h4>Last Resort</h4>
             <p><strong>Purpose:</strong> Explicitly flag unreliable outputs.</p>
-            <p><strong>Triggered when:</strong> Data extraction fails entirely (e.g., Regex failure or missing sections).</p>
+            <p><strong>Triggered when:</strong> Data extraction fails entirely (e.g., Regex failure or missing
+              sections).</p>
             <p><strong>Logic:</strong></p>
             <ul>
               <li>Assigns a <strong>baseline low confidence score</strong> (e.g., <code>0.2</code>).</li>
@@ -1373,58 +1531,59 @@
 
 
         <div style="margin-top: 50px;">
-            <h3>Confidence Score Interpretation</h3>
-            <p>This layered approach ensures that high-confidence decisions are automated safely, while ambiguous or unreliable cases are clearly flagged for human oversight.</p>
-            <div class="table-responsive">
-                <table class="confidence-table">
-                    <thead>
-                        <tr>
-                            <th>Confidence Score</th>
-                            <th>Classification</th>
-                            <th>Description</th>
-                            <th>Implication</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>1.0 (100%)</strong></td>
-                            <td><span class="confidence-badge">Definitive Match</span></td>
-                            <td>Deterministic rule-based classification / No ambiguity.</td>
-                            <td>Fully automated decision</td>
-                        </tr>
-                        <tr>
-                            <td><strong>0.8 – 1.0</strong></td>
-                            <td><span class="confidence-badge">Very High</span></td>
-                            <td>AI strongly validates the decision using explicit textual evidence.</td>
-                            <td>Safe to accept</td>
-                        </tr>
-                        <tr>
-                            <td><strong>0.6 – 0.79</strong></td>
-                            <td><span class="confidence-badge">High</span></td>
-                            <td>Criteria appear satisfied based on standard academic structure and content.</td>
-                            <td>Review optional</td>
-                        </tr>
-                        <tr>
-                            <td><strong>0.4 – 0.59</strong></td>
-                            <td><span class="confidence-badge">Moderate</span></td>
-                            <td>Ambiguous context or loosely met criteria.</td>
-                            <td>Manual verification recommended</td>
-                        </tr>
-                        <tr>
-                            <td><strong>0.1 – 0.39</strong></td>
-                            <td><span class="confidence-badge">Low</span></td>
-                            <td>Based mainly on heuristic keyword estimation.</td>
-                            <td>High risk of error</td>
-                        </tr>
-                        <tr>
-                            <td><strong>&lt; 0.1</strong></td>
-                            <td><span class="confidence-badge">Unreliable</span></td>
-                            <td>Derived from fallback or failed extraction methods.</td>
-                            <td>Mandatory manual review</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+          <h3>Confidence Score Interpretation</h3>
+          <p>This layered approach ensures that high-confidence decisions are automated safely, while ambiguous or
+            unreliable cases are clearly flagged for human oversight.</p>
+          <div class="table-responsive">
+            <table class="confidence-table">
+              <thead>
+                <tr>
+                  <th>Confidence Score</th>
+                  <th>Classification</th>
+                  <th>Description</th>
+                  <th>Implication</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>1.0 (100%)</strong></td>
+                  <td><span class="confidence-badge">Definitive Match</span></td>
+                  <td>Deterministic rule-based classification / No ambiguity.</td>
+                  <td>Fully automated decision</td>
+                </tr>
+                <tr>
+                  <td><strong>0.8 – 1.0</strong></td>
+                  <td><span class="confidence-badge">Very High</span></td>
+                  <td>AI strongly validates the decision using explicit textual evidence.</td>
+                  <td>Safe to accept</td>
+                </tr>
+                <tr>
+                  <td><strong>0.6 – 0.79</strong></td>
+                  <td><span class="confidence-badge">High</span></td>
+                  <td>Criteria appear satisfied based on standard academic structure and content.</td>
+                  <td>Review optional</td>
+                </tr>
+                <tr>
+                  <td><strong>0.4 – 0.59</strong></td>
+                  <td><span class="confidence-badge">Moderate</span></td>
+                  <td>Ambiguous context or loosely met criteria.</td>
+                  <td>Manual verification recommended</td>
+                </tr>
+                <tr>
+                  <td><strong>0.1 – 0.39</strong></td>
+                  <td><span class="confidence-badge">Low</span></td>
+                  <td>Based mainly on heuristic keyword estimation.</td>
+                  <td>High risk of error</td>
+                </tr>
+                <tr>
+                  <td><strong>&lt; 0.1</strong></td>
+                  <td><span class="confidence-badge">Unreliable</span></td>
+                  <td>Derived from fallback or failed extraction methods.</td>
+                  <td>Mandatory manual review</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
       </div>
@@ -1435,301 +1594,331 @@
         <h2>Bulletproof Parsing Pipeline</h2>
         <p><strong>Purpose:</strong> Safely parse API/AI responses, even if the JSON is broken or missing.</p>
 
-         <div class="showcase-group">
-                <div class="grid-1">
-                    <img src="screenshots/Fig2.png" alt="Fig 2" class="showcase-img">
-                </div>
-         </div>
-                  <div class="showcase-group">
-                <div class="grid-3">
-                    <img src="figures/parse.png" alt="Parse" class="showcase-img">
-                </div>
-         </div>
-         
-
-
-
-        
-        <div class="highlight-section">
-            <h3>Flow</h3>
-            <ol style="margin-left: 20px; color: var(--text-secondary); line-height: 1.8;">
-                <li><strong>If <code>raw_result</code> is <code>None</code></strong><br>
-                &rarr; Use regex to extract data locally.</li>
-                <li><strong>Clean the response</strong><br>
-                &rarr; Remove Markdown, comments, and trailing commas.</li>
-                <li><strong>Try standard JSON parsing</strong><br>
-                &rarr; <code>json.loads</code></li>
-                <li><strong>If that fails, try JSON5</strong><br>
-                &rarr; Handles loose / malformed JSON.</li>
-                <li><strong>If that fails, use AI repair</strong><br>
-                &rarr; Ask AI to fix the JSON.</li>
-                <li><strong>Final fallback</strong><br>
-                &rarr; Extract known keys using regex.</li>
-            </ol>
+        <div class="showcase-group">
+          <div class="grid-1">
+            <img src="screenshots/Fig2.png" alt="Fig 2" class="showcase-img">
+          </div>
+        </div>
+        <div class="showcase-group">
+          <div class="grid-3">
+            <img src="figures/parse.png" alt="Parse" class="showcase-img">
+          </div>
         </div>
 
-        <div class="motivation" style="background: rgba(16, 185, 129, 0.1); border-left-color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
-            <h3 style="margin-top: 0; color: #ecfdf5;">Guarantee</h3>
-            <ul style="margin-left: 20px;">
-                <li>Never crashes</li>
-                <li>Always attempts to recover usable data</li>
-            </ul>
+
+
+
+
+        <div class="highlight-section">
+          <h3>Flow</h3>
+          <ol style="margin-left: 20px; color: var(--text-secondary); line-height: 1.8;">
+            <li><strong>If <code>raw_result</code> is <code>None</code></strong><br>
+              &rarr; Use regex to extract data locally.</li>
+            <li><strong>Clean the response</strong><br>
+              &rarr; Remove Markdown, comments, and trailing commas.</li>
+            <li><strong>Try standard JSON parsing</strong><br>
+              &rarr; <code>json.loads</code></li>
+            <li><strong>If that fails, try JSON5</strong><br>
+              &rarr; Handles loose / malformed JSON.</li>
+            <li><strong>If that fails, use AI repair</strong><br>
+              &rarr; Ask AI to fix the JSON.</li>
+            <li><strong>Final fallback</strong><br>
+              &rarr; Extract known keys using regex.</li>
+          </ol>
+        </div>
+
+        <div class="motivation"
+          style="background: rgba(16, 185, 129, 0.1); border-left-color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+          <h3 style="margin-top: 0; color: #ecfdf5;">Guarantee</h3>
+          <ul style="margin-left: 20px;">
+            <li>Never crashes</li>
+            <li>Always attempts to recover usable data</li>
+          </ul>
         </div>
       </div>
 
 
 
 
-     
+
 
       <div class="section reveal">
         <h2>Usage & Installation</h2>
         <p>Follow these instructions to run ReviewAid online or locally.</p>
 
-  
+
         <div class="highlight-section">
-            <h3>⚡ Usage (Online)</h3>
-            <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary);">
-                <li style="margin-bottom: 15px;">
-                    <strong>Launch Online Streamlit hosted web app</strong>
-                    <br>
-                    <span style="font-size: 0.9em; color: var(--text-muted);">Access the application directly from your browser without installation.</span>
+          <h3>⚡ Usage (Online)</h3>
+          <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary);">
+            <li style="margin-bottom: 15px;">
+              <strong>Launch Online Streamlit hosted web app</strong>
+              <br>
+              <span style="font-size: 0.9em; color: var(--text-muted);">Access the application directly from your
+                browser without installation.</span>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Select Mode:</strong>
+              <ul style="margin-top: 5px; margin-bottom: 5px;">
+                <li><strong>Full-text Paper Screener:</strong> Choose this mode to screen papers based on PICO
+                  (Population, Intervention, Comparison, Outcome) criteria.</li>
+                <li><strong>Full-text Data Extractor:</strong> Choose this mode to extract specific fields (Author,
+                  Year, Conclusion, etc.) from research papers.</li>
+              </ul>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Workflow (Screener):</strong>
+              <ul style="margin-top: 5px; margin-bottom: 5px;">
+                <li>Enter your PICO criteria (Inclusion/Exclusion) in the input fields.</li>
+                <li>Upload your PDF papers (Batch upload supported).</li>
+                <li>Click "Screen Papers".</li>
+                <li>Monitor the "System Terminal" for real-time logs of extraction, API calls, and processing status.
                 </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Select Mode:</strong>
-                    <ul style="margin-top: 5px; margin-bottom: 5px;">
-                        <li><strong>Full-text Paper Screener:</strong> Choose this mode to screen papers based on PICO (Population, Intervention, Comparison, Outcome) criteria.</li>
-                        <li><strong>Full-text Data Extractor:</strong> Choose this mode to extract specific fields (Author, Year, Conclusion, etc.) from research papers.</li>
-                    </ul>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Workflow (Screener):</strong>
-                    <ul style="margin-top: 5px; margin-bottom: 5px;">
-                        <li>Enter your PICO criteria (Inclusion/Exclusion) in the input fields.</li>
-                        <li>Upload your PDF papers (Batch upload supported).</li>
-                        <li>Click "Screen Papers".</li>
-                        <li>Monitor the "System Terminal" for real-time logs of extraction, API calls, and processing status.</li>
-                        <li>View the "Screening Dashboard" for a pie chart of Included/Excluded/Maybe decisions.</li>
-                        <li>Download results as CSV, XLSX, or DOCX.</li>
-                    </ul>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Workflow (Extractor):</strong>
-                    <ul style="margin-top: 5px; margin-bottom: 5px;">
-                        <li>Enter the fields you want to extract (comma-separated).</li>
-                        <li>Upload your PDF papers.</li>
-                        <li>Click "Process Papers".</li>
-                        <li>Monitor the "System Terminal" for logs.</li>
-                        <li>View extracted data in the dashboard.</li>
-                        <li>Download extracted data as CSV, XLSX, or DOCX.</li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>Configuration:</strong>
-                    <ul style="margin-top: 5px; margin-bottom: 0;">
-                        <li>For using API key, you can select the respective AI model in either Screener/Extractor.</li>
-                    </ul>
-                </li>
-            </ol>
+                <li>View the "Screening Dashboard" for a pie chart of Included/Excluded/Maybe decisions.</li>
+                <li>Download results as CSV, XLSX, or DOCX.</li>
+              </ul>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Workflow (Extractor):</strong>
+              <ul style="margin-top: 5px; margin-bottom: 5px;">
+                <li>Enter the fields you want to extract (comma-separated).</li>
+                <li>Upload your PDF papers.</li>
+                <li>Click "Process Papers".</li>
+                <li>Monitor the "System Terminal" for logs.</li>
+                <li>View extracted data in the dashboard.</li>
+                <li>Download extracted data as CSV, XLSX, or DOCX.</li>
+              </ul>
+            </li>
+            <li>
+              <strong>Configuration:</strong>
+              <ul style="margin-top: 5px; margin-bottom: 0;">
+                <li>For using API key, you can select the respective AI model in either Screener/Extractor.</li>
+              </ul>
+            </li>
+          </ol>
         </div>
 
 
         <div class="highlight-section">
-            <h3>⚡ Usage (run streamlit Locally)</h3>
-            <p style="margin-bottom: 20px;">To run ReviewAid locally with your own API keys (OpenAI, DeepSeek, etc.), follow these steps:</p>
-            <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary);">
-                <li style="margin-bottom: 15px;">
-                    <strong>Clone the repository</strong><br>
-                    <code>git clone https://github.com/aurumz-rgb/ReviewAid.git</code><br>
-                    <code>cd ReviewAid</code>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Create and activate a virtual environment (recommended)</strong><br>
-                    <code>python -m venv venv</code><br>
-                    <code>source venv/bin/activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># macOS / Linux</span><br>
-                    <code>venv\Scripts\activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># Windows</span>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Install dependencies</strong><br>
-                    <code>pip install -r requirements.txt</code>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Start the Streamlit application</strong><br>
-                    <code>streamlit run app.py</code>
-                </li>
-                <li style="margin-bottom: 0;">
-                    <strong>Configure Ai model along with API key inside the UI</strong>
-                    <ul style="margin-top: 5px;">
-                        <li>Select <strong>AI model</strong> as the provider</li>
-                        <li>Enter your API Key</li>
-                    </ul>
-                </li>
-            </ol>
+          <h3>⚡ Usage (run streamlit Locally)</h3>
+          <p style="margin-bottom: 20px;">To run ReviewAid locally with your own API keys (OpenAI, DeepSeek, etc.),
+            follow these steps:</p>
+          <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary);">
+            <li style="margin-bottom: 15px;">
+              <strong>Clone the repository</strong><br>
+              <code>git clone https://github.com/aurumz-rgb/ReviewAid.git</code><br>
+              <code>cd ReviewAid</code>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Create and activate a virtual environment (recommended)</strong><br>
+              <code>python -m venv venv</code><br>
+              <code>source venv/bin/activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);">#
+                macOS / Linux</span><br>
+              <code>venv\Scripts\activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);">#
+                Windows</span>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Install dependencies</strong><br>
+              <code>pip install -r requirements.txt</code>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Start the Streamlit application</strong><br>
+              <code>streamlit run app.py</code>
+            </li>
+            <li style="margin-bottom: 0;">
+              <strong>Configure Ai model along with API key inside the UI</strong>
+              <ul style="margin-top: 5px;">
+                <li>Select <strong>AI model</strong> as the provider</li>
+                <li>Enter your API Key</li>
+              </ul>
+            </li>
+          </ol>
         </div>
 
 
         <div class="highlight-section">
-            <h3>🖥️ Running ReviewAid Locally with Ollama (No API Key Required)</h3>
-            <p style="margin-bottom: 20px;">ReviewAid supports <strong>local inference using Ollama</strong>, allowing you to run the application <strong>without any external API keys</strong>. This is ideal for users who prefer offline usage, enhanced privacy, or full local control.</p>
-            
-            <h4>Prerequisites</h4>
-            <p style="margin-bottom: 10px;">Ensure the following are installed on your system:</p>
-            <ul style="margin-left: 20px; color: var(--text-secondary); margin-bottom: 20px;">
-                <li><strong>Python 3.12+</strong></li>
-                <li><strong>Ollama</strong> (installed and running locally)
-                    <ul style="margin-left: 20px; list-style-type: circle;">
-                        <li>Download: <a href="https://ollama.com" target="_blank" style="color: var(--primary);">https://ollama.com</a></li>
-                    </ul>
-                </li>
-                <li>At least one supported Ollama model (e.g., <code>llama3</code>)</li>
+          <h3>🖥️ Running ReviewAid Locally with Ollama (No API Key Required)</h3>
+          <p style="margin-bottom: 20px;">ReviewAid supports <strong>local inference using Ollama</strong>, allowing you
+            to run the application <strong>without any external API keys</strong>. This is ideal for users who prefer
+            offline usage, enhanced privacy, or full local control.</p>
+
+          <h4>Prerequisites</h4>
+          <p style="margin-bottom: 10px;">Ensure the following are installed on your system:</p>
+          <ul style="margin-left: 20px; color: var(--text-secondary); margin-bottom: 20px;">
+            <li><strong>Python 3.12+</strong></li>
+            <li><strong>Ollama</strong> (installed and running locally)
+              <ul style="margin-left: 20px; list-style-type: circle;">
+                <li>Download: <a href="https://ollama.com" target="_blank"
+                    style="color: var(--primary);">https://ollama.com</a></li>
+              </ul>
+            </li>
+            <li>At least one supported Ollama model (e.g., <code>llama3</code>)</li>
+          </ul>
+
+          <div class="highlight-section" style="background: rgba(0,0,0,0.2); padding: 20px;">
+            <p style="margin-bottom: 10px;"><strong>Pull a model (example):</strong></p>
+            <code>ollama pull llama3</code>
+            <br><br>
+            <p style="margin-bottom: 0;"><strong>Verify Ollama is running:</strong></p>
+            <code>ollama list</code>
+          </div>
+
+          <h4 style="margin-top: 25px;">▶️ Running ReviewAid with Ollama</h4>
+          <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary); margin-top: 15px;">
+            <li style="margin-bottom: 15px;">
+              <strong>Clone the repository</strong><br>
+              <code>git clone https://github.com/aurumz-rgb/ReviewAid.git</code><br>
+              <code>cd ReviewAid</code>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Create and activate a virtual environment (recommended)</strong><br>
+              <code>python -m venv venv</code><br>
+              <code>source venv/bin/activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);">#
+                macOS / Linux</span><br>
+              <code>venv\Scripts\activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);">#
+                Windows</span>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Install dependencies</strong><br>
+              <code>pip install -r requirements.txt</code>
+            </li>
+            <li style="margin-bottom: 15px;">
+              <strong>Start the Streamlit application</strong><br>
+              <code>streamlit run app.py</code>
+            </li>
+            <li style="margin-bottom: 20px;">
+              <strong>Configure Ollama inside the UI</strong>
+              <ul style="margin-top: 8px;">
+                <li>Select <strong>Ollama (Local)</strong> as the provider</li>
+                <li>Choose a local model (e.g., <code>llama3</code>)</li>
+                <li>No API key is required</li>
+              </ul>
+            </li>
+          </ol>
+
+
+
+
+          <div class="showcase-group">
+            <div class="grid-2">
+              <img src="screenshots/terminal.png" alt="Fig 2" class="showcase-img">
+            </div>
+          </div>
+
+          <div class="motivation" style="background: rgba(65, 137, 220, 0.1); border-left-color: var(--primary);">
+            <h3> Privacy Advantage</h3>
+            <p style="margin-bottom: 10px;">When using Ollama:</p>
+            <ul style="margin-left: 20px;">
+              <li>All inference runs <strong>entirely on your local machine</strong></li>
+              <li>No data is sent to external servers</li>
+              <li>No API keys are required or stored</li>
             </ul>
+            <p style="margin-top: 15px; margin-bottom: 0;">This makes Ollama the <strong>most privacy-preserving
+                configuration</strong> supported by ReviewAid.</p>
+          </div>
 
-            <div class="highlight-section" style="background: rgba(0,0,0,0.2); padding: 20px;">
-                <p style="margin-bottom: 10px;"><strong>Pull a model (example):</strong></p>
-                <code>ollama pull llama3</code>
-                <br><br>
-                <p style="margin-bottom: 0;"><strong>Verify Ollama is running:</strong></p>
-                <code>ollama list</code>
-            </div>
-
-            <h4 style="margin-top: 25px;">▶️ Running ReviewAid with Ollama</h4>
-            <ol style="margin-left: 20px; line-height: 1.8; color: var(--text-secondary); margin-top: 15px;">
-                <li style="margin-bottom: 15px;">
-                    <strong>Clone the repository</strong><br>
-                    <code>git clone https://github.com/aurumz-rgb/ReviewAid.git</code><br>
-                    <code>cd ReviewAid</code>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Create and activate a virtual environment (recommended)</strong><br>
-                    <code>python -m venv venv</code><br>
-                    <code>source venv/bin/activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># macOS / Linux</span><br>
-                    <code>venv\Scripts\activate</code> &nbsp; <span style="font-size: 0.85em; color: var(--text-muted);"># Windows</span>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Install dependencies</strong><br>
-                    <code>pip install -r requirements.txt</code>
-                </li>
-                <li style="margin-bottom: 15px;">
-                    <strong>Start the Streamlit application</strong><br>
-                    <code>streamlit run app.py</code>
-                </li>
-                <li style="margin-bottom: 20px;">
-                    <strong>Configure Ollama inside the UI</strong>
-                    <ul style="margin-top: 8px;">
-                        <li>Select <strong>Ollama (Local)</strong> as the provider</li>
-                        <li>Choose a local model (e.g., <code>llama3</code>)</li>
-                        <li>No API key is required</li>
-                    </ul>
-                </li>
-            </ol>
-
-
-
-
-         <div class="showcase-group">
-                <div class="grid-2">
-                    <img src="screenshots/terminal.png" alt="Fig 2" class="showcase-img">
-                </div>
-         </div>
-
-            <div class="motivation" style="background: rgba(65, 137, 220, 0.1); border-left-color: var(--primary);">
-                <h3> Privacy Advantage</h3>
-                <p style="margin-bottom: 10px;">When using Ollama:</p>
-                <ul style="margin-left: 20px;">
-                    <li>All inference runs <strong>entirely on your local machine</strong></li>
-                    <li>No data is sent to external servers</li>
-                    <li>No API keys are required or stored</li>
-                </ul>
-                <p style="margin-top: 15px; margin-bottom: 0;">This makes Ollama the <strong>most privacy-preserving configuration</strong> supported by ReviewAid.</p>
-            </div>
-
-            <div class="disclaimer-note">
-                <strong>⚠️ Notes</strong>
-                <ul style="margin-left: 20px; margin-top: 10px; margin-bottom: 0;">
-                    <li>Performance depends on your local hardware (CPU/GPU/RAM)</li>
-                    <li>Large PDFs or batch sizes may take longer on CPU-only systems</li>
-                    <li>For best results, ensure Ollama is running before launching Streamlit</li>
-                </ul>
-            </div>
+          <div class="disclaimer-note">
+            <strong>⚠️ Notes</strong>
+            <ul style="margin-left: 20px; margin-top: 10px; margin-bottom: 0;">
+              <li>Performance depends on your local hardware (CPU/GPU/RAM)</li>
+              <li>Large PDFs or batch sizes may take longer on CPU-only systems</li>
+              <li>For best results, ensure Ollama is running before launching Streamlit</li>
+            </ul>
+          </div>
         </div>
 
       </div>
 
-     <div class="section reveal">
+      <div class="section reveal">
         <h2>Workflow Diagrams</h2>
         <div class="showcase-group">
-            <div class="grid-3">
-                <img src="figures/screener.png" alt="Screener Workflow Flowchart" class="showcase-img">
-                <img src="figures/extractor.png" alt="Extractor Workflow Flowchart" class="showcase-img">
-            </div>
+          <div class="grid-3">
+            <img src="figures/screener.png" alt="Screener Workflow Flowchart" class="showcase-img">
+            <img src="figures/extractor.png" alt="Extractor Workflow Flowchart" class="showcase-img">
+          </div>
         </div>
       </div>
 
       <div class="section reveal">
         <h2>Errors</h2>
-        <p>While ReviewAid is designed to be robust and self-healing, you may encounter certain behaviors during operation. Below is an explanation of common scenarios and their fixes.</p>
+        <p>While ReviewAid is designed to be robust and self-healing, you may encounter certain behaviors during
+          operation. Below is an explanation of common scenarios and their fixes.</p>
 
         <div class="errors-grid">
-            
-            <div class="error-card">
-                <h3>API limit error (Rate/Quota exceeded)</h3>
-                <span class="error-label meaning">Meaning</span>
-                <p class="error-text">The API sometimes does this when since it throttles with too many requests at the time.</p>
-                <span class="error-label fix">Fix</span>
-                <p class="error-text">No need to worry, the code is written in such a way that the tool will retry 3 times and if not, it will send a brand new API request for the paper.</p>
-            </div>
 
-            <div class="error-card">
-                <h3>'Not found' for extracting domains like "Intervention_Mean, Intervention_SD"</h3>
-                <span class="error-label meaning">Meaning</span>
-                <p class="error-text">The AI is unfortunately not a researcher and as such is unable to know the abbreviations meaning. As a result, the AI doesnt know what to extract. as seen in below image<br>
-                <img src="errors/error1.png" alt="Error Example" class="showcase-img">
-                </p>
-                <span class="error-label fix">Fix</span>
-                <p class="error-text">You can extract such domains by simply expanding such abbreviations in the Extractor field. (Example: Intervention_Mean: mean value of the continuous outcome in the intervention group, Intervention_SD: standard deviation of the outcome in the intervention group). As seen in the below image for the same paper.<br>
-                <img src="errors/error_fix1.png" alt="Error Fix Example" class="showcase-img">
-                </p>
-            </div>
+          <div class="error-card">
+            <h3>API limit error (Rate/Quota exceeded)</h3>
+            <span class="error-label meaning">Meaning</span>
+            <p class="error-text">The API sometimes does this when since it throttles with too many requests at the
+              time.</p>
+            <span class="error-label fix">Fix</span>
+            <p class="error-text">No need to worry, the code is written in such a way that the tool will retry 3 times
+              and if not, it will send a brand new API request for the paper.</p>
+          </div>
 
-            <div class="error-card">
-                <h3>Empty JSON</h3>
-                <span class="error-label meaning">Meaning</span>
-                <p class="error-text">Irrespective of building a really good json parser, sometimes the parser might fail because the json itself is empty.</p>
-                <span class="error-label fix">Fix</span>
-                <p class="error-text">No need to do anything, the code will fetch another API request for the same paper to get a valid json.</p>
-            </div>
+          <div class="error-card">
+            <h3>'Not found' for extracting domains like "Intervention_Mean, Intervention_SD"</h3>
+            <span class="error-label meaning">Meaning</span>
+            <p class="error-text">The AI is unfortunately not a researcher and as such is unable to know the
+              abbreviations meaning. As a result, the AI doesnt know what to extract. as seen in below image<br>
+              <img src="errors/error1.png" alt="Error Example" class="showcase-img">
+            </p>
+            <span class="error-label fix">Fix</span>
+            <p class="error-text">You can extract such domains by simply expanding such abbreviations in the Extractor
+              field. (Example: Intervention_Mean: mean value of the continuous outcome in the intervention group,
+              Intervention_SD: standard deviation of the outcome in the intervention group). As seen in the below image
+              for the same paper.<br>
+              <img src="errors/error_fix1.png" alt="Error Fix Example" class="showcase-img">
+            </p>
+          </div>
 
-            <div class="error-card">
-                <h3>All domains to be extracted shown as 'Not Found' (Extractor)</h3>
-                <span class="error-label meaning">Meaning</span>
-                <p class="error-text">If it was 1 or 2 domains, it is understandable that the paper might geniunely lack the information. however if all the domains for a paper show 'Not found', please do process the paper seperately in the extractor.</p>
-                <span class="error-label fix">Fix</span>
-                <p class="error-text">Please do process the paper separately in the extractor.</p>
-            </div>
+          <div class="error-card">
+            <h3>Empty JSON</h3>
+            <span class="error-label meaning">Meaning</span>
+            <p class="error-text">Irrespective of building a really good json parser, sometimes the parser might fail
+              because the json itself is empty.</p>
+            <span class="error-label fix">Fix</span>
+            <p class="error-text">No need to do anything, the code will fetch another API request for the same paper to
+              get a valid json.</p>
+          </div>
 
-            <div class="error-card">
-                <h3>Abrupt Stopping</h3>
-                <span class="error-label meaning">Meaning</span>
-                <p class="error-text">Streamlit abruptly stops in order to conserve its resources and hence the user should follow our request to upload a maximum of 20 papers in one time.</p>
-                <span class="error-label fix">Fix</span>
-                <p class="error-text">However, if issue persists for papers below this number in one session, please do open an issue on Github.</p>
-            </div>
+          <div class="error-card">
+            <h3>All domains to be extracted shown as 'Not Found' (Extractor)</h3>
+            <span class="error-label meaning">Meaning</span>
+            <p class="error-text">If it was 1 or 2 domains, it is understandable that the paper might geniunely lack the
+              information. however if all the domains for a paper show 'Not found', please do process the paper
+              seperately in the extractor.</p>
+            <span class="error-label fix">Fix</span>
+            <p class="error-text">Please do process the paper separately in the extractor.</p>
+          </div>
 
-            <div class="error-card">
-                <h3>Empty API Response</h3>
-                <span class="error-label meaning">Meaning</span>
-                <p class="error-text">The AI mighty sometimes throttle and might return no response.</p>
-                <span class="error-label fix">Fix</span>
-                <p class="error-text">No need to worry, the code will handle this by waiting for 15,20,60 seconds per retry. I would request the users to check the terminal processing.</p>
-            </div>
+          <div class="error-card">
+            <h3>Abrupt Stopping</h3>
+            <span class="error-label meaning">Meaning</span>
+            <p class="error-text">Streamlit abruptly stops in order to conserve its resources and hence the user should
+              follow our request to upload a maximum of 20 papers in one time.</p>
+            <span class="error-label fix">Fix</span>
+            <p class="error-text">However, if issue persists for papers below this number in one session, please do open
+              an issue on Github.</p>
+          </div>
 
-            <div class="error-card">
-                <h3>skipping file (NOT AN ERROR)</h3>
-                <span class="error-label meaning">Meaning</span>
-                <p class="error-text">File like .docx / html etc are not supported. As a result, the parser won't be able to read and such skips the file. If it is skipping the pdf, it could most likely be that the file is corrupt.</p>
-                <span class="error-label fix">Fix</span>
-                <p class="error-text">Ensure the file is a valid PDF and not corrupt.</p>
-            </div>
+          <div class="error-card">
+            <h3>Empty API Response</h3>
+            <span class="error-label meaning">Meaning</span>
+            <p class="error-text">The AI mighty sometimes throttle and might return no response.</p>
+            <span class="error-label fix">Fix</span>
+            <p class="error-text">No need to worry, the code will handle this by waiting for 15,20,60 seconds per retry.
+              I would request the users to check the terminal processing.</p>
+          </div>
+
+          <div class="error-card">
+            <h3>skipping file (NOT AN ERROR)</h3>
+            <span class="error-label meaning">Meaning</span>
+            <p class="error-text">File like .docx / html etc are not supported. As a result, the parser won't be able to
+              read and such skips the file. If it is skipping the pdf, it could most likely be that the file is corrupt.
+            </p>
+            <span class="error-label fix">Fix</span>
+            <p class="error-text">Ensure the file is a valid PDF and not corrupt.</p>
+          </div>
 
         </div>
       </div>
@@ -1740,7 +1929,7 @@
       <div class="section acknowledgements-section reveal">
         <h2>Configuration</h2>
         <div class="acknowledgement-content">
-          
+
 
           <div class="logo-row">
             <img src="assets/openai.png" alt="OpenAI Logo" class="ack-img">
@@ -1752,7 +1941,11 @@
           </div>
 
           <div class="ack-text">
-            <p>ReviewAid also supports configuration of <a href="https://openai.com" target="_blank">OpenAI</a>, <a href="https://claude.ai" target="_blank">Claude</a>, <a href="https://www.deepseek.com" target="_blank">Deepseek</a>, <a href="https://cohere.com" target="_blank">Cohere</a>, <a href="https://z.ai" target="_blank">Z.ai</a> and <a href="https://ollama.com" target="_blank">Ollama (locally)</a> via API key as well. To protect your privacy, API keys are not stored at any time.</p>
+            <p>ReviewAid also supports configuration of <a href="https://openai.com" target="_blank">OpenAI</a>, <a
+                href="https://claude.ai" target="_blank">Claude</a>, <a href="https://www.deepseek.com"
+                target="_blank">Deepseek</a>, <a href="https://cohere.com" target="_blank">Cohere</a>, <a
+                href="https://z.ai" target="_blank">Z.ai</a> and <a href="https://ollama.com" target="_blank">Ollama
+                (locally)</a> via API key as well. To protect your privacy, API keys are not stored at any time.</p>
             <p>For the tested tasks, the following models were successful:</p>
             <p>OpenAI – GPT-4o</p>
             <p>Deepseek – deepseek-chat</p>
@@ -1771,10 +1964,16 @@
         <div class="acknowledgement-content">
           <img src="assets/GLM4.6VFlash.png" alt="ZAI GLM-4.6V-Flash Logo" class="ack-img">
           <div class="ack-text">
-            <p>I gratefully acknowledge developers of <strong>GLM-4.6V-Flash (Z.ai)</strong> for providing the AI model used in ReviewAid.</p>
-            <p>The visual and text-based reasoning capabilities of GLM-4.6V-Flash have greatly enhanced ReviewAid's full-text screening and data extraction workflows.</p>
-            <p>For more information, please see <a href="https://arxiv.org/abs/2507.01006" target="_blank">GLM-4.6V-Flash paper</a> and <a href="https://huggingface.co/zai-org/GLM-4.6V-Flash" target="_blank">GLM-4.6V-Flash Hugging Face</a>.</p>
-            <p>I would also like to thank <strong>Mohith Balakrishnan</strong>  for his thorough validation of ReviewAid, including batch testing, error checks, and confidence verification, which significantly improved the tool’s reliability and accuracy.</p>
+            <p>I gratefully acknowledge developers of <strong>GLM-4.6V-Flash (Z.ai)</strong> for providing the AI model
+              used in ReviewAid.</p>
+            <p>The visual and text-based reasoning capabilities of GLM-4.6V-Flash have greatly enhanced ReviewAid's
+              full-text screening and data extraction workflows.</p>
+            <p>For more information, please see <a href="https://arxiv.org/abs/2507.01006"
+                target="_blank">GLM-4.6V-Flash paper</a> and <a href="https://huggingface.co/zai-org/GLM-4.6V-Flash"
+                target="_blank">GLM-4.6V-Flash Hugging Face</a>.</p>
+            <p>I would also like to thank <strong>Mohith Balakrishnan</strong> for his thorough validation of ReviewAid,
+              including batch testing, error checks, and confidence verification, which significantly improved the
+              tool’s reliability and accuracy.</p>
           </div>
         </div>
       </div>
@@ -1784,45 +1983,48 @@
         <h2>Citation</h2>
         <p>If you use ReviewAid in your research, please cite it using the following format:</p>
         <div class="ack-text">
-        <p>For ReviewAid's preprint paper, please check <a href="https://osf.io/preprints/metaarxiv/3vhmt" target="_blank">ReviewAid MetaArXiV</a>.</p>
+          <p>For ReviewAid's preprint paper, please check <a href="https://osf.io/preprints/metaarxiv/3vhmt"
+              target="_blank">ReviewAid MetaArXiV</a>.</p>
         </div>
-        
+
         <div class="citation-container">
-            <div class="citation-controls">
-                <div>
-                    <div class="citation-label">Format</div>
-                    <select id="citationType" class="citation-select">
-                        <option value="apa">APA</option>
-                        <option value="vancouver">Vancouver</option>
-                        <option value="chicago">Chicago</option>
-                        <option value="harvard">Harvard</option>
-                        <option value="mla">MLA</option>
-                        <option value="ieee">IEEE</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <div class="citation-label">Actions</div>
-                    <div class="citation-actions">
-                        <button id="copyButton" class="citation-btn btn-primary">
-                            <span>Copy to Clipboard</span>
-                        </button>
-                    </div>
-                    <div style="margin-top: 10px;">
-                         <button class="citation-btn btn-secondary" onclick="downloadCitation('ris')" style="width: 100%; justify-content: center;">
-                            Download RIS
-                        </button>
-                        <button class="citation-btn btn-secondary" onclick="downloadCitation('bibtex')" style="width: 100%; justify-content: center; margin-top: 8px;">
-                            Download BibTeX
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
+          <div class="citation-controls">
             <div>
-                <div class="citation-label">Citation Text</div>
-                <div id="citationText" class="citation-display"></div>
+              <div class="citation-label">Format</div>
+              <select id="citationType" class="citation-select">
+                <option value="apa">APA</option>
+                <option value="vancouver">Vancouver</option>
+                <option value="chicago">Chicago</option>
+                <option value="harvard">Harvard</option>
+                <option value="mla">MLA</option>
+                <option value="ieee">IEEE</option>
+              </select>
             </div>
+
+            <div>
+              <div class="citation-label">Actions</div>
+              <div class="citation-actions">
+                <button id="copyButton" class="citation-btn btn-primary">
+                  <span>Copy to Clipboard</span>
+                </button>
+              </div>
+              <div style="margin-top: 10px;">
+                <button class="citation-btn btn-secondary" onclick="downloadCitation('ris')"
+                  style="width: 100%; justify-content: center;">
+                  Download RIS
+                </button>
+                <button class="citation-btn btn-secondary" onclick="downloadCitation('bibtex')"
+                  style="width: 100%; justify-content: center; margin-top: 8px;">
+                  Download BibTeX
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="citation-label">Citation Text</div>
+            <div id="citationText" class="citation-display"></div>
+          </div>
         </div>
       </div>
 
@@ -1834,7 +2036,7 @@
   <footer>
     <div class="footer-content">
       <div class="footer-left">
-        <p>© 2025 Vihaan Sahu – Licensed under Apache 2.0</p>
+        <p>© 2025-26 Vihaan Sahu – Licensed under Apache 2.0</p>
       </div>
       <div class="footer-right">
         <p><a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub Repository</a></p>
@@ -1844,7 +2046,7 @@
 
 
   <script>
-    
+
     const toggleBtn = document.getElementById('theme-toggle');
     const htmlElement = document.documentElement;
 
@@ -1852,34 +2054,34 @@
     htmlElement.setAttribute('data-theme', currentTheme);
 
     toggleBtn.addEventListener('click', () => {
-        const existingTheme = htmlElement.getAttribute('data-theme');
-        const newTheme = existingTheme === 'dark' ? 'light' : 'dark';
-        
-        htmlElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+      const existingTheme = htmlElement.getAttribute('data-theme');
+      const newTheme = existingTheme === 'dark' ? 'light' : 'dark';
+
+      htmlElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
     });
 
 
     window.addEventListener('scroll', reveal);
 
-    function reveal(){
-        var reveals = document.querySelectorAll('.reveal');
+    function reveal() {
+      var reveals = document.querySelectorAll('.reveal');
 
-        for(var i = 0; i < reveals.length; i++){
+      for (var i = 0; i < reveals.length; i++) {
 
-            var windowHeight = window.innerHeight;
-            var elementTop = reveals[i].getBoundingClientRect().top;
-            var elementVisible = 150;
+        var windowHeight = window.innerHeight;
+        var elementTop = reveals[i].getBoundingClientRect().top;
+        var elementVisible = 150;
 
-            if(elementTop < windowHeight - elementVisible){
-                reveals[i].classList.add('active');
-            }
+        if (elementTop < windowHeight - elementVisible) {
+          reveals[i].classList.add('active');
         }
+      }
     }
     reveal();
 
 
-  
+
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const closeBtn = document.getElementsByClassName('close-lightbox')[0];
@@ -1887,52 +2089,52 @@
 
 
     showcaseImages.forEach(img => {
-        img.addEventListener('click', function() {
-            lightbox.style.display = 'flex';
-            
-            setTimeout(() => {
-                lightbox.classList.add('show');
-            }, 10);
-            lightboxImg.src = this.src;
-            document.body.style.overflow = 'hidden'; 
-        });
+      img.addEventListener('click', function () {
+        lightbox.style.display = 'flex';
+
+        setTimeout(() => {
+          lightbox.classList.add('show');
+        }, 10);
+        lightboxImg.src = this.src;
+        document.body.style.overflow = 'hidden';
+      });
     });
 
-    
+
     function hideLightbox() {
-        lightbox.classList.remove('show');
-        setTimeout(() => {
-            lightbox.style.display = 'none';
-            lightboxImg.src = '';
-            document.body.style.overflow = 'auto';
-        }, 300); 
+      lightbox.classList.remove('show');
+      setTimeout(() => {
+        lightbox.style.display = 'none';
+        lightboxImg.src = '';
+        document.body.style.overflow = 'auto';
+      }, 300);
     }
 
     closeBtn.addEventListener('click', hideLightbox);
 
-    
-    lightbox.addEventListener('click', function(e) {
-        if (e.target === lightbox) {
-            hideLightbox();
-        }
+
+    lightbox.addEventListener('click', function (e) {
+      if (e.target === lightbox) {
+        hideLightbox();
+      }
     });
 
 
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && lightbox.style.display === 'flex') {
-            hideLightbox();
-        }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+        hideLightbox();
+      }
     });
 
 
-  
+
     const citations = {
-      apa: "Sahu, V. (2025). ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). Zenodo. DOI: 10.5281/zenodo.18060972",
-      vancouver: "Sahu V. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). Zenodo; 2025. DOI: 10.5281/zenodo.18060972",
-      chicago: "Sahu, V. 2025. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). Zenodo. DOI: 10.5281/zenodo.18060972",
-      harvard: "Sahu, V., 2025. ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0). Zenodo. DOI: 10.5281/zenodo.18060972",
-      mla: "Sahu, Vihaan. \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0).\" 2025, Zenodo, DOI: 10.5281/zenodo.18060972.",
-      ieee: "V. Sahu, \"ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis (v2.1.0),\" Zenodo, 2025. DOI: 10.5281/zenodo.18060972."
+      apa: "Sahu, V., & Balakrishnan, M. (2026). ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews. Journal of Open Research Software, 14 (1), 21. https://doi.org/10.5334/jors.672",
+      vancouver: "Sahu V, Balakrishnan M. ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews. J Open Res Softw. 2026;14(1):21. doi:10.5334/jors.672",
+      chicago: "Sahu, Vihaan, and Mohith Balakrishnan. 2026. \"ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews.\" Journal of Open Research Software 14 (1): 21. https://doi.org/10.5334/jors.672.",
+      harvard: "Sahu, V. and Balakrishnan, M. (2026) ‘ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews’, Journal of Open Research Software, 14(1), p. 21. Available at: https://doi.org/10.5334/jors.672",
+      mla: "Sahu, Vihaan, and Mohith Balakrishnan. \"ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews.\" Journal of Open Research Software, vol. 14, no. 1, 2026, p. 21.",
+      ieee: "V. Sahu and M. Balakrishnan, \"ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews,\" Journal of Open Research Software, vol. 14, no. 1, p. 21, 2026. doi: 10.5334/jors.672."
     };
 
     const citationSelect = document.getElementById("citationType");
@@ -1952,45 +2154,49 @@
         const originalHTML = copyButton.innerHTML;
         copyButton.innerHTML = "<span>Copied!</span>";
         copyButton.classList.remove('btn-primary');
-        copyButton.classList.add('btn-secondary'); 
-        
+        copyButton.classList.add('btn-secondary');
+
         setTimeout(() => {
-            copyButton.innerHTML = originalHTML;
-            copyButton.classList.remove('btn-secondary');
-            copyButton.classList.add('btn-primary');
+          copyButton.innerHTML = originalHTML;
+          copyButton.classList.remove('btn-secondary');
+          copyButton.classList.add('btn-primary');
         }, 2000);
       });
     }
-    
+
     copyButton.addEventListener("click", copyCitation);
-    
+
     function downloadCitation(format) {
       let content = "";
       let filename = "reviewaid_citation";
-      
+
       if (format === 'ris') {
-        content = `TY  - COMP
-T1  - ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis
-A1  - Sahu, Vihaan
-Y1  - 2025
-DO  - 10.5281/zenodo.18060972
-PB  - Zenodo
-PY  - 2025
+        content = `TY  - JOUR
+T1  - ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews
+AU  - Sahu, V.
+AU  - Balakrishnan, M.
+JO  - Journal of Open Research Software
+PY  - 2026
+VL  - 14
+IS  - 1
+SP  - 21
+DO  - 10.5334/jors.672
 ER  - `;
         filename += ".ris";
       } else if (format === 'bibtex') {
-        content = `@software{reviewaid,
-  author = {Sahu, Vihaan},
-  title = {{ReviewAid: AI-Driven Full-Text Screening and Data Extraction for Systematic Reviews and Evidence Synthesis}},
-  year = {2025},
-  version = {v2.1.0},
-  publisher = {Zenodo},
-  doi = {10.5281/zenodo.18060972},
-  url = {https://doi.org/10.5281/zenodo.18060972}
+        content = `@article{Sahu2026,
+  author = {Sahu, V. and Balakrishnan, M.},
+  title = {ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews},
+  journal = {Journal of Open Research Software},
+  year = {2026},
+  volume = {14},
+  number = {1},
+  pages = {21},
+  doi = {10.5334/jors.672}
 }`;
         filename += ".bib";
       }
-      
+
       const blob = new Blob([content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2004,4 +2210,5 @@ ER  - `;
   </script>
 
 </body>
+
 </html>
