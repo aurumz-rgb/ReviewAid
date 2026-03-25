@@ -498,9 +498,11 @@ If you use ReviewAid, please cite:
 
 ##  License
 
-<a href="https://opensource.org/licenses/Apache-2.0">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Apache_Feather_Logo.svg" alt="Apache 2.0 License" height="120">
-</a>
+<p align="center">
+  <a href="https://opensource.org/licenses/Apache-2.0">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Apache_Feather_Logo.svg" alt="Apache 2.0 License" height="120">
+  </a>
+</p>
 
 This project is licensed under the *Apache 2.0 License*.
 
