@@ -145,7 +145,7 @@ The following models were successfully tested for the supported tasks:
 * **OpenAI** — `GPT-4o`
 * **DeepSeek** — `deepseek-chat`
 * **Cohere** — `command-a-03-2025`
-* **Z.ai** — `GLM-4.6V-Flash`, `GLM-4.5V-Flash`
+* **Z.ai** — `GLM-4.6V-Flash`, `GLM-4.5V-Flash` , `GLM-4.7-Flash`
 * **Anthropic** — `Claude-Sonnet-4-20250514`
 * **Ollama (local)** — `Llama3`
 
