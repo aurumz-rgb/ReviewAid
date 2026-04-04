@@ -91,7 +91,7 @@ def run_extractor():
         st.info("Important: Short-form field names (e.g., Intervention_Mean, Control_N) are not supported. You must use fully expanded descriptions (e.g., Intervention_Mean: mean value of the continuous outcome in the intervention group). Using short forms will result in failed or incomplete extraction.")
         st.markdown("---")
     
-    uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats, Strictly 20 papers in one time)", accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Upload only PDF files (DOCX/HTML not supported). Limit: upto 20 papers per batch.", accept_multiple_files=True)
     
     if st.button("Process Papers"):
 

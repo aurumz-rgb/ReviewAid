@@ -118,7 +118,7 @@ def run_screener():
     st.subheader("Outcome Criteria (Optional)")
     outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
 
-    uploaded_pdfs = st.file_uploader("Upload PDF Files (No docx/html formats, Strictly 20 papers in one time)", accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Upload only PDF files (DOCX/HTML not supported). Limit: upto 20 papers per batch.", accept_multiple_files=True)
     
     fields_list = []
 
