@@ -1,5 +1,5 @@
 streamlit>=1.54.0
-PyMuPDF==1.26.3
+PyMuPDF==1.27.2.2
 fpdf==1.7.2
 zai-sdk==0.2.2
 json5==0.12.0
