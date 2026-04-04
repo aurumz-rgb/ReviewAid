@@ -4,6 +4,7 @@ import time
 import json
 import base64
 from dotenv import load_dotenv
+from datetime import datetime
 
 from utils import (
     init_analytics, update_processing_stats, display_citation_section,
@@ -463,11 +464,30 @@ if img_src:
 
 init_analytics()
 
+# Configuration Section
+with st.sidebar:
+    st.header("Configuration")
+    st.subheader("AI Provider")
+    provider_name = st.selectbox(
+        "Select AI Provider",
+        ["Default", "OpenAI", "Anthropic", "Cohere", "Deepseek", "GLM (Z.ai)", "Ollama"],
+        index=0,
+        key="provider_name"
+    )
 
-if 'provider_name' not in st.session_state:
-    st.session_state.provider_name = "Default"
-    st.session_state.api_key = ""
-    st.session_state.model_name = "GLM-4.6V-Flash"
+    if provider_name != "Default":
+        api_key = st.text_input("API Key", type="password", key="api_key")
+        model_name = st.selectbox(
+            "Select Model",
+            ["GLM-4.6V-Flash", "GLM-6B", "GLM-130B", "Other"],
+            index=0,
+            key="model_name"
+        )
+    
+    st.markdown("---")
+    st.markdown("## About")
+    st.markdown("ReviewAid is an open-source tool designed to streamline literature review and data extraction.")
+    st.markdown("[View on GitHub](https://github.com/aurumz-rgb/ReviewAid)")
 
 if st.session_state.app_mode is not None:
     st.markdown("""
@@ -778,12 +798,4 @@ st.markdown(
     </style>
     <div class="custom-footer-container">
         <div style="white-space: nowrap; letter-spacing: 1px;">
-            Made with 💙 by its Creator.
-        </div>
-        <div style="white-space: nowrap; letter-spacing: 1px;">
-            Version {version}  
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+            Made with 💙
