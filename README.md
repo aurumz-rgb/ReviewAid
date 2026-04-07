@@ -30,7 +30,7 @@
 ---
 
 <details>
- <summary>🌟 Quick Start</summary>
+ <summary> Quick Start</summary>
 
 
 ## ⚡ Usage (Online)
@@ -104,7 +104,7 @@
 ---
 
 <details>
- <summary>⚙️ Configuration</summary>
+ <summary>Configuration</summary>
 
 
 ![OpenAI](assets/openai.png)
@@ -196,7 +196,7 @@ No `.env`, YAML, or JSON configuration files are required.
 ---
 
 <details>
-<summary>🖥️ Running ReviewAid Locally with Ollama</summary>
+<summary> Running ReviewAid Locally with Ollama</summary>
 
 ReviewAid supports **local inference using Ollama**, allowing you to run the application **without any external API keys**. This is ideal for users who prefer offline usage, enhanced privacy, or full local control.
 
@@ -283,14 +283,14 @@ This makes Ollama the **most privacy-preserving configuration** supported by Rev
 
 ---
 
-## 🏛️ System Architecture 
+## System Architecture 
 
 ![Layers1](screenshots/Layers11.png)  
 
 ---
 
 <details>
-<summary> 🌟 Confidence Scoring System</summary>
+<summary> Confidence Scoring System</summary>
 
 This system implements a **hierarchical four-tier confidence model** designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes **deterministic rule-based decisions** before progressively falling back to algorithmic and heuristic estimation only when necessary.
 
@@ -405,7 +405,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 ---
 
 <details>
-<summary>📦 Bulletproof Parsing Pipeline</summary>
+<summary>Bulletproof Parsing Pipeline</summary>
 
 **Purpose:** Safely parse API/AI responses, even if the JSON is broken or missing.
 
