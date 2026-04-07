@@ -468,9 +468,12 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ---
 
-You can check out the full walkthrough and demonstration of ReviewAid on YouTube:
+Check out the full **ReviewAid** walkthrough and demos on YouTube:
 
-[![ReviewAid Demo](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=M2S32pPaQE4)
+[![Watch ReviewAid Demo](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge\&logo=youtube)](https://www.youtube.com/watch?v=M2S32pPaQE4) — *Using ReviewAid: How it works*
+
+[![Watch ReviewAid Configuration](https://img.shields.io/badge/YouTube-Watch_Now-red?style=for-the-badge\&logo=youtube)](https://www.youtube.com/watch?v=vNWXX8w1JNc) — *ReviewAid AI Models: How to configure*
+
 
 ---
 

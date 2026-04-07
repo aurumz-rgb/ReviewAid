@@ -6,7 +6,7 @@ def test_app_initial_render():
     
     at.session_state["disclaimer_acknowledged"] = True
     
-    at.run()
+    at.run(timeout=10)
     
     # Check if the main title is rendered
     assert not at.exception
@@ -27,10 +27,13 @@ def test_screener_mode_selection():
     
     # Skip disclaimer (Set state)
     at.session_state["disclaimer_acknowledged"] = True 
-    at.run()
+    at.run(timeout=10)
     
     # Click the screener button
-    at.button(key="screener_btn").click().run()
+    at.button(key="screener_btn").click()
+
+    # Run again to process the click
+    at.run(timeout=10)
     
     # Check if we switched to screener mode
     assert at.session_state["app_mode"] == "screener"

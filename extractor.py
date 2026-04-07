@@ -39,37 +39,37 @@ def run_extractor():
             st.session_state['model_name'] = selected_default_model
             st.session_state['api_key'] = "HIDDEN" 
         elif provider_name == "OpenAI":
-            model_name = st.text_input("Model Name", value="gpt-4o", help="e.g. gpt-4o")
+            model_name = st.text_input("Model Name *(please ensure it is entered exactly as required by the AI provider)*", value="gpt-4o", help="e.g. gpt-4o")
             api_key = st.text_input("API Key", type="password", help="Enter your OpenAI API Key")
             st.session_state['provider_name'] = "OpenAI"
             st.session_state['model_name'] = model_name
             st.session_state['api_key'] = api_key
         elif provider_name == "Anthropic":
-            model_name = st.text_input("Model Name", value="claude-sonnet-4-20250514", help="e.g. claude-sonnet-4-20250514")
+            model_name = st.text_input("Model Name *(please ensure it is entered exactly as required by the AI provider)*", value="claude-sonnet-4-20250514", help="e.g. claude-sonnet-4-20250514")
             api_key = st.text_input("API Key", type="password", help="Enter your Anthropic API Key")
             st.session_state['provider_name'] = "Anthropic"
             st.session_state['model_name'] = model_name
             st.session_state['api_key'] = api_key
         elif provider_name == "Cohere":
-            model_name = st.text_input("Model Name", value="command-a-03-2025", help="e.g. command-a-03-2025")
+            model_name = st.text_input("Model Name *(please ensure it is entered exactly as required by the AI provider)*", value="command-a-03-2025", help="e.g. command-a-03-2025")
             api_key = st.text_input("API Key", type="password", help="Enter your Cohere API Key")
             st.session_state['provider_name'] = "Cohere"
             st.session_state['model_name'] = model_name
             st.session_state['api_key'] = api_key
         elif provider_name == "DeepSeek":
-            model_name = st.text_input("Model Name", value="deepseek-chat", help="e.g. deepseek-chat")
+            model_name = st.text_input("Model Name *(please ensure it is entered exactly as required by the AI provider)*", value="deepseek-chat", help="e.g. deepseek-chat")
             api_key = st.text_input("API Key", type="password", help="Enter your DeepSeek API Key")
             st.session_state['provider_name'] = "DeepSeek"
             st.session_state['model_name'] = model_name
             st.session_state['api_key'] = api_key
         elif provider_name == "GLM (Z.ai)":
-            model_name = st.text_input("Model Name", value="GLM-4.6V-Flash", help="e.g. GLM-4.6V-Flash")
+            model_name = st.text_input("Model Name *(please ensure it is entered exactly as required by the AI provider)*", value="GLM-4.6V-Flash", help="e.g. GLM-4.6V-Flash")
             api_key = st.text_input("API Key", type="password", help="Enter your Z.ai API Key")
             st.session_state['provider_name'] = "GLM (Z.ai)"
             st.session_state['model_name'] = model_name
             st.session_state['api_key'] = api_key
         elif provider_name == "Ollama (Local)":
-            model_name = st.text_input("Model Name", value="llama3", help="e.g. llama3, mistral")
+            model_name = st.text_input("Model Name *(please ensure it is entered exactly as required by the AI provider)*", value="llama3", help="e.g. llama3, mistral")
             api_key = st.text_input("API Key (Optional)", type="password", help="Leave empty if not configured")
             st.session_state['ollama_base_url'] = st.text_input("Ollama Base URL", value="http://localhost:11434")
             st.session_state['provider_name'] = "Ollama (Local)"
