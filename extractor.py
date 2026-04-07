@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import pandas as pd
 import time
@@ -24,17 +22,21 @@ def run_extractor():
         available_providers = ["Default", "OpenAI", "Anthropic", "Cohere", "DeepSeek", "GLM (Z.ai)", "Ollama (Local)"]
         provider_name = st.selectbox("Select AI Provider", available_providers, index=0)
         
-        st.markdown("**Provider Details:**")
+
         
         if provider_name == "Default":
-            st.info("""
+            default_models = ['GLM-4.6V-Flash', 'GLM-4.7-Flash']
+            selected_default_model = st.selectbox("Select Default Model", default_models, index=0)
+
+            st.info(f"""
                 **Default Mode Selected.**
                 - **Provider:** GLM (Z.ai)
-                - **Model:** GLM-4.6V-Flash
-                - **API Keys:** Loaded from `.env` file (`SCREENER_API_KEY` or `EXTRACTOR_API_KEY`).
+                - **Model:** {selected_default_model}
+                - **API Keys:** No input required; ReviewAid will use its own API keys automatically.
+                
                 """)
             st.session_state['provider_name'] = "Default"
-            st.session_state['model_name'] = "GLM-4.6V-Flash"
+            st.session_state['model_name'] = selected_default_model
             st.session_state['api_key'] = "HIDDEN" 
         elif provider_name == "OpenAI":
             model_name = st.text_input("Model Name", value="gpt-4o", help="e.g. gpt-4o")
@@ -76,7 +78,7 @@ def run_extractor():
 
         st.markdown("---")
         st.markdown("### ℹ️ Info")
-        st.info("Select a provider and enter the corresponding API key. For Ollama, ensure that server is running locally. 'Default' uses to system environment variables.")
+        st.info("Select a provider and enter the corresponding API key. For Ollama, ensure that server is running locally. 'Default' uses ReviewAid's own environment variables.")
         st.markdown("---")
   
 
@@ -113,9 +115,10 @@ def run_extractor():
                 st.error("SCREENER_API_KEY or EXTRACTOR_API_KEY not found in environment variables (.env).")
                 st.stop()
                 
-            model_name = "GLM-4.6V-Flash"
+            
+            model_name = st.session_state.get('model_name', 'GLM-4.6V-Flash')
             provider_for_call = "GLM (Z.ai)"
-            update_terminal_log(f"Using Default Provider (GLM-4.6V-Flash) with Env Key.", "INFO")
+            
         else:
 
             api_key = st.session_state.get('api_key', '')
@@ -133,10 +136,16 @@ def run_extractor():
             st.warning("Please upload at least one PDF file.")
             st.stop()
 
+
+        st.markdown(
+    '<span style="color:#FBE1B8"><b>If the default AI displays a “server busy” or “API overload” message, you can switch to an available model in default mode and use it without entering any API key.</b></span>',
+    unsafe_allow_html=True
+)
         st.session_state.terminal_logs = []
         with st.expander("System Terminal (Background Processing)", expanded=True):
             st.session_state.terminal_placeholder = st.empty()
             update_terminal_log("Initializing processing session...", "SYSTEM")
+            update_terminal_log(f"Using Default Provider ({model_name}) with Env Key.", "INFO")
             update_terminal_log(f"Mode detected: {st.session_state.app_mode}", "INFO")
             update_terminal_log(f"Provider: {provider_for_call} | Model: {model_name}", "INFO")
             update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 2000)}", "INFO")
@@ -247,7 +256,7 @@ def run_extractor():
                         "DOI": "The Digital Object Identifier of the paper",
                         "Abstract": "A brief summary of the paper's content",
                         "Keywords": "Key terms associated with the paper",
-                        "Study Design": "The methodology used in the study (e.g., randomized controlled trial, cohort study)",
+                        "Study Design": "The methodology used in the study (e.g. randomized controlled trial, cohort study)",
                         "Sample Size": "The number of participants in the study",
                         "Intervention": "The treatment or intervention being studied",
                         "Comparison": "The control or comparison group",
@@ -491,6 +500,8 @@ If a field is not found in the text, use the value "Not Found".
 
     extracted_results = st.session_state.extracted_results
     total = len(extracted_results)
+
+
     
     with st.expander("Extraction Dashboard", expanded=False):
          st.metric("Papers Processed", total)
@@ -574,5 +585,3 @@ If a field is not found in the text, use the value "Not Found".
         del df_ext
     else:
         st.info("No extracted data available. Upload and process papers to see results here.")
-    
-    

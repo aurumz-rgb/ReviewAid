@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -50,14 +49,18 @@ def run_screener():
         st.markdown("**Provider Details:**")
         
         if provider_name == "Default":
-            st.info("""
+            # Allow user to select between the two specific models
+            default_models = ['GLM-4.6V-Flash', 'GLM-4.7-Flash']
+            selected_default_model = st.selectbox("Select Default Model", default_models, index=0)
+
+            st.info(f"""
                 **Default Mode Selected.**
                 - **Provider:** GLM (Z.ai)
-                - **Model:** GLM-4.6V-Flash
-                - **API Keys:** Loaded from `.env` file (`SCREENER_API_KEY` or `EXTRACTOR_API_KEY`).
+                - **Model:** {selected_default_model}
+                - **API Keys:** No input required; ReviewAid will use its own API keys automatically.
                 """)
             st.session_state['provider_name'] = "Default"
-            st.session_state['model_name'] = "GLM-4.6V-Flash"
+            st.session_state['model_name'] = selected_default_model
             st.session_state['api_key'] = "HIDDEN" 
         elif provider_name == "OpenAI":
             model_name = st.text_input("Model Name", value="gpt-4o", help="e.g. gpt-4o")
@@ -99,7 +102,7 @@ def run_screener():
 
         st.markdown("---")
         st.markdown("### ℹ️ Info")
-        st.info("Select a provider and enter the corresponding API key. For Ollama, ensure the server is running locally. 'Default' uses the system environment variables.")
+        st.info("Select a provider and enter the corresponding API key. For Ollama, ensure that server is running locally. 'Default' uses ReviewAid's own environment variables.")
         st.markdown("---")
 
 
@@ -141,10 +144,11 @@ def run_screener():
                 st.error("SCREENER_API_KEY or EXTRACTOR_API_KEY not found in environment variables (.env).")
                 st.stop()
                 
-            model_name = "GLM-4.6V-Flash"
+            # Retrieve the model selected in the configuration UI
+            model_name = st.session_state.get('model_name', 'GLM-4.6V-Flash')
             
             provider_for_call = "GLM (Z.ai)"
-            update_terminal_log(f"Using Default Provider (GLM 4.6V-Flash) with Env Key.", "INFO")
+            
         else:
  
             api_key = st.session_state.get('api_key', '')
@@ -173,10 +177,16 @@ def run_screener():
             st.warning("Please enter at least one inclusion or exclusion criterion.")
             st.stop()
 
+        st.markdown(
+    '<span style="color:#FBE1B8"><b>If the default AI displays a “server busy” or “API overload” message, you can switch to an available model in default mode and use it without entering any API key.</b></span>',
+    unsafe_allow_html=True
+)
+
         st.session_state.terminal_logs = []
         with st.expander("System Terminal (Background Processing)", expanded=True):
             st.session_state.terminal_placeholder = st.empty()
             update_terminal_log("Initializing processing session...", "SYSTEM")
+            update_terminal_log(f"Using Default Provider ({model_name}) with Env Key.", "INFO")
             update_terminal_log(f"Mode detected: {st.session_state.app_mode}", "INFO")
             update_terminal_log(f"Provider: {provider_for_call} | Model: {model_name}", "INFO")
             update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 2000)}", "INFO")
@@ -773,5 +783,3 @@ Exclusion: {comparison_exclusion}
             df_maybe = df_from_results(maybe_results)
             export_buttons(df_maybe, "Maybe")
             del df_maybe
-    
-
