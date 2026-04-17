@@ -50,7 +50,7 @@ def run_screener():
         
         if provider_name == "Default":
       
-            default_models = ['GLM-4.6V-Flash', 'GLM-4.7-Flash']
+            default_models = ['GLM-4.6V-Flash', 'GLM-4.7-Flash', 'GLM-4.5-Flash']
             selected_default_model = st.selectbox("Select Default Model", default_models, index=0)
 
             st.info(f"""
