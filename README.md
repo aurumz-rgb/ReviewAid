@@ -447,7 +447,7 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 The system uses OCR (Optical Character Recognition) to extract structured data from images before parsing. It was initially built using **pytesseract**, but has now been upgraded to **PaddleOCR** for significantly improved accuracy, robustness, and better handling of complex layouts, noisy images, and multi-line text.
 
-<img src="assets/paddleOCR.png" alt="PaddleOCR" style="max-width: 300px; height: auto;" />
+![PaddleOCR](assets/paddleOCR.png)
 
 ### PaddleOCR Workflow
 
@@ -501,7 +501,7 @@ Check out the full **ReviewAid** walkthrough and demos on YouTube:
 
 ## 🔗 Acknowledgements
 
-<img src="assets/GLM-4.6V-Flash.png" alt="ZAI" width="300"/>
+![ZAI](assets/GLM-4.6V-Flash.png)
 
 Z.ai GitHub: [zai-org](https://github.com/zai-org)
 
