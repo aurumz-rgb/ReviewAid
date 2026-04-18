@@ -19,4 +19,5 @@ ollama==0.6.1
 pytest
 pytest-mock
 pytest-cov
-pytesseract>=0.3.10
+paddlepaddle==3.2.0
+paddleocr==3.4.0
