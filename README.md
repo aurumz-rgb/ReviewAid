@@ -501,9 +501,9 @@ Check out the full **ReviewAid** walkthrough and demos on YouTube:
 
 ## 🔗 Acknowledgements
 
-<img src="assets/GLM-4.6V-Flash.png" alt="ZAI" style="max-width: 300px; height: auto;" />
+<img src="assets/GLM-4.6V-Flash.png" alt="ZAI" width="300"/>
 
-[Z.ai GitHub](https://github.com/zai-org)
+Z.ai GitHub: [zai-org](https://github.com/zai-org)
 
 I gratefully acknowledge the developers of **GLM (Z.ai)** for providing the **Default** AI model used in ReviewAid.  
 
