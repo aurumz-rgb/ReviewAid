@@ -114,7 +114,7 @@
 ![Z.ai](assets/zai.png)
 ![Ollama](assets/ollama1.png)
 
-ReviewAid supports configuration with the following AI providers via API keys:
+Seamlessly switch between AI models in the default setup without an API key, and also connect external providers using API keys like:
 
 * [OpenAI](https://openai.com)
 * [Anthropic (Claude)](https://claude.ai)
@@ -440,6 +440,28 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 ---
 
+<details>
+<summary>OCR – Advanced Image Data Extraction</summary>
+
+**Purpose:** Extract structured data from images before parsing using advanced OCR techniques.
+
+The system uses OCR (Optical Character Recognition) to extract structured data from images before parsing. It was initially built using **pytesseract**, but has now been upgraded to **PaddleOCR** for significantly improved accuracy, robustness, and better handling of complex layouts, noisy images, and multi-line text.
+
+<img src="assets/paddleOCR.png" alt="PaddleOCR" style="max-width: 300px; height: auto;" />
+
+### PaddleOCR Workflow
+
+- Image is processed through PaddleOCR engine  
+- Text is extracted with improved accuracy  
+- Output is structured and passed to the parsing pipeline  
+- Enables reliable handling of noisy and complex images  
+
+[PaddleOCR GitHub](https://github.com/PADDLEPADDLE/PADDLEOCR)
+
+</details>
+
+---
+
 ## 📸 Screenshots
 
 ### User Interface
@@ -479,7 +501,9 @@ Check out the full **ReviewAid** walkthrough and demos on YouTube:
 
 ## 🔗 Acknowledgements
 
-![ZAI](assets/GLM-4.6V-Flash.png)
+<img src="assets/GLM-4.6V-Flash.png" alt="ZAI" style="max-width: 300px; height: auto;" />
+
+[Z.ai GitHub](https://github.com/zai-org)
 
 I gratefully acknowledge the developers of **GLM (Z.ai)** for providing the **Default** AI model used in ReviewAid.  
 

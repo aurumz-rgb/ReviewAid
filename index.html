@@ -1638,8 +1638,30 @@
       </div>
 
 
+<div class="section reveal">
+  <h2>OCR – Advanced Image Data Extraction</h2>
 
+  <p style="color: var(--text-secondary); line-height: 1.8;">
+    The system uses OCR (Optical Character Recognition) to extract structured data from images before parsing.
+    It was initially built using <strong>pytesseract</strong>, but has now been upgraded to
+    <strong>PaddleOCR</strong> for significantly improved accuracy, robustness, and better handling of complex layouts,
+    noisy images, and multi-line text.
+  </p>
 
+  <div class="showcase-group">
+    <div class="grid-2">
+      <img src="assets/paddleOCR.png" alt="PaddleOCR Workflow" class="showcase-img">
+    </div>
+  </div>
+
+  
+  <p style="color: var(--text-secondary); line-height: 1.4;">
+    Official Repository: 
+    <a href="https://github.com/PADDLEPADDLE/PADDLEOCR" target="_blank" style="color: #10b981;">
+      PaddleOCR GitHub
+    </a>
+  </p>
+</div>
 
 
       <div class="section reveal">
@@ -1953,7 +1975,8 @@
             <p>Z.AI – GLM-4.6V-Flash, GLM-4.5V-Flash, GLM-4.7-Flash</p>
             <p>Anthropic – Claude-Sonnet-4-20250514</p>
             <p>Ollama (local) – Llama3</p>
-            <p>Default – GLM-4.6V-Flash, GLM-4.7-Flash</p>
+            <p>Default – GLM-4.5-Flash, GLM-4.6V-Flash, GLM-4.7-Flash</p>
+            <p>You can also seamlessly switch between multiple available AI models within the default setup itself, without the need for any API key.</p>
 
           </div>
         </div>
@@ -1972,6 +1995,12 @@
             <p>I would also like to thank <strong>Mohith Balakrishnan</strong> for his thorough validation of ReviewAid,
               including batch testing, error checks, and confidence verification, which significantly improved the
               tool’s reliability and accuracy.</p>
+                <p style="color: var(--text-secondary); line-height: 1.4;">
+    Z.ai GitHub: 
+    <a href="https://github.com/zai-org" target="_blank" style="color: #10b981;">
+      zai-org.
+    </a>
+  </p>
           </div>
         </div>
       </div>
