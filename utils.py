@@ -379,7 +379,7 @@ def extract_pdf_content(pdf_bytes, enable_ocr=False):
             if total_images_found > 0:
                 ocr_content = "\n\n".join(ocr_text_parts)
                 full_text += "\n\n[OCR EXTRACTED CONTENT]:\n" + ocr_content
-                update_terminal_log(f"Finished. Total images OCR'd: {total_images_found}", "SUCCESS")
+                update_terminal_log(f"Finished. Total images OCR'd: {total_images_found} (Data Extracted from Images)", "SUCCESS")
             else:
                 update_terminal_log("OCR Enabled, but no images were found in this document.", "WARN")
 
@@ -456,10 +456,10 @@ def extract_pdf_content(pdf_bytes, enable_ocr=False):
                     except:
                         pass
         
-        # Perform garbage collection if OCR was used to make space
+        # Perform garbage collection if OCR was used to make space to save RAM
         if enable_ocr and total_images_found > 0:
             gc.collect()
-            update_terminal_log("OCR'd images are now cleared to save space.", "SYSTEM")
+            update_terminal_log("OCR'd images will be cleared to save space.", "SYSTEM")
 
         return full_text, title, author, year
         

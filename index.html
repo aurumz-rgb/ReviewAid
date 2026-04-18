@@ -1642,23 +1642,29 @@
   <h2>OCR – Advanced Image Data Extraction</h2>
 
   <p style="color: var(--text-secondary); line-height: 1.8;">
-    The system uses OCR (Optical Character Recognition) to extract structured data from images before parsing.
-    It was initially built using <strong>pytesseract</strong>, but has now been upgraded to
-    <strong>PaddleOCR</strong> for significantly improved accuracy, robustness, and better handling of complex layouts,
-    noisy images, and multi-line text.
+    The system uses Optical Character Recognition (OCR) to extract structured data from images before parsing.
+    It was initially built using <strong>PaddleOCR</strong> for higher accuracy and better handling of complex layouts,
+    noisy images, and multi-line text. However, due to streamlit deployment constraints, it now uses
+    <strong>pytesseract</strong> (Google Tesseract-OCR wrapper) as the default OCR engine.
   </p>
 
   <div class="showcase-group">
     <div class="grid-2">
-      <img src="assets/paddleOCR.png" alt="PaddleOCR Workflow" class="showcase-img">
+      <img src="assets/pytesseract.png" alt="Pytesseract Workflow" class="showcase-img">
     </div>
   </div>
 
-  
   <p style="color: var(--text-secondary); line-height: 1.4;">
-    Official Repository: 
-    <a href="https://github.com/PADDLEPADDLE/PADDLEOCR" target="_blank" style="color: #10b981;">
-      PaddleOCR GitHub
+    ReviewAid PaddleOCR version (run with streamlit locally):
+    <a href="https://github.com/ReviewAid/ReviewAid-OCR" target="_blank" style="color: #10b981;">
+      ReviewAid-OCR
+    </a>
+  </p>
+
+  <p style="color: var(--text-secondary); line-height: 1.4;">
+    Official Tesseract wrapper:
+    <a href="https://github.com/madmaze/pytesseract" target="_blank" style="color: #10b981;">
+      pytesseract GitHub
     </a>
   </p>
 </div>

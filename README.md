@@ -443,20 +443,24 @@ This layered approach ensures that high-confidence decisions are automated safel
 <details>
 <summary>OCR – Advanced Image Data Extraction</summary>
 
-**Purpose:** Extract structured data from images before parsing using advanced OCR techniques.
+**Purpose:** Extract structured data from images using OCR before parsing.
 
-The system uses OCR (Optical Character Recognition) to extract structured data from images before parsing. It was initially built using **pytesseract**, but has now been upgraded to **PaddleOCR** for significantly improved accuracy, robustness, and better handling of complex layouts, noisy images, and multi-line text.
+The system uses Optical Character Recognition (OCR) to convert image content into structured text for downstream processing.
 
-![PaddleOCR](assets/paddleOCR.png)
+Initially, the project was built with **PaddleOCR** for higher accuracy. However, due to deployment limitations on Streamlit servers, it now uses **pytesseractOCR**, a Python wrapper for **Google Tesseract-OCR**.
 
-### PaddleOCR Workflow
+For local deployment with higher accuracy, you can use the PaddleOCR version here: [ReviewAid-OCR](https://github.com/ReviewAid/ReviewAid-OCR)
 
-- Image is processed through PaddleOCR engine  
-- Text is extracted with improved accuracy  
-- Output is structured and passed to the parsing pipeline  
-- Enables reliable handling of noisy and complex images  
+![pytesseractOCR](assets/pytesseract.png)
 
-PaddleOCR Official Repository: [GitHub](https://github.com/PADDLEPADDLE/PADDLEOCR)
+### OCR Workflow (Tesseract)
+
+- Image is processed using the Tesseract OCR engine  
+- Text is extracted and cleaned for improved accuracy  
+- Output is structured and forwarded to the parsing pipeline  
+- Handles noisy, scanned, and complex images reliably  
+
+Official pytesseract repository: [madmaze/pytesseract](https://github.com/madmaze/pytesseract)
 
 </details>
 
