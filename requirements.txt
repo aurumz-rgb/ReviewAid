@@ -19,6 +19,4 @@ ollama==0.6.1
 pytest
 pytest-mock
 pytest-cov
-paddlepaddle==3.2.0
-paddleocr==3.4.0
-opencv-python-headless
+pytesseract==0.3.13

@@ -21,8 +21,7 @@ from fpdf import FPDF
 from streamlit_lottie import st_lottie
 import streamlit.components.v1 as components
 import base64
-import numpy as np
-from paddleocr import PaddleOCR
+import pytesseract
 from PIL import Image
 
 try:
@@ -333,60 +332,40 @@ def extract_pdf_content(pdf_bytes, enable_ocr=False):
             
             
             if enable_ocr:
-          
-                global ocr_engine
-                if 'ocr_engine' not in globals():
-                    try:
-                        update_terminal_log("Initializing PaddleOCR engine (this happens once)...", "SYSTEM")
-                        import logging
-                        logging.getLogger('ppocr').setLevel(logging.ERROR)
-                        ocr_engine = PaddleOCR(use_angle_cls=True, lang='en')
-                    except Exception as init_e:
-                        update_terminal_log(f"Failed to initialize PaddleOCR: {init_e}", "ERROR")
-                        ocr_engine = None
-
-                if ocr_engine:
-                    try:
-                        image_list = page.get_images(full=True)
-                        if image_list:
-                            num_images_on_page = len(image_list)
-                            update_terminal_log(f"Page {i+1}: Found {num_images_on_page} image(s). Running PaddleOCR...", "INFO")
-                            
+                try:
+                    image_list = page.get_images(full=True)
+                    if image_list:
+                        num_images_on_page = len(image_list)
+                        update_terminal_log(f"Page {i+1}: Found {num_images_on_page} image(s). Running Tesseract OCR...", "INFO")
+                        
+                        page_ocr_success = False
+                        
+                        for img in image_list:
+                            try:
+                                xref = img[0]
+                                base_image = doc.extract_image(xref)
+                                image_bytes = base_image["image"]
+                                image = Image.open(io.BytesIO(image_bytes))
+                                
                           
-                            page_ocr_success = False
-                            
-                            for img in image_list:
-                                try:
-                                    xref = img[0]
-                                    base_image = doc.extract_image(xref)
-                                    image_bytes = base_image["image"]
-                                    image = Image.open(io.BytesIO(image_bytes))
-                                    
-         
-                                    img_array = np.array(image)
-                                    
-                               
-                                    result = ocr_engine.ocr(img_array, cls=True)
-                                    
-                             
-                                    if result and result[0]:
-                                        extracted_text = "\n".join([line[1][0] for line in result[0]])
-                                        if extracted_text.strip():
-                                            ocr_text_parts.append(extracted_text)
-                                            page_ocr_success = True
-                                    
-                                   
-                                    del img_array, result, image, image_bytes
-                                            
-                                except Exception:
-                                    pass 
-                            
-                            if page_ocr_success:
-                                update_terminal_log(f"Page {i+1}: OCR complete.", "SUCCESS")
-                            
-                            total_images_found += num_images_on_page
-                    except Exception as e:
-                        update_terminal_log(f"Page {i+1}: Error scanning for images - {str(e)}", "ERROR")
+                                extracted_text = pytesseract.image_to_string(image)
+                                
+                                if extracted_text.strip():
+                                    ocr_text_parts.append(extracted_text)
+                                    page_ocr_success = True
+                                
+                                
+                                del image, image_bytes
+                                        
+                            except Exception:
+                             pass 
+                        
+                        if page_ocr_success:
+                            update_terminal_log(f"Page {i+1}: OCR complete.", "SUCCESS")
+                        
+                        total_images_found += num_images_on_page
+                except Exception as e:
+                    update_terminal_log(f"Page {i+1}: Error scanning for images - {str(e)}", "ERROR")
    
             
             del page_text 

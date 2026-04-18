@@ -2,6 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from utils import preprocess_text_for_ai, extract_pdf_content
 
+
 # 1. Test Text Preprocessing 
 def test_preprocess_text_truncation():
     long_text = "word " * 100000 
@@ -37,12 +38,11 @@ def test_extract_pdf_content_success(mock_fitz, mock_log):
     assert author == "Test Author"
     mock_doc.close.assert_called_once()
 
-# 3. Test PDF Extraction - OCR Mode Enabled
-@patch('utils.np') 
-@patch('utils.PaddleOCR')
+# 3. Test PDF Extraction - OCR Mode Enabled (PyTesseract)
+@patch('utils.pytesseract') 
 @patch('utils.update_terminal_log')
 @patch('utils.fitz')
-def test_extract_pdf_content_with_ocr(mock_fitz, mock_log, mock_paddle_cls, mock_np):
+def test_extract_pdf_content_with_ocr(mock_fitz, mock_log, mock_pytesseract):
     # Setup Mock Doc
     mock_doc = MagicMock()
     mock_doc.page_count = 1
@@ -59,13 +59,9 @@ def test_extract_pdf_content_with_ocr(mock_fitz, mock_log, mock_paddle_cls, mock
     # Mock image extraction
     mock_doc.extract_image.return_value = {"image": b"img_bytes"}
     
-    # Mock OCR Engine Instance
-    mock_ocr_instance = MagicMock()
-    # Simulate OCR result: list of lists, [[[[coords], ('Detected Text', 0.99)], ...]]
-    mock_ocr_instance.ocr.return_value = [[[[0,0], ('OCR Result', 0.99)]]]
-    
-    # Make the PaddleOCR class return our mock instance
-    mock_paddle_cls.return_value = mock_ocr_instance
+    # Mock pytesseract return value
+    # We mock the function call directly: pytesseract.image_to_string(...)
+    mock_pytesseract.image_to_string.return_value = "OCR Result"
     
     # Mock PIL Image.open
     with patch('utils.Image.open') as mock_img_open:
@@ -74,9 +70,8 @@ def test_extract_pdf_content_with_ocr(mock_fitz, mock_log, mock_paddle_cls, mock
         # Run with OCR Enabled
         text, title, author, year = extract_pdf_content(b"fake_pdf_bytes", enable_ocr=True)
         
-        # Verify OCR was called
-        mock_paddle_cls.assert_called_once()
-        mock_ocr_instance.ocr.assert_called_once()
+        # Verify pytesseract.image_to_string was called
+        mock_pytesseract.image_to_string.assert_called_once()
         
         # Verify text contains both normal and OCR text
         assert "Normal Text" in text
