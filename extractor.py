@@ -85,6 +85,9 @@ def run_extractor():
     fields = st.text_input("Fields to Extract (comma-separated)", placeholder="e.g. Author, Year, Study Design, Sample Size, Conclusion")
     fields_list = [f.strip() for f in fields.split(",") if f.strip()]
     
+    enable_ocr = st.checkbox("Enable OCR for Images (processing may take longer)", value=False)
+
+
     if "Paper Title" not in fields_list:
         fields_list.insert(0, "Paper Title")
     
@@ -157,6 +160,9 @@ def run_extractor():
         status_placeholder = st.empty()
         progress_bar = st.progress(0)
         
+        if "last_log_update_time" not in st.session_state:
+            st.session_state.last_log_update_time = 0.0
+        
         papers_processed_in_batch = 0
         
        
@@ -214,7 +220,10 @@ def run_extractor():
                         continue
                     
        
-                    text, title, author, year = extract_pdf_content(pdf_bytes)
+                    if enable_ocr:
+                         update_terminal_log("OCR Mode Enabled. Scanning pages for images...", "INFO")
+                    
+                    text, title, author, year = extract_pdf_content(pdf_bytes, enable_ocr=enable_ocr)
                     
                     del pdf_bytes 
 

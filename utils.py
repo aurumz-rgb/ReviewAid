@@ -21,7 +21,8 @@ from fpdf import FPDF
 from streamlit_lottie import st_lottie
 import streamlit.components.v1 as components
 import base64
-
+import pytesseract  
+from PIL import Image  
 
 try:
     from openai import OpenAI
@@ -289,7 +290,7 @@ def update_terminal_log(msg, level="INFO"):
             pass
         st.session_state.last_log_update_time = current_time
 
-def extract_pdf_content(pdf_bytes):
+def extract_pdf_content(pdf_bytes, enable_ocr=False):
     try:
         update_terminal_log("Initializing PDF extraction engine (PyMuPDF)...", "DEBUG")
     except:
@@ -309,6 +310,10 @@ def extract_pdf_content(pdf_bytes):
         current_length = 0
         references_found = False
         
+  
+        ocr_text_parts = []
+        total_images_found = 0
+        
         for i, page in enumerate(doc):
             if current_length > MAX_CHAR_LIMIT and not references_found:
                  try:
@@ -325,10 +330,50 @@ def extract_pdf_content(pdf_bytes):
             full_text_parts.append(page_text)
             current_length += len(page_text)
             
+            
+            if enable_ocr:
+                try:
+                    image_list = page.get_images(full=True)
+                    if image_list:
+                        num_images_on_page = len(image_list)
+                        update_terminal_log(f"Page {i+1}: Found {num_images_on_page} image(s). Running OCR...", "INFO")
+                        
+                        page_ocr_text = []
+                        for img in image_list:
+                            try:
+                                xref = img[0]
+                                base_image = doc.extract_image(xref)
+                                image_bytes = base_image["image"]
+                                image = Image.open(io.BytesIO(image_bytes))
+                                page_ocr_text.append(pytesseract.image_to_string(image))
+                            except Exception as ocr_err:
+                                # Log specific image error but continue
+                                pass
+                        
+                        if page_ocr_text:
+                            ocr_text_parts.extend(page_ocr_text)
+                            update_terminal_log(f"Page {i+1}: OCR complete.", "SUCCESS")
+                        
+                        total_images_found += num_images_on_page
+                except Exception as e:
+                    update_terminal_log(f"Page {i+1}: Error scanning for images - {str(e)}", "ERROR")
+   
+            
             del page_text 
             
         full_text = "".join(full_text_parts)
         del full_text_parts
+        
+
+                
+        if enable_ocr:
+            if total_images_found > 0:
+                ocr_content = "\n\n".join(ocr_text_parts)
+                full_text += "\n\n[OCR EXTRACTED CONTENT]:\n" + ocr_content
+                update_terminal_log(f"Finished. Total images OCR'd: {total_images_found}", "SUCCESS")
+            else:
+                update_terminal_log("OCR Enabled, but no images were found in this document.", "WARN")
+
 
         ref_match = re.search(r'(?:\n|\r\n){1,2}(References|Reference|Bibliography)(?:\s|\r?\n|$)', full_text, re.IGNORECASE)
         
