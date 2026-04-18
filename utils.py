@@ -374,6 +374,9 @@ def extract_pdf_content(pdf_bytes, enable_ocr=False):
                                         if extracted_text.strip():
                                             ocr_text_parts.append(extracted_text)
                                             page_ocr_success = True
+                                    
+                                   
+                                    del img_array, result, image, image_bytes
                                             
                                 except Exception:
                                     pass 
@@ -474,6 +477,11 @@ def extract_pdf_content(pdf_bytes, enable_ocr=False):
                     except:
                         pass
         
+        # Perform garbage collection if OCR was used to make space
+        if enable_ocr and total_images_found > 0:
+            gc.collect()
+            update_terminal_log("OCR'd images are now cleared to save space.", "SYSTEM")
+
         return full_text, title, author, year
         
     except Exception as e:
