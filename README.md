@@ -456,7 +456,7 @@ The system uses OCR (Optical Character Recognition) to extract structured data f
 - Output is structured and passed to the parsing pipeline  
 - Enables reliable handling of noisy and complex images  
 
-[PaddleOCR GitHub](https://github.com/PADDLEPADDLE/PADDLEOCR)
+PaddleOCR Official Repository: [GitHub](https://github.com/PADDLEPADDLE/PADDLEOCR)
 
 </details>
 
