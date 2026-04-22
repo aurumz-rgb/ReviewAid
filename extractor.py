@@ -25,7 +25,7 @@ def run_extractor():
 
         
         if provider_name == "Default":
-            default_models = ['GLM-4.6V-Flash', 'GLM-4.7-Flash', 'GLM-4.5-Flash']
+            default_models = ['GLM-4.7-Flash', 'GLM-4.6V-Flash', 'GLM-4.5-Flash']
             selected_default_model = st.selectbox("Select Default Model", default_models, index=0)
 
             st.info(f"""
@@ -119,7 +119,7 @@ def run_extractor():
                 st.stop()
                 
             
-            model_name = st.session_state.get('model_name', 'GLM-4.6V-Flash')
+            model_name = st.session_state.get('model_name', 'GLM-4.7-Flash')
             provider_for_call = "GLM (Z.ai)"
             
         else:
@@ -141,7 +141,7 @@ def run_extractor():
 
 
         st.markdown(
-    '<span style="color:#FBE1B8"><b>If the default AI displays a “server busy” or “API overload” message, you can switch to an available model in default mode and use it without entering any API key.</b></span>',
+    '<span style="color:#FBE1B8"><b>If the default AI displays a “server busy” or “API overload” message or truncated response, you can switch to an available model in default mode and use it without entering any API key.</b></span>',
     unsafe_allow_html=True
 )
         st.session_state.terminal_logs = []
