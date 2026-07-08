@@ -4,7 +4,7 @@ fpdf==1.7.2
 zai-sdk==0.2.3
 json5==0.15.0
 plotly==6.7.0
-pandas==2.3.1
+pandas==3.0.3
 python-dotenv==1.2.2
 cryptography>=49.0.0
 streamlit-lottie==0.0.5
