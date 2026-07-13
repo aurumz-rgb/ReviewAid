@@ -206,6 +206,7 @@ def run_screener():
    
             if pdf is None:
                 continue
+            print(f"\n--- [SCREENER] Processing PDF {idx}/{total_pdfs}: {pdf.name} ---", flush=True)
             
   
             title, author, year = "", "", ""
@@ -570,6 +571,7 @@ Exclusion: {comparison_exclusion}
                             pass
                     
                     update_processing_stats("screener", 1)
+                    print(f"--- [SCREENER] Result generated for: {pdf.name} (Decision: {status.upper()}) ---", flush=True)
                     papers_processed_in_batch += 1
 
                     st.session_state.batch_file_hashes[pdf_hash] = result

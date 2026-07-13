@@ -177,6 +177,7 @@ def run_extractor():
                 
                 if pdf is None:
                     continue
+                print(f"\n--- [EXTRACTOR] Processing PDF {idx}/{total_pdfs}: {pdf.name} ---", flush=True)
 
                 try:
                     start_time_file = time.time()
@@ -455,6 +456,7 @@ If a field is not found in the text, use the value "Not Found".
                             update_terminal_log("Data extraction completed.", "SUCCESS")
                         except:
                             pass
+                        print(f"--- [EXTRACTOR] Result generated for: {pdf.name} ---", flush=True)
                         try:
                             update_processing_stats("extractor", 1)
                         except:
