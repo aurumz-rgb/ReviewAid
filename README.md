@@ -509,11 +509,11 @@ Check out the full **ReviewAid** walkthrough and demos on YouTube:
 
 Z.ai GitHub: [zai-org](https://github.com/zai-org)
 
-I gratefully acknowledge the developers of **GLM (Z.ai)** for providing the **Default** AI model used in ReviewAid.  
-
-For more information, please see the [GLM-4.6V-Flash paper](https://arxiv.org/abs/2507.01006) and [GLM-4.6V-Flash Hugging Face](https://huggingface.co/zai-org/GLM-4.6V-Flash).
+I gratefully acknowledge the developers of **GLM (Z.ai)** for providing the **Default** AI model used in ReviewAid. For more information, please see the [GLM-4.6V-Flash paper](https://arxiv.org/abs/2507.01006) and [GLM-4.6V-Flash Hugging Face](https://huggingface.co/zai-org/GLM-4.6V-Flash).
 
 I would also like to thank [@Nightraven5115](https://github.com/Nightraven5115) for his thorough validation of ReviewAid, including batch testing, error checks, and confidence verification, which significantly improved the tool’s reliability and accuracy.
+
+I sincerely thank the **Journal of Open Research Software (JORS)** for providing a full publication waiver supporting this software.
 
 ---
 
@@ -521,7 +521,7 @@ I would also like to thank [@Nightraven5115](https://github.com/Nightraven5115) 
 
 If you use ReviewAid, please cite:
 
-**Sahu, V. and Balakrishnan, M. (2026) ‘ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews’, Journal of Open Research Software, 14(1), p. 21.** Available at: [https://doi.org/10.5334/jors.672](https://doi.org/10.5334/jors.672)
+> **Sahu, V. and Balakrishnan, M. (2026) ‘ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews’, Journal of Open Research Software, 14(1), p. 21.** Available at: [https://doi.org/10.5334/jors.672](https://doi.org/10.5334/jors.672)
 
 
 ---
