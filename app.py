@@ -420,8 +420,7 @@ if "disclaimer_acknowledged" not in st.session_state:
     st.session_state.disclaimer_acknowledged = False
 if "app_mode" not in st.session_state:
     st.session_state.app_mode = None
-if "page_load_count" not in st.session_state:
-    st.session_state.page_load_count = 0
+
 
 if "citation_selectbox_created" not in st.session_state:
     st.session_state.citation_selectbox_created = False
@@ -434,7 +433,7 @@ if "terminal_placeholder" not in st.session_state:
 if "last_log_update_time" not in st.session_state:
     st.session_state.last_log_update_time = 0
 
-st.session_state.page_load_count += 1
+
 
 img_src = ""
 try:
@@ -479,7 +478,7 @@ st.markdown("<div class='content-wrapper'>", unsafe_allow_html=True)
 
 if lottie_animation:
     st.markdown("<div class='lottie-container' style='display:flex; justify-content:center;'>", unsafe_allow_html=True)
-    st_lottie(lottie_animation, height=250, key=f"lottie_top_{st.session_state.page_load_count}")
+    st_lottie(lottie_animation, height=250, key="lottie_top")
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown(
@@ -551,7 +550,7 @@ st.markdown(
         <span class="typing">Review<span class="gold">Aid</span>.</span>
     </div>
     <h3 class="subheading" style='text-align: center; color: #F0F4F8; margin-top: 0; margin-bottom: 5px;'>
-        An Ai based Full-text Research Article Screener & Extractor
+        An AI based Full-text Research Article Screener & Extractor
     </h3>
     """,
     unsafe_allow_html=True
