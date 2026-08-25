@@ -85,8 +85,8 @@ try:
             firebase_admin.initialize_app(cred)
     
     if firebase_admin._apps:
-       
-        db = firestore.client(database_id="(default)")
+        
+        db = firestore.client()
 except Exception as e:
     try:
         st.warning(f"Error initializing Firebase: {e}")
