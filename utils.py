@@ -63,7 +63,7 @@ try:
             firebase_admin.initialize_app(cred)
     
     if firebase_admin._apps:
-        db = firestore.client()
+        db = firestore.client(database_id="(default)")
 except Exception as e:
    
     try:
@@ -84,7 +84,7 @@ def get_firebase_stats():
         doc_ref = db.collection("ReviewAidAnalytics").document("counters")
         doc = doc_ref.get()
         
-        if doc:
+        if doc.exists:
             return {
                 "papers_screened": doc.to_dict().get("papers_screened", 0),
                 "papers_extracted": doc.to_dict().get("papers_extracted", 0),
@@ -232,7 +232,7 @@ def increment_firebase_counter(field):
     if db is None: return
     try:
         doc_ref = db.collection("ReviewAidAnalytics").document("counters")
-        doc_ref.update({field: firestore.Increment(1)})
+        doc_ref.set({field: firestore.Increment(1)}, merge=True)
     except Exception as e: print(f"Analytics Error: {e}")
 
 def update_processing_stats(mode, count=1):
