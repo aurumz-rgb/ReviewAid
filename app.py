@@ -16,7 +16,7 @@ load_dotenv()
 
 st.set_page_config(
     page_title="ReviewAid / AI Screener & Extractor",
-    page_icon=os.path.abspath("favicon.ico"),
+    page_icon=os.path.abspath("assets/favicon.ico"),
     layout="wide",
     initial_sidebar_state="collapsed", 
 )
@@ -404,7 +404,7 @@ def load_lottiefile(filepath: str):
     except FileNotFoundError:
         return None
 
-lottie_animation = load_lottiefile("animation.json")
+lottie_animation = load_lottiefile("assets/animation.json")
 
 
 if "included_results" not in st.session_state:
