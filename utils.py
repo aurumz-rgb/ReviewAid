@@ -190,38 +190,37 @@ ER  -"""
 
     js_citation_text = json.dumps(citation_text)
     
-    st.markdown(f"""
-    <div style="display:flex; gap:10px; margin-top:10px; margin-bottom:10px; position:relative; flex-wrap:wrap;" id="button-container">
-        <button id="copy-btn" class="custom-button">Copy</button>
-        <a download="ReviewAid_citation.ris" href="data:application/x-research-info-systems;base64,{base64.b64encode(ris_data.encode()).decode()}" class="custom-button">RIS Format</a>
-        <a download="ReviewAid_citation.bib" href="data:application/x-bibtex;base64,{base64.b64encode(bib_data.encode()).decode()}" class="custom-button">BibTeX Format</a>
-    </div>
-    """, unsafe_allow_html=True)
+    ris_b64 = base64.b64encode(ris_data.encode()).decode()
+    bib_b64 = base64.b64encode(bib_data.encode()).decode()
 
-    st.markdown(f"""
+    copy_button_html = f"""
+    <div style="display:flex; gap:10px; margin-top:10px; margin-bottom:10px; position:relative; flex-wrap:wrap;" id="button-container">
+        <button id="copy-btn" style="background-color: #4189DC; color: white; border: none; padding: 0.5rem 1rem; font-size: 1rem; border-radius: 5px; cursor: pointer;">Copy</button>
+        <a download="ReviewAid_citation.ris" href="data:application/x-research-info-systems;base64,{ris_b64}" style="background-color: #4189DC; color: white; text-decoration: none; padding: 0.5rem 1rem; font-size: 1rem; border-radius: 5px;">RIS Format</a>
+        <a download="ReviewAid_citation.bib" href="data:application/x-bibtex;base64,{bib_b64}" style="background-color: #4189DC; color: white; text-decoration: none; padding: 0.5rem 1rem; font-size: 1rem; border-radius: 5px;">BibTeX Format</a>
+    </div>
     <script>
-    function copyCitation() {{
-        const citationText = {js_citation_text};
-        navigator.clipboard.writeText(citationText).then(() => {{
-            const btn = document.getElementById('copy-btn');
-            const originalText = btn.innerText;
-            btn.innerText = "Copied!";
-            setTimeout(() => {{ 
-                btn.innerText = originalText; 
-            }}, 2000);
-        }}).catch(err => {{
-            console.error('Failed to copy text: ', err);
-        }});
-    }}
-    
-    document.addEventListener('DOMContentLoaded', function() {{
+        function copyCitation() {{
+            const citationText = {js_citation_text};
+            navigator.clipboard.writeText(citationText).then(() => {{
+                const btn = document.getElementById('copy-btn');
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                setTimeout(() => {{ 
+                    btn.innerText = originalText; 
+                }}, 2000);
+            }}).catch(err => {{
+                console.error('Failed to copy text: ', err);
+            }});
+        }}
+        
         const copyBtn = document.getElementById('copy-btn');
         if (copyBtn) {{
             copyBtn.addEventListener('click', copyCitation);
         }}
-    }});
     </script>
-    """, unsafe_allow_html=True)
+    """
+    components.html(copy_button_html, height=50)
 
 
 
