@@ -51,21 +51,43 @@ except ImportError:
 
 load_dotenv()
 
-
 db = None 
 
 try:
     if not firebase_admin._apps:
-        firebase_key_str = os.getenv("FIREBASE_KEY")
+        firebase_key_str = None
+        
+       
+        try:
+            if hasattr(st, 'secrets') and "FIREBASE_KEY" in st.secrets:
+                firebase_key_str = st.secrets["FIREBASE_KEY"]
+        except Exception:
+            pass
+            
+    
+        if not firebase_key_str:
+            firebase_key_str = os.getenv("FIREBASE_KEY")
+            
+    
         if firebase_key_str:
+            firebase_key_str = firebase_key_str.strip()
+            if firebase_key_str.startswith("'''") and firebase_key_str.endswith("'''"):
+                firebase_key_str = firebase_key_str[3:-3].strip()
+            elif firebase_key_str.startswith('"""') and firebase_key_str.endswith('"""'):
+                firebase_key_str = firebase_key_str[3:-3].strip()
+            elif firebase_key_str.startswith("'") and firebase_key_str.endswith("'"):
+                firebase_key_str = firebase_key_str[1:-1].strip()
+            elif firebase_key_str.startswith('"') and firebase_key_str.endswith('"'):
+                firebase_key_str = firebase_key_str[1:-1].strip()
+                
             cred_dict = json.loads(firebase_key_str)
             cred = credentials.Certificate(cred_dict)
             firebase_admin.initialize_app(cred)
     
     if firebase_admin._apps:
+       
         db = firestore.client(database_id="(default)")
 except Exception as e:
-   
     try:
         st.warning(f"Error initializing Firebase: {e}")
     except:
@@ -79,6 +101,7 @@ MAX_OUTPUT_TOKENS = 8192
 
 def get_firebase_stats():
     if db is None:
+        st.error("Firebase DB is None (Check FIREBASE_KEY env variable on Streamlit Cloud)")
         return {"papers_screened": 0, "papers_extracted": 0}
     try:
         doc_ref = db.collection("ReviewAidAnalytics").document("counters")
@@ -88,13 +111,11 @@ def get_firebase_stats():
             return {
                 "papers_screened": doc.to_dict().get("papers_screened", 0),
                 "papers_extracted": doc.to_dict().get("papers_extracted", 0),
-   
             }
         else:
-            
             return {"papers_screened": 0, "papers_extracted": 0}
-    except Exception:
-     
+    except Exception as e:
+        st.error(f"Firebase Stats Error: {e}")
         return {"papers_screened": 0, "papers_extracted": 0}
 
 def display_citation_section():
@@ -233,7 +254,8 @@ def increment_firebase_counter(field):
     try:
         doc_ref = db.collection("ReviewAidAnalytics").document("counters")
         doc_ref.set({field: firestore.Increment(1)}, merge=True)
-    except Exception as e: print(f"Analytics Error: {e}")
+    except Exception as e:
+        st.error(f"Firebase Increment Error: {e}")
 
 def update_processing_stats(mode, count=1):
     if db is None: return
