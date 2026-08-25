@@ -479,7 +479,7 @@ st.markdown("<div class='content-wrapper'>", unsafe_allow_html=True)
 
 if lottie_animation:
     st.markdown("<div class='lottie-container' style='display:flex; justify-content:center;'>", unsafe_allow_html=True)
-    st_lottie(lottie_animation, height=250, key="lottie_top")
+    st_lottie(lottie_animation, height=250, key=f"lottie_top_{st.session_state.app_mode}")
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown(
@@ -673,7 +673,7 @@ if st.session_state.app_mode is None:
     
     st.markdown("""
     <div class="mode-selection-footer">
-        <div>© 2025-26 Vihaan Sahu – Licensed under Apache 2.0</div>
+        <div>© 2025-26 Vihaan Sahu</div>
         <div class="center-text"><a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub Repository</a></div>
         <div class="right-text">Open-source</div>
     </div>
