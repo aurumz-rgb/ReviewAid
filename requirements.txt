@@ -15,7 +15,7 @@ firebase-admin==6.5.0
 google-cloud-firestore==2.19.0
 openai==2.53.0
 anthropic==0.121.0
-cohere==7.0.8
+cohere==7.0.9
 ollama==0.6.2
 pytest
 pytest-mock
