@@ -29,6 +29,25 @@
 
 ---
 
+
+<details>
+<summary> How ReviewAid Compares to Other Systematic Review Tools</summary>
+
+ReviewAid uniquely combines full-text AI screening, customizable extraction, multi-provider LLM configuration, explicit confidence scoring, and local inference in one open-source tool.
+
+| Feature | ReviewAid | Rayyan | Covidence | ASReview |
+| :--- | :--- | :--- | :--- | :--- |
+| **AI Full-text PDF Screening** | ✅ Yes | ⚠️ AI-assisted | ⚠️ AI-assisted | ❌ Primarily title/abstract |
+| **Custom AI Data Extraction** | ✅ Yes | ✅ Yes | ✅ Yes | ❌ No |
+| **Multi-LLM Support** | ✅ Yes | ❌ No | ❌ No | ❌ No |
+| **Explicit Confidence Scoring** | ✅ Yes | ❌ No equivalent system | ❌ No equivalent system | ❌ No equivalent system |
+| **Local / Offline AI** | ✅ Yes | ❌ No | ❌ No | ✅ Yes |
+| **Free & Open Source** | ✅ Apache 2.0 | ⚠️ Free tier / proprietary | ❌ Proprietary | ✅ MIT |
+
+</details>
+
+--- 
+
 <details>
  <summary> Quick Start</summary>
 
