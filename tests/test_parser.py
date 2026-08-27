@@ -46,3 +46,14 @@ def test_parse_result_success(mock_log, mock_query):
     assert result["status"] == "Include"
     assert result["confidence"] == 0.9
     assert not mock_query.called 
+
+@patch('parser.query_llm') 
+@patch('parser.update_terminal_log')
+def test_parse_result_with_unescaped_newlines(mock_log, mock_query):
+    dirty_json_string = '{ "reason": "This is a multi-line\nreason.", "confidence": 0.8 }'
+    
+    result = parse_result(dirty_json_string, "OpenAI", "fake-key", "gpt-4", mode="screener", fields_list=None, original_text=None)
+    
+    assert result["reason"] == "This is a multi-line\nreason."
+    assert result["confidence"] == 0.8
+    assert not mock_query.called

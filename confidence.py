@@ -74,29 +74,41 @@ def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_dat
                 val_lower = val_str.lower()
                 
 
+
                 exact_match_idx = text_lower.find(val_lower)
                 if exact_match_idx != -1:
                   
-                    search_start = max(0, exact_match_idx - 50)
-                    search_end = min(len(text_lower), exact_match_idx + len(val_lower) + 50)
+                    search_start = max(0, exact_match_idx - 20)
+                    search_end = min(len(text_lower), exact_match_idx + len(val_lower) + 20)
                     context_window = text_lower[search_start:search_end]
                     
-                    if not any(neg in context_window for neg in ["not", "no", "failed", "unable", "cannot", "without"]):
+                    if not any(neg in context_window for neg in ["not ", "no ", "failed", "unable", "cannot", "without"]):
                         verified_fields += 1
                     else:
                         try: update_terminal_log(f"Tier 1: Negation detected near exact match for '{key}'. Dropping score.", "WARN")
                         except: pass
                 else:
-
+       
                     words = set(re.findall(r'\b\w{4,}\b', val_lower))
                     if not words:
-                        verified_fields += 1 
+                        verified_fields += 1
                         continue
                         
                     words_found = sum(1 for w in words if w in text_lower)
                     overlap_ratio = words_found / len(words)
                     
                     if overlap_ratio > 0.6:
+              
+                        first_word = next(iter(words))
+                        word_idx = text_lower.find(first_word)
+                        if word_idx != -1:
+                            search_start = max(0, word_idx - 20)
+                            search_end = min(len(text_lower), word_idx + len(val_lower) + 20)
+                            context_window = text_lower[search_start:search_end]
+                            if any(neg in context_window for neg in ["not ", "no ", "failed", "unable", "cannot", "without"]):
+                                try: update_terminal_log(f"Tier 1: Negation detected near overlap for '{key}'. Dropping score.", "WARN")
+                                except: pass
+                                continue
                         verified_fields += 1
                     else:
                         try: update_terminal_log(f"Tier 1: Low overlap ({overlap_ratio:.2f}) for '{key}'. Possible hallucination.", "WARN")
@@ -108,6 +120,12 @@ def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_dat
         score = verified_fields / valid_fields
         try: update_terminal_log(f"Tier 1 Deterministic Check: {verified_fields}/{valid_fields} fields verified. Score: {score:.2f}", "DEBUG")
         except: pass
-        return round(score, 2)
+        
+        if score == 1.0 and verified_fields == valid_fields:
+            return 0.95  
+        elif score > 0.5:
+            return round(score * 0.8, 2) 
+        else:
+            return 0.3 
 
     return 0.4

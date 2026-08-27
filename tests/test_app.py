@@ -8,13 +8,13 @@ def test_app_initial_render():
     
     at.run(timeout=10)
     
-    # Check if the main title is rendered
+
     assert not at.exception
     
-    # Check if the text exists in the main container
+
     found_text = False
     for element in at.main:
-        # hasattr check ensures we don't crash on buttons or other non-text elements
+        
         if hasattr(element, 'value'):
             if "Full-text Paper Screener" in str(element.value):
                 found_text = True

@@ -51,7 +51,7 @@ def test_extract_pdf_content_with_ocr(mock_fitz, mock_log, mock_pytesseract):
     # Setup Mock Page with an image
     mock_page = MagicMock()
     mock_page.get_text.return_value = "Normal Text"
-    mock_page.get_images.return_value = [[1]] # Simulate 1 image found
+    mock_page.get_images.return_value = [[1]] 
     
     mock_doc.__iter__.return_value = iter([mock_page])
     mock_fitz.open.return_value = mock_doc
