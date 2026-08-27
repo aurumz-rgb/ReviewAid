@@ -323,7 +323,6 @@ Text: Tier 1 (Deterministic) → Tier 2 (LLM + Override) → Tier 3 (Heuristic) 
 
 Each tier is only activated if the previous tier fails to produce a valid and reliable result.
 
-![Fig1](screenshots/Fig1.png)  
 
 
 ## ✔️ Tier 1: Deterministic Rule-Based Classification & Verification (Highest Priority) 
@@ -410,11 +409,10 @@ This layered approach ensures that high-confidence decisions are automated safel
 ---
 
 <details>
-<summary>Bulletproof Parsing Pipeline</summary>
+<summary>Parsing Pipeline</summary>
 
 **Purpose:** Safely parse API/AI responses, even if the JSON is broken or missing.
 
-![Fig2](screenshots/Fig2.png) 
 
 ### Flow
 
