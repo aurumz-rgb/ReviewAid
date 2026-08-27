@@ -468,50 +468,48 @@ Exclusion: {comparison_exclusion}
      
                 if raw_result:
                     del raw_result
-                
-   
-                del full_text_backup
-                gc.collect()
 
-      
                 if result and processing_successful:
                     try:
                         update_terminal_log("Result generation completed (AI or Fallback).", "SUCCESS")
                     except:
                         pass
 
+                    deterministic_confidence = estimate_confidence(
+                        full_text_backup, 
+                        mode="screener", 
+                        criteria_dict=criteria_dict, 
+                        extracted_data=None,
+                        fields_list=fields_list
+                    )
+                    
+
+                    del full_text_backup
+                    gc.collect()
+                    
                     ai_confidence = result.get("confidence", None)
                     if ai_confidence is not None:
                         try:
-                            confidence = float(ai_confidence)
-                            confidence = max(0.0, min(1.0, confidence))
-                            update_terminal_log(f"Using reported confidence: {confidence}", "INFO")
+                            ai_confidence = max(0.0, min(1.0, float(ai_confidence)))
                         except ValueError:
-                            try:
-                                update_terminal_log(f"Confidence invalid format. Using fallback.", "WARN")
-                            except:
-                                pass
+                            ai_confidence = 0.0
+                        
 
-                            confidence = estimate_confidence(
-                                full_text_backup, 
-                                mode="screener", 
-                                criteria_dict=criteria_dict, 
-                                extracted_data=None,
-                                fields_list=fields_list
-                            )
+                        if deterministic_confidence < 0.5 and ai_confidence > 0.5:
+                            try:
+                                update_terminal_log(f"AI reported {ai_confidence}, but Tier 1 verification found {deterministic_confidence}. Overriding to flag for review.", "WARN")
+                            except: pass
+                            confidence = deterministic_confidence
+                        else:
+                            confidence = min(ai_confidence, 0.95)
+                            try:
+                                update_terminal_log(f"Tier 1 verified. Using AI reported confidence: {confidence}", "INFO")
+                            except: pass
                     else:
                         try:
-                            update_terminal_log(f"Confidence missing. Using heuristic fallback.", "WARN")
-                        except:
-                            pass
-
-                        confidence = estimate_confidence(
-                            full_text_backup, 
-                            mode="screener", 
-                            criteria_dict=criteria_dict, 
-                            extracted_data=None,
-                            fields_list=fields_list
-                        )
+                            update_terminal_log(f"Confidence missing. Using Tier 1 deterministic score: {deterministic_confidence}", "WARN")
+                        except: pass
+                        confidence = deterministic_confidence
 
                     result["confidence"] = confidence
                     
@@ -711,39 +709,33 @@ Exclusion: {comparison_exclusion}
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>1.0 (100%)</strong></td>
-                        <td>Definitive Match</td>
-                        <td>Deterministic rule-based classification / No ambiguity.</td>
-                        <td>Fully automated decision</td>
-                    </tr>
-                    <tr>
-                        <td><strong>0.8 – 1.0</strong></td>
-                        <td>Very High Confidence</td>
-                        <td>AI strongly validates decision using explicit textual evidence.</td>
+                        <td><strong>0.9 – 1.0</strong></td>
+                        <td>Deterministic Match</td>
+                        <td>Extracted data was verified via exact string match or near-perfect token overlap against the source text.</td>
                         <td>Safe to accept</td>
                     </tr>
                     <tr>
-                        <td><strong>0.6 – 0.79</strong></td>
+                        <td><strong>0.6 – 0.89</strong></td>
                         <td>High Confidence</td>
-                        <td>Criteria appear satisfied based on standard academic structure and content.</td>
+                        <td>AI output verified via strong semantic token overlap. Paraphrasing detected and grounded in source.</td>
                         <td>Review optional</td>
                     </tr>
                     <tr>
                         <td><strong>0.4 – 0.59</strong></td>
                         <td>Moderate Confidence</td>
-                        <td>Ambiguous context or loosely met criteria.</td>
+                        <td>Partial overlap detected. Ambiguous context or loosely met criteria.</td>
                         <td>Manual verification recommended</td>
                     </tr>
                     <tr>
                         <td><strong>0.1 – 0.39</strong></td>
                         <td>Low Confidence</td>
-                        <td>Based mainly on heuristic keyword estimation.</td>
+                        <td>Poor textual overlap or negation detected. AI score overridden by Tier 1 math due to likely hallucination.</td>
                         <td>High risk of error</td>
                     </tr>
                     <tr>
                         <td><strong>&lt; 0.1</strong></td>
                         <td>Unreliable</td>
-                        <td>Derived from fallback or failed extraction methods.</td>
+                        <td>Derived from fallback or failed extraction methods. Complete lack of text grounding.</td>
                         <td>Mandatory manual review</td>
                     </tr>
                 </tbody>

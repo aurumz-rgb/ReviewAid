@@ -320,54 +320,47 @@ The confidence score reflects how reliably a paper has been classified or extrac
 
 The system operates in the following order:
 
-1. Deterministic Rule-Based Classification  (Screener specific)
-2. LLM Self-Assessment  
+1. Deterministic Rule-Based Classification & Verification (Screener & Extractor)
+2. LLM Self-Assessment (With Override Logic)
 3. Heuristic Keyword Estimation  
 4. Low-Confidence Default  
 
-Text: Tier 1 (Deterministic) 
-→
- Tier 2 (LLM) 
-→
- Tier 3 (Heuristic) 
-→
- Tier 4 (Default).
+Text: Tier 1 (Deterministic) → Tier 2 (LLM + Override) → Tier 3 (Heuristic) → Tier 4 (Default).
 
 Each tier is only activated if the previous tier fails to produce a valid and reliable result.
 
 ![Fig1](screenshots/Fig1.png)  
 
 
-## ✔️ Tier 1: Deterministic Rule-Based Classification (Highest Priority) 
+## ✔️ Tier 1: Deterministic Rule-Based Classification & Verification (Highest Priority) 
 
-**Purpose:** Eliminate ambiguity using explicit user-defined rules. For screener, Extractor starts directly from Tier 2.
+**Purpose:** Eliminate ambiguity using explicit mathematical rules and verify AI outputs against the source text.
 
-**Logic:**
+**Screener Logic:**
 - The system performs a preliminary scan for **exclusion** and **inclusion** keywords.
 - If **exclusion keywords are detected without any corresponding inclusion keywords**, the paper is:
   - Automatically classified as **Excluded**
   - Assigned a **confidence score of 1.0 (100%)**
-- If **both exclusion and inclusion keywords** are present:
-  - This tier is **bypassed** to avoid false positives
-  - The decision is delegated to the AI-based evaluation
+- If **both exclusion and inclusion keywords** are present, this tier is **bypassed** to avoid false positives, delegating the decision to the AI.
+
+**Extractor Logic:**
+- The system deterministically verifies the AI's extracted data against the source text using **Exact String Matching** and **Token Overlap** for paraphrased text.
+- **Negation Detection** is applied to ensure the AI didn't miss a "not" or "failed" that changes the meaning of the extracted data.
 
 **Rationale:**  
-Explicit rules provide deterministic certainty and override probabilistic inference when applicable.
+Explicit rules provide deterministic certainty and override probabilistic inference when applicable. Mathematical verification ensures the AI actually saw what it claimed to see.
 
 
-## ✔️ Tier 2: LLM Self-Assessment (Primary Mechanism)
+## ✔️ Tier 2: LLM Self-Assessment (With Override Logic)
 
 **Purpose:** Leverage the model’s internal reasoning and evidence-based judgment.
 
 **Logic:**
-- The Large Language Model (LLM) is explicitly instructed to:
-  - Evaluate its own screening or extraction decision
-  - Assign a **confidence score between 0.0 and 1.0**
-  - Base the score strictly on **explicit textual evidence**
-- The confidence value is parsed directly from the model’s structured JSON output
+- The Large Language Model (LLM) evaluates its own screening or extraction decision and assigns a **confidence score between 0.0 and 1.0**.
+- **Override Logic:** If the AI claims high confidence (> 0.5) but the Tier 1 Deterministic Check fails (score < 0.5), the system **overrides** the AI's confidence score downward and flags the paper for human review. This prevents the AI from being confidently wrong (hallucinating).
 
 **Rationale:**  
-This tier captures nuanced contextual understanding that deterministic rules cannot, while maintaining transparency through self-reported certainty.
+This tier captures nuanced contextual understanding that deterministic rules cannot, while the override logic ensures mathematical grounding prevents false confidence.
 
 
 ## ✔️ Tier 3: Heuristic Keyword Estimation (Fallback)
@@ -412,12 +405,11 @@ This layered approach ensures that high-confidence decisions are automated safel
 
 | Confidence Score | Classification | Description | Implication |
 |------------------|---------------|-------------|-------------|
-| **1.0 (100%)** | Definitive Match | Deterministic rule-based classification / No ambiguity. | Fully automated decision |
-| **0.8 – 1.00** | Very High Confidence | AI strongly validates the decision using explicit textual evidence. | Safe to accept |
-| **0.6 – 0.79** | High Confidence | Criteria appear satisfied based on standard academic structure and content. | Review optional |
-| **0.4 – 0.59** | Moderate Confidence | Ambiguous context or loosely met criteria. | Manual verification recommended |
-| **0.1 – 0.39** | Low Confidence | Based mainly on heuristic keyword estimation. | High risk of error |
-| **< 0.1** | Unreliable | Derived from fallback or failed extraction methods. | Mandatory manual review |
+| **0.9 – 1.0** | Deterministic Match | Extracted data was verified via exact string match or near-perfect token overlap against the source text. | Safe to accept |
+| **0.6 – 0.89** | High Confidence | AI output verified via strong semantic token overlap. Paraphrasing detected and grounded in source. | Review optional |
+| **0.4 – 0.59** | Moderate Confidence | Partial overlap detected. Ambiguous context or loosely met criteria. | Manual verification recommended |
+| **0.1 – 0.39** | Low Confidence | Poor textual overlap or negation detected. AI score overridden by Tier 1 math due to likely hallucination. | High risk of error |
+| **< 0.1** | Unreliable | Derived from fallback or failed extraction methods. Complete lack of text grounding. | Mandatory manual review |
 
 </details>
 

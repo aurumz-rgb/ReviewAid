@@ -734,7 +734,7 @@ if st.session_state.app_mode is not None:
     display_citation_section()
     st.markdown("</div>", unsafe_allow_html=True)
 
-version = "2.3.1"
+version = "3.0.0"
 try:
     current_file = __file__
     last_modified_timestamp = os.path.getmtime(current_file)
@@ -775,7 +775,7 @@ st.markdown(
     </style>
     <div class="custom-footer-container">
         <div style="white-space: nowrap; letter-spacing: 1px;">
-            Made with 💙 by its Creator.
+            Made with 💙.
         </div>
         <div style="white-space: nowrap; letter-spacing: 1px;">
             Version {version}  

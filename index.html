@@ -356,8 +356,8 @@
             and lower values explicitly flag the need for manual review.</p>
           <p style="margin-bottom: 0;">The system operates in the following order:</p>
           <ul class="confidence-overview-list">
-            <li><strong>Deterministic Rule-Based Classification (For Screener)</strong></li>
-            <li><strong>LLM Self-Assessment (Extractor starts directly from Tier 2)</strong></li>
+            <li><strong>Deterministic Rule-Based Classification & Verification (Screener & Extractor)</strong></li>
+            <li><strong>LLM Self-Assessment (With Override Logic)</strong></li>
             <li><strong>Heuristic Keyword Estimation</strong></li>
             <li><strong>Low-Confidence Default</strong></li>
           </ul>
@@ -382,10 +382,10 @@
         <div class="tiers-grid">
 
           <div class="tier-card">
-            <h3>Tier 1: Deterministic Rule-Based</h3>
+            <h3>Tier 1: Deterministic Rule-Based & Verification</h3>
             <h4>Highest Priority</h4>
-            <p><strong>Purpose:</strong> Eliminate ambiguity using explicit user-defined rules.</p>
-            <p><strong>Logic:</strong></p>
+            <p><strong>Purpose:</strong> Eliminate ambiguity using explicit user-defined rules and verify AI outputs against source text.</p>
+            <p><strong>Screener Logic:</strong></p>
             <ul>
               <li>The system performs a preliminary scan for <strong>exclusion</strong> and <strong>inclusion</strong>
                 keywords.</li>
@@ -395,28 +395,30 @@
               <li>If <strong>both exclusion and inclusion keywords</strong> are present, this tier is
                 <strong>bypassed</strong> to avoid false positives, delegating the decision to the AI.</li>
             </ul>
+            <p><strong>Extractor Logic (New):</strong></p>
+            <ul>
+              <li>The system deterministically verifies the AI's extracted data against the source text using <strong>Exact String Matching</strong> and <strong>Token Overlap</strong> for paraphrased text.</li>
+              <li><strong>Negation Detection</strong> is applied to ensure the AI didn't miss a "not" or "failed" that changes the meaning of the extracted data.</li>
+            </ul>
             <div class="rationale">
               <strong>Rationale:</strong> Explicit rules provide deterministic certainty and override probabilistic
-              inference when applicable.
+              inference when applicable. Mathematical verification ensures the AI actually saw what it claimed to see.
             </div>
           </div>
 
 
           <div class="tier-card">
-            <h3>Tier 2: LLM Self-Assessment</h3>
+            <h3>Tier 2: LLM Self-Assessment (With Override Logic)</h3>
             <h4>Primary Mechanism</h4>
             <p><strong>Purpose:</strong> Leverage the model’s internal reasoning and evidence-based judgment.</p>
             <p><strong>Logic:</strong></p>
             <ul>
-              <li>The Large Language Model (LLM) is explicitly instructed to evaluate its own screening or extraction
-                decision.</li>
-              <li>It assigns a <strong>confidence score between 0.0 and 1.0</strong>.</li>
-              <li>The score is based strictly on <strong>explicit textual evidence</strong> found in the paper.</li>
-              <li>The confidence value is parsed directly from the model’s structured JSON output.</li>
+              <li>The Large Language Model (LLM) evaluates its own screening or extraction decision and assigns a <strong>confidence score between 0.0 and 1.0</strong>.</li>
+              <li><strong>Override Logic:</strong> If the AI claims high confidence (> 0.5) but the Tier 1 Deterministic Check fails (score < 0.5), the system <strong>overrides</strong> the AI's confidence score downward and flags the paper for human review. This prevents the AI from being confidently wrong (hallucinating).</li>
             </ul>
             <div class="rationale">
               <strong>Rationale:</strong> Captures nuanced contextual understanding that deterministic rules cannot,
-              while maintaining transparency through self-reported certainty.
+              while the override logic ensures mathematical grounding prevents false confidence.
             </div>
           </div>
 
@@ -479,39 +481,33 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>1.0 (100%)</strong></td>
-                  <td><span class="confidence-badge">Definitive Match</span></td>
-                  <td>Deterministic rule-based classification / No ambiguity.</td>
-                  <td>Fully automated decision</td>
-                </tr>
-                <tr>
-                  <td><strong>0.8 – 1.0</strong></td>
-                  <td><span class="confidence-badge">Very High</span></td>
-                  <td>AI strongly validates the decision using explicit textual evidence.</td>
+                  <td><strong>0.9 – 1.0</strong></td>
+                  <td><span class="confidence-badge">Deterministic Match</span></td>
+                  <td>Extracted data was verified via exact string match or near-perfect token overlap against the source text.</td>
                   <td>Safe to accept</td>
                 </tr>
                 <tr>
-                  <td><strong>0.6 – 0.79</strong></td>
-                  <td><span class="confidence-badge">High</span></td>
-                  <td>Criteria appear satisfied based on standard academic structure and content.</td>
+                  <td><strong>0.6 – 0.89</strong></td>
+                  <td><span class="confidence-badge">High Confidence</span></td>
+                  <td>AI output verified via strong semantic token overlap. Paraphrasing detected and grounded in source.</td>
                   <td>Review optional</td>
                 </tr>
                 <tr>
                   <td><strong>0.4 – 0.59</strong></td>
-                  <td><span class="confidence-badge">Moderate</span></td>
-                  <td>Ambiguous context or loosely met criteria.</td>
+                  <td><span class="confidence-badge">Moderate Confidence</span></td>
+                  <td>Partial overlap detected. Ambiguous context or loosely met criteria.</td>
                   <td>Manual verification recommended</td>
                 </tr>
                 <tr>
                   <td><strong>0.1 – 0.39</strong></td>
-                  <td><span class="confidence-badge">Low</span></td>
-                  <td>Based mainly on heuristic keyword estimation.</td>
+                  <td><span class="confidence-badge">Low Confidence</span></td>
+                  <td>Poor textual overlap or negation detected. AI score overridden by Tier 1 math due to likely hallucination.</td>
                   <td>High risk of error</td>
                 </tr>
                 <tr>
                   <td><strong>&lt; 0.1</strong></td>
                   <td><span class="confidence-badge">Unreliable</span></td>
-                  <td>Derived from fallback or failed extraction methods.</td>
+                  <td>Derived from fallback or failed extraction methods. Complete lack of text grounding.</td>
                   <td>Mandatory manual review</td>
                 </tr>
               </tbody>

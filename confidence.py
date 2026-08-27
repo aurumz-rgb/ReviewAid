@@ -60,39 +60,54 @@ def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_dat
 
     elif mode == "extractor":
         if not extracted_data or not isinstance(extracted_data, dict):
-            try:
-                update_terminal_log("No extracted data available for validation. Defaulting to 0.4.", "DEBUG")
-            except:
-                pass
+            try: update_terminal_log("No extracted data available for validation. Defaulting to 0.4.", "DEBUG")
+            except: pass
             return 0.4
             
         valid_fields = 0
-        found_fields = 0
+        verified_fields = 0
         
         for key, value in extracted_data.items():
             if value and str(value).strip() != "Not Found":
                 valid_fields += 1
-
                 val_str = str(value).strip()
-                if len(val_str) > 5: 
-                    if val_str.lower() in text_lower:
-                        found_fields += 1
+                val_lower = val_str.lower()
+                
+
+                exact_match_idx = text_lower.find(val_lower)
+                if exact_match_idx != -1:
+                  
+                    search_start = max(0, exact_match_idx - 50)
+                    search_end = min(len(text_lower), exact_match_idx + len(val_lower) + 50)
+                    context_window = text_lower[search_start:search_end]
+                    
+                    if not any(neg in context_window for neg in ["not", "no", "failed", "unable", "cannot", "without"]):
+                        verified_fields += 1
                     else:
-                        words = val_str.split()[:3] 
-                        if all(word in text_lower for word in words):
-                            found_fields += 1
-                elif len(val_str) > 0:
-                     if val_str.lower() in text_lower:
-                        found_fields += 1
+                        try: update_terminal_log(f"Tier 1: Negation detected near exact match for '{key}'. Dropping score.", "WARN")
+                        except: pass
+                else:
+
+                    words = set(re.findall(r'\b\w{4,}\b', val_lower))
+                    if not words:
+                        verified_fields += 1 
+                        continue
+                        
+                    words_found = sum(1 for w in words if w in text_lower)
+                    overlap_ratio = words_found / len(words)
+                    
+                    if overlap_ratio > 0.6:
+                        verified_fields += 1
+                    else:
+                        try: update_terminal_log(f"Tier 1: Low overlap ({overlap_ratio:.2f}) for '{key}'. Possible hallucination.", "WARN")
+                        except: pass
         
         if valid_fields == 0:
             return 0.1
         
-        score = found_fields / valid_fields
-        try:
-            update_terminal_log(f"Extractor Heuristic: {found_fields}/{valid_fields} fields verified in text. Score: {score:.2f}", "DEBUG")
-        except:
-            pass
+        score = verified_fields / valid_fields
+        try: update_terminal_log(f"Tier 1 Deterministic Check: {verified_fields}/{valid_fields} fields verified. Score: {score:.2f}", "DEBUG")
+        except: pass
         return round(score, 2)
 
     return 0.4

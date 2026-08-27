@@ -16,19 +16,15 @@ def clean_json_response(raw_str):
     """
     Bulletproof JSON cleaning pipeline.
     Handles Markdown, Trailing Commas, Comments, and Control Characters.
+    (Optimized to prevent Regex Catastrophic Backtracking / Hanging)
     """
     if not raw_str:
         return ""
 
-    raw_str = re.sub(r'```json\s*', '', raw_str)
-    raw_str = re.sub(r'```\s*', '', raw_str)
+
+    raw_str = raw_str.replace("```json", "").replace("```", "")
     
-    raw_str = re.sub(r'//.*', '', raw_str)
-    
-    raw_str = re.sub(r'/\*.*?\*/', '', raw_str, flags=re.DOTALL)
-    
-    raw_str = re.sub(r',\s*([}\]])', r'\1', raw_str)
-    
+
     start = raw_str.find('{')
     end = raw_str.rfind('}')
     
@@ -37,10 +33,13 @@ def clean_json_response(raw_str):
     
     cleaned = raw_str[start:end+1]
     
-    def replace_newlines_in_strings(match):
-        return match.group(0).replace('\n', '\\n').replace('\r', '\\r').replace('\t', '\\t')
 
-    cleaned = re.sub(r'"(?:\\.|[^"\\])*"', replace_newlines_in_strings, cleaned)
+    cleaned = re.sub(r'//.*', '', cleaned)
+    
+    cleaned = re.sub(r'/\*.*?\*/', '', cleaned, flags=re.DOTALL)
+    
+   
+    cleaned = re.sub(r',\s*([}\]])', r'\1', cleaned)
     
     return cleaned
 
@@ -102,9 +101,9 @@ Return ONLY JSON object.
     if re_raw and re_raw != "RATE_LIMIT_ERROR":
         cleaned = clean_json_response(re_raw)
         try:
-            data = json.loads(cleaned)
+            data = json.loads(cleaned, strict=False)
             try:
-                update_terminal_log("Re-extraction successful.", "SUCCESS")
+                update_terminal_log("Standard JSON parse successful.", "SUCCESS")
             except:
                 pass
             del re_raw, cleaned
@@ -186,11 +185,11 @@ def _regex_extract_fallback(text, mode, fields_list):
         if fields_list:
             for field in fields_list:
                 val = "Not Found"
-                # FIX: Wrapped field in re.escape() to handle special chars like parentheses
+
                 pattern = rf'"{re.escape(field)}"\s*:\s*"([^"]*)"'
                 match = re.search(pattern, text, re.IGNORECASE)
                 if not match:
-                    # FIX: Wrapped field in re.escape() here as well
+
                     pattern = rf'{re.escape(field)}\s*[:\-]\s*"?([^"\n]+)"?'
                     match = re.search(pattern, text, re.IGNORECASE)
                 
@@ -244,7 +243,8 @@ def parse_result(raw_result, provider_name, api_key, model_name, mode="screener"
             update_terminal_log("Attempting standard json.loads()...", "DEBUG")
         except:
             pass
-        data = json.loads(cleaned_json)
+
+        data = json.loads(cleaned_json, strict=False)
         try:
             update_terminal_log("Standard JSON parse successful.", "SUCCESS")
         except:
@@ -257,23 +257,7 @@ def parse_result(raw_result, provider_name, api_key, model_name, mode="screener"
         except:
             pass
 
-    try:
-        try:
-            update_terminal_log("Attempting JSON5 parser (relaxed standard)...", "DEBUG")
-        except:
-            pass
-        data = json5.loads(cleaned_json)
-        try:
-            update_terminal_log("JSON5 parse successful.", "SUCCESS")
-        except:
-            pass
-        del cleaned_json 
-        return data
-    except Exception as e:
-        try:
-            update_terminal_log(f"JSON5 failed: {str(e)}", "WARN")
-        except:
-            pass
+
 
     try:
         update_terminal_log("Attempting AI-based JSON repair...", "WARN")
