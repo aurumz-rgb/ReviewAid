@@ -1,5 +1,4 @@
 import json
-import json5
 import re
 import time
 
@@ -204,7 +203,7 @@ def _regex_extract_fallback(text, mode, fields_list):
 def parse_result(raw_result, provider_name, api_key, model_name, mode="screener", fields_list=None, original_text=None):
     """
     Parses AI response with extreme prejudice.
-    Tries Standard JSON -> JSON5 -> AI Repair -> Re-extraction -> Regex Fallback.
+    Tries Standard JSON (strict=False) -> AI Repair -> Re-extraction -> Regex Fallback.
     """
     if raw_result is None:
         try:

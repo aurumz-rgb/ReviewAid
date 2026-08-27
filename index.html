@@ -395,7 +395,7 @@
               <li>If <strong>both exclusion and inclusion keywords</strong> are present, this tier is
                 <strong>bypassed</strong> to avoid false positives, delegating the decision to the AI.</li>
             </ul>
-            <p><strong>Extractor Logic (New):</strong></p>
+            <p><strong>Extractor Logic:</strong></p>
             <ul>
               <li>The system deterministically verifies the AI's extracted data against the source text using <strong>Exact String Matching</strong> and <strong>Token Overlap</strong> for paraphrased text.</li>
               <li><strong>Negation Detection</strong> is applied to ensure the AI didn't miss a "not" or "failed" that changes the meaning of the extracted data.</li>
@@ -535,9 +535,6 @@
         </div>
 
 
-
-
-
         <div class="highlight-section">
           <h3>Flow</h3>
           <ol style="margin-left: 20px; color: var(--text-secondary); line-height: 1.8;">
@@ -546,11 +543,9 @@
             <li><strong>Clean the response</strong><br>
               &rarr; Remove Markdown, comments, and trailing commas.</li>
             <li><strong>Try standard JSON parsing</strong><br>
-              &rarr; <code>json.loads</code></li>
-            <li><strong>If that fails, try JSON5</strong><br>
-              &rarr; Handles loose / malformed JSON.</li>
+              &rarr; <code>json.loads</code> (using <code>strict=False</code> to safely handle unescaped newlines without hanging).</li>
             <li><strong>If that fails, use AI repair</strong><br>
-              &rarr; Ask AI to fix the JSON.</li>
+              &rarr; Ask AI to fix the JSON syntax.</li>
             <li><strong>Final fallback</strong><br>
               &rarr; Extract known keys using regex.</li>
           </ol>

@@ -425,15 +425,12 @@ This layered approach ensures that high-confidence decisions are automated safel
    → Remove Markdown, comments, and trailing commas.
 
 3. **Try standard JSON parsing**
-   → `json.loads`
+   → `json.loads` (using `strict=False` to safely handle unescaped newlines without hanging).
 
-4. **If that fails, try JSON5**
-   → Handles loose / malformed JSON.
+4. **If that fails, use AI repair**
+   → Ask AI to fix the JSON syntax.
 
-5. **If that fails, use AI repair**
-   → Ask AI to fix the JSON.
-
-6. **Final fallback**
+5. **Final fallback**
    → Extract known keys using regex.
 
 ### Guarantee
