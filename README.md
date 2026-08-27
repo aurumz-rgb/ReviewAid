@@ -302,12 +302,6 @@ This makes Ollama the **most privacy-preserving configuration** supported by Rev
 
 ---
 
-## System Architecture 
-
-![Layers1](screenshots/Layers11.png)  
-
----
-
 <details>
 <summary> Confidence Scoring System</summary>
 
