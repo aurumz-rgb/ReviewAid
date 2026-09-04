@@ -36,6 +36,38 @@ background text ("acute LBP" in the introduction of a chronic-LBP trial).
 - `screener.find_exclusion_matches` keeps its name and signature as a
   compatibility wrapper over the new matcher.
 
+### Per-criterion screening pipeline (same v4.0.0 release)
+
+The Tier-2 LLM stage no longer emits one holistic verdict with a
+self-reported confidence. `pico_screen.py` (new module):
+
+- The model judges **each criterion separately** and must return a
+  verbatim supporting quote; a quote that is not in the paper downgrades
+  the judgment to `unsure` (grounding applied to screening).
+- Each paper is judged **k = 3 independent samples**, majority-voted per
+  criterion; the **sample agreement rate** replaces the self-reported
+  confidence scalar.
+- **Title/abstract triage** runs first, but only a grounded
+  abstract-stage exclusion can short-circuit a paper - an abstract can
+  never decide an inclusion, so recall stays on the safe side.
+- Include requires the driving inclusion criteria to individually clear
+  an agreement floor (0.67). Conflicts, shaky agreement and unusable
+  samples are referred as `Maybe` with the full per-criterion trail;
+  total sample failure is an honest referral, not a regex-fallback
+  exclusion.
+- Screener calls run at temperature 0.0.
+
+### Extraction: structured effect direction
+
+- `Effect Direction` is a closed label set (`significantly increases` /
+  `significantly decreases` / `no significant difference` / `unclear`)
+  and `Effect Direction Evidence` must quote the paper verbatim. Strict
+  label scoring becomes measurable; the label's confidence is verified
+  through its evidence sentence, not literal text matching.
+- `parser.fallback_uses()` exposes how often the regex fallback decided
+  instead of the LLM, so a validation pilot can fail an arm whose
+  fallback rate is too high.
+
 ### Evidence (offline replay, deposited CSMeD-FT corpus, 1,968 papers)
 
 - Auto-exclusions: 133 → 44, a strict subset of the v3.0.0 set.
