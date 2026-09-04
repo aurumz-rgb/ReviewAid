@@ -18,7 +18,8 @@ _BACKGROUND_MARKERS = ("previous", "prior ", "literature", "guideline",
                        "recommend", "meta-analysis", "meta-analyses",
                        "systematic review", "studies have", "studies of",
                        "have shown", "have reported", "have been ",
-                       "evidence suggests", "whether", "unlike",
+                       "had shown", "had reported", "had been ",
+                       "although", "evidence suggests", "whether", "unlike",
                        "in contrast", "history of", "risk of", "remains",
                        "controversial")
 _BACKGROUND_BEFORE = 100
