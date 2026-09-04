@@ -57,23 +57,23 @@ def _is_background_hit(text_lower, start, end):
     return not any(m in context for m in _ELIGIBILITY_MARKERS)
 
 
-def _qualifying_hits(criterion, text_lower):
-    """Spans of hits for one criterion that survive the negation and
-    context guards.
+def _hit_verdicts(criterion, text_lower):
+    """(start, end, status) for every hit of one criterion.
 
-    The negation window sits strictly before the match, so a criterion that
-    is itself a negated phrase ("no dementia") is never vetoed by its own
-    wording.
+    status is "clean", "negated" or "background". The negation window sits
+    strictly before the match, so a criterion that is itself a negated
+    phrase ("no dementia") is never vetoed by its own wording.
     """
-    spans = []
+    verdicts = []
     for m in re.finditer(_match_pattern(criterion), text_lower):
         window = text_lower[max(0, m.start() - _NEGATION_WINDOW):m.start()]
         if any(neg in window for neg in _NEGATORS):
-            continue
-        if _is_background_hit(text_lower, m.start(), m.end()):
-            continue
-        spans.append((m.start(), m.end()))
-    return spans
+            verdicts.append((m.start(), m.end(), "negated"))
+        elif _is_background_hit(text_lower, m.start(), m.end()):
+            verdicts.append((m.start(), m.end(), "background"))
+        else:
+            verdicts.append((m.start(), m.end(), "clean"))
+    return verdicts
 
 
 def find_matches(text, criteria_list):
@@ -89,9 +89,53 @@ def find_matches(text, criteria_list):
         c = (criterion or "").strip().lower()
         if not c:
             continue
-        if _qualifying_hits(c, t):
+        if any(v[2] == "clean" for v in _hit_verdicts(c, t)):
             found.append(criterion.strip())
     return found
+
+
+def evaluate_tier1(text, exclusion_criteria, inclusion_criteria):
+    """One paper's full Tier-1 verdict: fire the gate or hand it to the LLM.
+
+    The decision contract is v3's - exclude on qualifying exclusion
+    criteria with no qualifying inclusion criterion - with the guards
+    applied before counting. Every hit a guard threw out is reported in
+    "discarded" so an exclusion can be audited after the fact.
+    """
+    t = (text or "").lower()
+    qualified_exclusions, qualified_inclusions, discarded = [], [], []
+
+    for criterion, is_exclusion in (
+            [(c, True) for c in exclusion_criteria] +
+            [(c, False) for c in inclusion_criteria]):
+        c = (criterion or "").strip().lower()
+        if not c:
+            continue
+        verdicts = _hit_verdicts(c, t)
+        if any(v[2] == "clean" for v in verdicts):
+            (qualified_exclusions if is_exclusion
+             else qualified_inclusions).append(criterion.strip())
+        for start, end, status in verdicts:
+            if status != "clean":
+                entry = {"criterion": criterion.strip(), "reason": status}
+                if entry not in discarded:
+                    discarded.append(entry)
+
+    fire = corroborated(qualified_exclusions) and not qualified_inclusions
+    if fire:
+        reason = (f"Auto-excluded because {len(qualified_exclusions)} "
+                  f"exclusion criteria matched: "
+                  f"{', '.join(qualified_exclusions)}")
+    else:
+        reason = ""
+
+    return {
+        "decision": "exclude" if fire else "escalate",
+        "qualified_exclusions": qualified_exclusions,
+        "qualified_inclusions": qualified_inclusions,
+        "discarded": discarded,
+        "reason": reason,
+    }
 
 
 def corroborated(matches):
