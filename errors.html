@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta name="google-site-verification" content="" />
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+   <title>Errors & Troubleshooting - ReviewAid | Free AI Systematic Review Tool</title>
+  <meta name="description"
+    content="Free open-source AI systematic review tool: automate full-text PICO screening & custom data extraction from PDFs. Multi-LLM (GPT-4o, Claude, GLM). Export CSV/Excel/Word.">
+  <meta name="keywords"
+    content="ReviewAid, Covidence alternative, Rayyan alternative, ASReview alternative, DistillerSR alternative, EPPI-Reviewer alternative, free systematic review software, open source systematic review tool, Ai Screener, Data Extractor, PICO, Data Extraction, AI Screening, Literature Review, Research-articles">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="author" content="Vihaan Sahu">
+  <meta name="copyright" content="© 2025 Vihaan Sahu">
+  <meta name="language" content="en">
+  <link rel="icon" href="assets/favicon.ico" type="image/png">
+
+  <meta name="theme-color" content="#09090b">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ReviewAid / Free AI Data Extractor & Full tect Screener for Systematic Reviews">
+  <meta property="og:description"
+    content="Open-source AI tool for automating full-text screening and data extraction in systematic reviews. The best free alternative to Covidence, Rayyan, and DistillerSR.">
+  <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner.png">
+  <meta property="og:image:alt" content="ReviewAid Banner">
+  <meta property="og:url" content="https://aurumz-rgb.github.io/ReviewAid/">
+  <meta property="og:site_name" content="ReviewAid">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ReviewAid / Free AI Data Extractor & Full tect Screener for Systematic Reviews">
+  <meta name="twitter:description"
+    content="Automate your systematic review workflow with AI-powered PICO screening and custom data extraction. Free and open-source.">
+  <meta name="twitter:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner1.png">
+
+  <meta name="citation_title"
+    content="ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews">
+  <meta name="citation_author" content="Sahu, Vihaan">
+  <meta name="citation_author" content="Balakrishnan, Mohith">
+  <meta name="citation_publication_date" content="2026">
+  <meta name="citation_doi" content="10.5334/jors.672">
+  <meta name="citation_journal_title" content="Journal of Open Research Software">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ReviewAid",
+    "alternateName": ["AI Systematic Review Tool", "Free Covidence Alternative", "Open Source Rayyan Alternative", "ASReview Alternative", "DistillerSR Alternative", "Covidence Alternative"],
+    "operatingSystem": "Web, Python",
+    "applicationCategory": "Research Tool",
+    "description": "ReviewAid is the best open-source AI alternative to Covidence, Rayyan, and DistillerSR. It automates PICO-based screening and custom field extraction from PDFs for systematic reviews.",
+    "url": "https://aurumz-rgb.github.io/ReviewAid/",
+    "creator": {
+      "@type": "Person",
+      "name": "Vihaan Sahu",
+      "affiliation": "ReviewAid Project"
+    },
+    "publisher": {
+      "@type": "Personal",
+      "name": "ReviewAid",
+      "url": "https://aurumz-rgb.github.io/ReviewAid/"
+    },
+    "license": "https://www.apache.org/licenses/LICENSE-2.0",
+    "applicationSubCategory": "Systematic Review Automation",
+    "featureList": [
+      "PICO Screening",
+      "Custom Data Extraction",
+      "Batch PDF Processing",
+      "Publication-ready Exports",
+      "Free and open-source alternative to paid tools"
+    ]
+
+  }
+  </script>
+
+ 
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <nav class="nav-bar">
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Docs</a>
+      <a class="nav-link" href="how-it-works.html">How It Works</a>
+      <a class="nav-link" href="usage.html">Usage</a>
+      <a class="nav-link active" href="errors.html">Errors</a>
+    </div>
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
+    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </button>
+  </nav>
+  <div id="lightbox" class="lightbox">
+    <span class="close-lightbox">&times;</span>
+    <img class="lightbox-content" id="lightbox-img">
+  </div>
+
+
+
+  
+  <div class="main-content">
+    <div class="container">
+
+      <div class="section reveal" id="errors">
+        <h2>Errors</h2>
+        <p>ReviewAid is designed to be robust and self-healing, but a few messages and behaviours can still appear
+          during operation. Most of them are handled automatically; this page explains what each one means and
+          what, if anything, you need to do. For installation and setup problems, see the
+          <a href="#troubleshooting">troubleshooting</a> section at the bottom of this page.</p>
+
+        <h3 class="doc-heading" id="err-1">1. API limit error (rate / quota exceeded)</h3>
+        <p><strong>What it means.</strong> AI providers temporarily throttle accounts that receive too many requests in
+          a short period. Seeing an occasional rate-limit or quota error while processing a large batch is normal.</p>
+        <p><strong>What to do.</strong> Nothing. ReviewAid automatically retries the request three times, and if
+          it still fails, it sends a brand-new API request for the same paper.</p>
+
+        <h3 class="doc-heading" id="err-2">2. &lsquo;Not found&rsquo; for fields like Intervention_Mean or Intervention_SD</h3>
+        <p><strong>What it means.</strong> The AI is not a researcher, so it cannot expand abbreviations on its own. If
+          a domain is named <code>Intervention_Mean</code>, the model has no way of knowing what that field is asking
+          for and reports it as &lsquo;Not found&rsquo;, as in the screenshot below.</p>
+        <figure class="doc-figure">
+          <img src="errors/error1.png" alt="Extractor output showing 'Not found' for abbreviated domain names" class="showcase-img">
+          <figcaption>Abbreviated field names come back as &lsquo;Not found&rsquo;.</figcaption>
+        </figure>
+        <p><strong>What to do.</strong> Spell the field out in the Extractor input, for example:
+          <code>Intervention_Mean: mean value of the continuous outcome in the intervention group</code> and
+          <code>Intervention_SD: standard deviation of the outcome in the intervention group</code>. The screenshot
+          below shows the same paper processed with expanded field names.</p>
+        <figure class="doc-figure">
+          <img src="errors/error_fix1.png" alt="Extractor output with expanded domain names filled correctly" class="showcase-img">
+          <figcaption>The same paper, with the abbreviations expanded in the field definitions.</figcaption>
+        </figure>
+
+        <h3 class="doc-heading" id="err-3">3. Empty JSON</h3>
+        <p><strong>What it means.</strong> Occasionally the model returns an empty response. Even with a forgiving JSON
+          parser, there is no data to recover from an empty payload.</p>
+        <p><strong>What to do.</strong> Nothing. ReviewAid detects the empty JSON and issues another API request
+          for the same paper until it receives a valid one.</p>
+
+        <h3 class="doc-heading" id="err-4">4. All domains shown as &lsquo;Not found&rsquo; (Extractor)</h3>
+        <p><strong>What it means.</strong> If only one or two fields are missing, the paper may genuinely not report
+          them. When <em>every</em> domain for a paper comes back &lsquo;Not found&rsquo;, however, something went
+          wrong with that particular run.</p>
+        <p><strong>What to do.</strong> Process that paper on its own in the Extractor.</p>
+
+        <h3 class="doc-heading" id="err-5">5. Abrupt stopping</h3>
+        <p><strong>What it means.</strong> The hosted Streamlit app stops long-running jobs to conserve its resources.
+          Keep screener batches to a maximum of 10 papers per run; the Extractor is unaffected by this limit.</p>
+        <p><strong>What to do.</strong> If jobs still stop below that limit, please open an issue on GitHub.</p>
+
+        <h3 class="doc-heading" id="err-6">6. Empty API response</h3>
+        <p><strong>What it means.</strong> The model sometimes throttles and returns no response at all.</p>
+        <p><strong>What to do.</strong> This is handled automatically: ReviewAid waits 15, 20 and then 60 seconds
+          between retries. Watch the terminal processing output to follow what is happening.</p>
+
+        <h3 class="doc-heading" id="err-7">7. &ldquo;skipping file&rdquo; (not an error)</h3>
+        <p><strong>What it means.</strong> Formats such as <code>.docx</code> or <code>.html</code> are not supported,
+          so the parser skips them. If a PDF is being skipped, the file is most likely corrupt.</p>
+        <p><strong>What to do.</strong> Make sure every upload is a valid, undamaged PDF.</p>
+      </div>
+
+
+      <div class="section reveal" id="troubleshooting">
+        <h2>Troubleshooting</h2>
+        <p>Setup and running problems, collected from the project documentation. Work through the item that matches
+          your situation; if nothing here helps, see the last entry.</p>
+
+        <h3 class="doc-heading" id="ts-1">1. The online app takes about 30 seconds to load</h3>
+        <p>The hosted web app runs on Streamlit and therefore has a <strong>cold start</strong>: the first load can
+          wait around 30 seconds while the app initialises. This is normal, so give it a moment before interacting
+          with the page.</p>
+
+        <h3 class="doc-heading" id="ts-2">2. Processing feels slow or appears stuck</h3>
+        <p>Processing time depends on the number and size of the uploaded PDFs and on your internet connection. AI
+          processing can take a while for large batches, so be patient. The progress indicators and the
+          &ldquo;System Terminal&rdquo; panel keep you updated in real time, so if the terminal is still logging, work
+          is still happening.</p>
+
+        <h3 class="doc-heading" id="ts-3">3. Only the first 20 papers were processed</h3>
+        <p>Submissions are capped at <strong>20 articles per batch</strong>. Anything beyond that is ignored, and the
+          run terminates prematurely once the first 20 are done. Split larger sets into batches of 20 or fewer,
+          and for the hosted screener specifically, keep batches to 10 or fewer (see error&nbsp;5 above).</p>
+
+        <h3 class="doc-heading" id="ts-4">4. Ollama (local) model is not working</h3>
+        <p>For fully local inference you need <strong>Python 3.12+</strong> and <strong>Ollama</strong> installed and
+          running <em>before</em> you launch Streamlit. Pull a model and verify Ollama responds:</p>
+        <pre class="doc-code"><code>ollama pull llama3
+ollama list</code></pre>
+        <p>Then select <strong>Ollama (Local)</strong> as the provider in the ReviewAid UI and pick your local model;
+          no API key is required. Keep in mind that performance depends on your local hardware (CPU / GPU /
+          RAM), and large PDFs or batch sizes take longer on CPU-only systems.</p>
+
+        <h3 class="doc-heading" id="ts-5">5. API key or provider problems</h3>
+        <p>API keys are entered directly in the Streamlit interface at runtime and are <strong>never stored</strong>;
+          there are no configuration files to edit or fix. If a request fails with an authentication error,
+          re-select the provider and paste the key again. Models tested with ReviewAid include <code>GPT-4o</code>
+          (OpenAI), <code>deepseek-chat</code>, <code>command-a-03-2025</code> (Cohere),
+          <code>GLM-4.6V-Flash</code> / <code>GLM-4.5V-Flash</code> / <code>GLM-4.7-Flash</code> (Z.ai, with
+          <code>GLM-4.6V-Flash</code> as the default), <code>Claude-Sonnet-4</code> (Anthropic) and <code>Llama3</code>
+          (Ollama local).</p>
+
+        <h3 class="doc-heading" id="ts-6">6. No text extracted from figures or scanned pages (OCR)</h3>
+        <p>Image-based text is read with the Tesseract OCR engine via <code>pytesseract</code>. If OCR returns nothing,
+          make sure the Tesseract engine is installed and available on your system PATH. Very noisy or low-quality
+          scans can still fail; the workflow cleans extracted text and forwards it to the parsing pipeline, but
+          garbage input will produce poor output. For local deployments that need higher accuracy, the PaddleOCR-based
+          <a href="https://github.com/ReviewAid/ReviewAid-OCR" target="_blank">ReviewAid-OCR</a> version is available.</p>
+
+        <h3 class="doc-heading" id="ts-7">7. Still stuck?</h3>
+        <p>Please open an issue on the <a href="https://github.com/aurumz-rgb/ReviewAid/issues" target="_blank">GitHub
+          issue tracker</a> with the terminal output attached, or reach out through the contact listed in the README.
+          The more of the terminal log you include, the faster the problem can be diagnosed.</p>
+      </div>
+
+    </div>
+  </div>
+
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-left">
+        <p>© 2025-26 Vihaan Sahu – Licensed under Apache 2.0</p>
+      </div>
+      <div class="footer-right">
+        <p><a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub Repository</a></p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>

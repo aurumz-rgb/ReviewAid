@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta name="google-site-verification" content="" />
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+
+   <title>How It Works — ReviewAid | Free AI Systematic Review Tool</title>
+  <meta name="description"
+    content="Free open-source AI systematic review tool: automate full-text PICO screening & custom data extraction from PDFs. Multi-LLM (GPT-4o, Claude, GLM). Export CSV/Excel/Word.">
+  <meta name="keywords"
+    content="ReviewAid, Covidence alternative, Rayyan alternative, ASReview alternative, DistillerSR alternative, EPPI-Reviewer alternative, free systematic review software, open source systematic review tool, Ai Screener, Data Extractor, PICO, Data Extraction, AI Screening, Literature Review, Research-articles">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="author" content="Vihaan Sahu">
+  <meta name="copyright" content="© 2025 Vihaan Sahu">
+  <meta name="language" content="en">
+  <link rel="icon" href="assets/favicon.ico" type="image/png">
+
+  <meta name="theme-color" content="#09090b">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ReviewAid / Free AI Data Extractor & Full tect Screener for Systematic Reviews">
+  <meta property="og:description"
+    content="Open-source AI tool for automating full-text screening and data extraction in systematic reviews. The best free alternative to Covidence, Rayyan, and DistillerSR.">
+  <meta property="og:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner.png">
+  <meta property="og:image:alt" content="ReviewAid Banner">
+  <meta property="og:url" content="https://aurumz-rgb.github.io/ReviewAid/">
+  <meta property="og:site_name" content="ReviewAid">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ReviewAid / Free AI Data Extractor & Full tect Screener for Systematic Reviews">
+  <meta name="twitter:description"
+    content="Automate your systematic review workflow with AI-powered PICO screening and custom data extraction. Free and open-source.">
+  <meta name="twitter:image" content="https://aurumz-rgb.github.io/ReviewAid/assets/RA_banner1.png">
+
+  <meta name="citation_title"
+    content="ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews">
+  <meta name="citation_author" content="Sahu, Vihaan">
+  <meta name="citation_author" content="Balakrishnan, Mohith">
+  <meta name="citation_publication_date" content="2026">
+  <meta name="citation_doi" content="10.5334/jors.672">
+  <meta name="citation_journal_title" content="Journal of Open Research Software">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ReviewAid",
+    "alternateName": ["AI Systematic Review Tool", "Free Covidence Alternative", "Open Source Rayyan Alternative", "ASReview Alternative", "DistillerSR Alternative", "Covidence Alternative"],
+    "operatingSystem": "Web, Python",
+    "applicationCategory": "Research Tool",
+    "description": "ReviewAid is the best open-source AI alternative to Covidence, Rayyan, and DistillerSR. It automates PICO-based screening and custom field extraction from PDFs for systematic reviews.",
+    "url": "https://aurumz-rgb.github.io/ReviewAid/",
+    "creator": {
+      "@type": "Person",
+      "name": "Vihaan Sahu",
+      "affiliation": "ReviewAid Project"
+    },
+    "publisher": {
+      "@type": "Personal",
+      "name": "ReviewAid",
+      "url": "https://aurumz-rgb.github.io/ReviewAid/"
+    },
+    "license": "https://www.apache.org/licenses/LICENSE-2.0",
+    "applicationSubCategory": "Systematic Review Automation",
+    "featureList": [
+      "PICO Screening",
+      "Custom Data Extraction",
+      "Batch PDF Processing",
+      "Publication-ready Exports",
+      "Free and open-source alternative to paid tools"
+    ]
+
+  }
+  </script>
+
+ 
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <nav class="nav-bar">
+    <div class="nav-links">
+      <a class="nav-link" href="index.html">Docs</a>
+      <a class="nav-link active" href="how-it-works.html">How It Works</a>
+      <a class="nav-link" href="usage.html">Usage</a>
+      <a class="nav-link" href="errors.html">Errors</a>
+    </div>
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark Mode">
+    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+    </svg>
+    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </button>
+  </nav>
+  <div id="lightbox" class="lightbox">
+    <span class="close-lightbox">&times;</span>
+    <img class="lightbox-content" id="lightbox-img">
+  </div>
+
+  <div class="main-content">
+    <div class="container">
+      <div class="section reveal">
+        <h2>Confidence Scoring System</h2>
+        <p>This system implements a <strong>hierarchical four-tier confidence model</strong> designed to maximize
+          precision and minimize false classifications during automated paper screening and data extraction. The logic
+          prioritizes <strong>deterministic rule-based decisions</strong> before progressively falling back to
+          algorithmic and heuristic estimation only when necessary.</p>
+
+        <div class="highlight-section" style="margin-top: 30px;">
+          <h3>Overview</h3>
+          <p style="margin-bottom: 15px;">The confidence score reflects how reliably a paper has been classified or
+            extracted. Scores range from <strong>0.0 to 1.0</strong>, where higher values indicate stronger certainty
+            and lower values explicitly flag the need for manual review.</p>
+          <p style="margin-bottom: 0;">The system operates in the following order:</p>
+          <ul class="confidence-overview-list">
+            <li><strong>Deterministic Rule-Based Classification & Verification (Screener & Extractor)</strong></li>
+            <li><strong>Per-Criterion LLM Screening with Evidence Quotes (v4.0.0)</strong></li>
+            <li><strong>Heuristic Keyword Estimation</strong></li>
+            <li><strong>Low-Confidence Default</strong></li>
+          </ul>
+
+          <div class="rationale" style="margin-top: 20px;">
+            <strong>Screening: 3 API calls per paper (v4.0.0)</strong><br>
+            Each screened paper is judged <strong>three independent times</strong> at temperature 0. Every call
+            evaluates <em>all criteria</em> on the full text and returns a verdict plus a verbatim supporting quote
+            for each criterion. The three samples are <strong>majority-voted per criterion</strong>, and the
+            agreement rate across samples becomes the paper's confidence score. A fourth
+            <strong>tiebreaker call</strong> runs only when the samples disagree on a criterion. Papers the Tier-1
+            gate auto-excludes cost <strong>0 API calls</strong>.
+          </div>
+          <p style="margin-top: 15px; font-size: 0.95rem; color: var(--text-muted);">Each tier is only activated if the
+            previous tier fails to produce a valid and reliable result.</p>
+        </div>
+
+
+
+        <div class="showcase-group">
+          <div class="grid-2">
+            <img src="figures/Multi-Tier.png" alt="Multi-Tier" class="showcase-img">
+          </div>
+        </div>
+
+
+
+        <div class="tiers-grid">
+
+          <div class="tier-card">
+            <h3>Tier 1: Deterministic Rule-Based & Verification</h3>
+            <h4>Highest Priority</h4>
+            <p><strong>Purpose:</strong> Eliminate ambiguity using explicit user-defined rules and verify AI outputs against source text.</p>
+            <p><strong>Screener Logic (v4.0.0 guarded gate):</strong></p>
+            <ul>
+              <li>The system scans for <strong>exclusion</strong> and <strong>inclusion</strong> keywords, but a keyword
+                only counts when it survives deterministic guards: <strong>word-boundary matching</strong> ("men" no
+                longer matches "women"), a <strong>negation guard</strong> ("no acute LBP" is not a population hit), and
+                a <strong>background-context guard</strong> (mentions in background prose, far from eligibility
+                language, are ignored).</li>
+              <li>A lone <strong>single-word</strong> exclusion criterion never decides a paper on its own &mdash; it
+                needs a second qualifying criterion.</li>
+              <li>If <strong>qualifying exclusion keywords</strong> are detected <strong>without any corresponding
+                inclusion keywords</strong>, the paper is automatically classified as <strong>Excluded</strong> with a
+                confidence score of <strong>1.0 (100%)</strong>.</li>
+              <li>Everything else &mdash; including papers where both exclusion and inclusion keywords are present
+                &mdash; is <strong>deferred to the AI</strong>, and every discarded keyword hit is logged for audit.</li>
+            </ul>
+            <p><strong>Extractor Logic:</strong></p>
+            <ul>
+              <li>The system deterministically verifies the AI's extracted data against the source text using <strong>Exact String Matching</strong> and <strong>Token Overlap</strong> for paraphrased text.</li>
+              <li><strong>Negation Detection</strong> is applied to ensure the AI didn't miss a "not" or "failed" that changes the meaning of the extracted data.</li>
+            </ul>
+            <div class="rationale">
+              <strong>Rationale:</strong> Explicit rules provide deterministic certainty and override probabilistic
+              inference when applicable. Mathematical verification ensures the AI actually saw what it claimed to see.
+            </div>
+          </div>
+
+
+          <div class="tier-card">
+            <h3>Tier 2: Per-Criterion LLM Screening (With Override Logic)</h3>
+            <h4>Primary Mechanism</h4>
+            <p><strong>Purpose:</strong> Leverage the model’s internal reasoning and evidence-based judgment.</p>
+            <p><strong>Logic:</strong></p>
+            <ul>
+              <li>The LLM judges <strong>each criterion separately</strong> and must cite the supporting sentence from the paper. Every quote is verified against the paper text &mdash; an unfindable quote downgrades the judgment.</li>
+              <li>Each paper is judged <strong>three independent times (3 API calls per paper)</strong> and the samples are majority-voted per criterion. The <strong>sample agreement rate</strong> is the confidence score &mdash; a measured property of the judgments, not a self-assessment.</li>
+              <li><strong>Recall-first exclusion:</strong> a paper is only auto-excluded when exclusion evidence is unanimous across samples and grounded in a quote. Split votes and weak evidence are <strong>referred</strong>, never decided.</li>
+              <li><strong>Tiebreaker adjudication:</strong> when samples disagree on a criterion, a senior-reviewer call settles it against the competing quotes.</li>
+              <li>Every paper leaves with a <strong>priority score</strong> so the human review queue is worked highest-first.</li>
+              <li><strong>Override Logic:</strong> If the AI claims high confidence (> 0.5) but the Tier 1 Deterministic Check fails (score < 0.5), the system <strong>overrides</strong> the AI's confidence score downward and flags the paper for human review. This prevents the AI from being confidently wrong (hallucinating).</li>
+            </ul>
+            <div class="rationale">
+              <strong>Rationale:</strong> Captures nuanced contextual understanding that deterministic rules cannot,
+              while the override logic ensures mathematical grounding prevents false confidence.
+            </div>
+          </div>
+
+
+          <div class="tier-card">
+            <h3>Tier 3: Heuristic Estimation</h3>
+            <h4>Fallback</h4>
+            <p><strong>Purpose:</strong> Provide a probabilistic estimate when LLM confidence is unavailable.</p>
+            <p><strong>Triggered when:</strong> The LLM fails to return a valid confidence value (e.g., formatting or
+              JSON parsing errors).</p>
+            <p><strong>Screener Logic:</strong></p>
+            <ul>
+              <li>The system analyzes the users input <strong>Inclusions and Exclusions critiera</strong> and matches
+                with the paper's full-text and determines the confidence level.</li>
+            </ul>
+            <p><strong>Extractor Logic:</strong></p>
+            <ul>
+              <li>The system analyzes <strong>Extracted data</strong> with the paper's full-text and determines the
+                confidence level.</li>
+            </ul>
+            <div class="rationale">
+              <strong>Rationale:</strong> Offers a best-effort estimate derived from text structure rather than semantic
+              certainty.
+            </div>
+          </div>
+
+
+          <div class="tier-card" style="border-top-color: #ef4444;">
+            <h3>Tier 4: Low-Confidence Default</h3>
+            <h4>Last Resort</h4>
+            <p><strong>Purpose:</strong> Explicitly flag unreliable outputs.</p>
+            <p><strong>Triggered when:</strong> Data extraction fails entirely (e.g., Regex failure or missing
+              sections).</p>
+            <p><strong>Logic:</strong></p>
+            <ul>
+              <li>Assigns a <strong>baseline low confidence score</strong> (e.g., <code>0.2</code>).</li>
+              <li>Automatically flags the result for <strong>mandatory manual review</strong>.</li>
+            </ul>
+            <div class="rationale">
+              <strong>Rationale:</strong> Prevents silent failures by clearly signaling unreliability.
+            </div>
+          </div>
+        </div>
+
+
+
+        <div style="margin-top: 50px;">
+          <h3>Confidence Score Interpretation</h3>
+          <p>This layered approach ensures that high-confidence decisions are automated safely, while ambiguous or
+            unreliable cases are clearly flagged for human oversight.</p>
+          <div class="table-responsive">
+            <table class="confidence-table">
+              <thead>
+                <tr>
+                  <th>Confidence Score</th>
+                  <th>Classification</th>
+                  <th>Description</th>
+                  <th>Implication</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>0.9 – 1.0</strong></td>
+                  <td><span class="confidence-badge">Deterministic Match</span></td>
+                  <td>Extracted data verified via exact string match or near-perfect token overlap. For screening: all three samples agreed and the driving criteria carry grounded quotes.</td>
+                  <td>Safe to accept</td>
+                </tr>
+                <tr>
+                  <td><strong>0.6 – 0.89</strong></td>
+                  <td><span class="confidence-badge">High Confidence</span></td>
+                  <td>AI output grounded in source (extractor), or a solid voting majority with minor dissent (screening).</td>
+                  <td>Review optional</td>
+                </tr>
+                <tr>
+                  <td><strong>0.4 – 0.59</strong></td>
+                  <td><span class="confidence-badge">Moderate Confidence</span></td>
+                  <td>Partial overlap detected. Ambiguous context or loosely met criteria.</td>
+                  <td>Manual verification recommended</td>
+                </tr>
+                <tr>
+                  <td><strong>0.1 – 0.39</strong></td>
+                  <td><span class="confidence-badge">Low Confidence</span></td>
+                  <td>Poor textual overlap, negation detected, or low sample agreement. AI score overridden by Tier 1 math due to likely hallucination.</td>
+                  <td>High risk of error</td>
+                </tr>
+                <tr>
+                  <td><strong>&lt; 0.1</strong></td>
+                  <td><span class="confidence-badge">Unreliable</span></td>
+                  <td>Derived from fallback or failed extraction methods. Complete lack of text grounding.</td>
+                  <td>Mandatory manual review</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="section reveal">
+        <h2>Parsing Pipeline</h2>
+        <p><strong>Purpose:</strong> Safely parse API/AI responses, even if the JSON is broken or missing.</p>
+
+
+        <div class="showcase-group">
+          <div class="grid-2">
+            <img src="figures/parse.png" alt="Parse" class="showcase-img">
+          </div>
+        </div>
+
+
+        <div class="highlight-section">
+          <h3>Flow</h3>
+          <ol style="margin-left: 20px; color: var(--text-secondary); line-height: 1.8;">
+            <li><strong>If <code>raw_result</code> is <code>None</code></strong><br>
+              &rarr; Use regex to extract data locally (extractor only; every fallback use is counted via
+              <code>parser.fallback_uses()</code>).</li>
+            <li><strong>Clean the response</strong><br>
+              &rarr; Remove Markdown, comments, and trailing commas.</li>
+            <li><strong>Try standard JSON parsing</strong><br>
+              &rarr; <code>json.loads</code> (using <code>strict=False</code> to safely handle unescaped newlines without hanging).</li>
+            <li><strong>If that fails, use AI repair</strong><br>
+              &rarr; Ask AI to fix the JSON syntax.</li>
+            <li><strong>Final fallback</strong><br>
+              &rarr; Extract known keys using regex. Note: the v4.0.0 screener never uses this fallback &mdash;
+              unusable screening samples are dropped, and a paper with no usable samples is <strong>referred</strong>
+              as "Maybe" instead of being decided by regex.</li>
+          </ol>
+        </div>
+
+        <div class="motivation"
+          style="background: rgba(16, 185, 129, 0.1); border-left-color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
+          <h3 style="margin-top: 0; color: #ecfdf5;">Guarantee</h3>
+          <ul style="margin-left: 20px;">
+            <li>Never crashes</li>
+            <li>Always attempts to recover usable data</li>
+          </ul>
+        </div>
+      </div>
+
+
+<div class="section reveal">
+  <h2>OCR – Advanced Image Data Extraction</h2>
+
+  <p style="color: var(--text-secondary); line-height: 1.8;">
+    The system uses Optical Character Recognition (OCR) to extract structured data from images before parsing.
+    It was initially built using <strong>PaddleOCR</strong> for higher accuracy and better handling of complex layouts,
+    noisy images, and multi-line text. However, due to streamlit deployment constraints, it now uses
+    <strong>pytesseract</strong> (Google Tesseract-OCR wrapper) as the default OCR engine.
+  </p>
+
+  <div class="showcase-group">
+    <div class="grid-3">
+      <img src="assets/pytesseract.png" alt="Pytesseract Workflow" class="showcase-img">
+    </div>
+  </div>
+
+  <p style="color: var(--text-secondary); line-height: 1.4;">
+    ReviewAid PaddleOCR version (run with streamlit locally):
+    <a href="https://github.com/ReviewAid/ReviewAid-OCR" target="_blank" style="color: #10b981;">
+      ReviewAid-OCR
+    </a>
+  </p>
+
+  <p style="color: var(--text-secondary); line-height: 1.4;">
+    Official Tesseract wrapper:
+    <a href="https://github.com/madmaze/pytesseract" target="_blank" style="color: #10b981;">
+      pytesseract GitHub
+    </a>
+  </p>
+</div>
+
+
+      <div class="section reveal" id="how-it-works">
+        <h2>How ReviewAid Works (v4.0.0)</h2>
+        <p>End-to-end walkthrough of both engines - what happens at every step, what goes where, and why it is
+          built that way. The decision architecture is: <strong>Tier-1 deterministic gate &rarr; Tier-2 LLM
+          screening &rarr; deterministic confidence override</strong>. Humans stay in the loop throughout.</p>
+
+        <div class="highlight-section">
+          <h3>The Life of a Paper - Screener</h3>
+          <ol style="margin-left: 20px; line-height: 1.9;">
+            <li><strong>Upload &amp; deduplicate.</strong> Every PDF is hashed (SHA-256). An identical file reuses the
+              cached decision from earlier in the batch - no repeated API calls.
+              <em>Why: same paper, same answer, zero cost.</em></li>
+            <li><strong>Text extraction.</strong> PyMuPDF pulls the full text plus candidate title, author and year.
+              The text is cleaned and token-capped before any AI call.
+              <em>Why: models see a bounded, clean input, and evidence quotes are checked against this exact text so
+              they stay verifiable.</em></li>
+            <li><strong>Tier-1 guarded gate - 0 API calls.</strong> Exclusion and inclusion keywords are scanned
+              with the v4.0.0 guards: word-boundary matching, a negation guard, a background-context guard, and a
+              corroboration rule for one-word criteria. The gate fires only on exclusion evidence that is
+              <strong>unanimous across its own checks and grounded</strong>.
+              <em>Why: obvious exclusions cost nothing and shrink the AI stage; weak keyword evidence refers instead
+              of deciding - the v3.0.0 lesson.</em></li>
+            <li><strong>Per-criterion LLM stage - 3 API calls.</strong> Each call sees every criterion plus the
+              full text and returns, for every criterion, a verdict (<span>yes / no / unsure</span>) and a
+              <strong>verbatim supporting quote</strong>. Quotes are verified against the text: a quote that is not in
+              the paper downgrades that judgment to <span>unsure</span>.
+              <em>Why: judging criteria one-by-one beats one holistic verdict, and quotes make every decision
+              checkable by a human in seconds.</em></li>
+            <li><strong>Majority vote + agreement.</strong> The three samples are majority-voted per criterion. The
+              agreement rate across samples becomes the paper's <strong>confidence score</strong>.
+              <em>Why: three independent readings outvote single-sample errors and model refusals, and agreement is a
+              measured property instead of a self-reported guess.</em></li>
+            <li><strong>Recall-first decision.</strong> Exclude only on exclusion evidence that is
+              <strong>unanimous and grounded</strong>, with no inclusion criterion met. Include only when the driving
+              inclusion criteria clear the agreement floor (0.67) with no exclusion met. Everything else -
+              conflicts, shaky agreement, unusable samples - is a <strong>Maybe referral</strong>.
+              <em>Why: wrongly excluding a study is the cardinal sin of systematic reviews; weak evidence must refer,
+              never decide.</em></li>
+            <li><strong>Tiebreaker adjudication.</strong> If the samples split on a criterion, one extra
+              senior-reviewer call sees the competing votes and quotes and issues a ruling, grounded like every other
+              judgment.
+              <em>Why: contested papers deserve a second opinion, not a coin flip.</em></li>
+            <li><strong>Confidence override (unchanged from v3).</strong> If confidence is high but the Tier-1
+              deterministic score is low, confidence is overridden downward and the paper is flagged.
+              <em>Why: the deterministic layer catches confident hallucination.</em></li>
+            <li><strong>Decision routing.</strong> Papers land in the Include / Exclude / Maybe tables, each row
+              carrying confidence, a priority score, the reason and the full per-criterion trail.</li>
+          </ol>
+        </div>
+
+        <div class="highlight-section">
+          <h3>What Each of the 3 Screening Calls Is For</h3>
+          <ul style="line-height: 1.9;">
+            <li><strong>Call #1, #2, #3</strong> - the same prompt shape (all criteria + full text, temperature
+              0): three <strong>independent readings</strong> of the paper. Each returns per-criterion verdicts with
+              verbatim quotes. Majority vote per criterion; agreement across the three becomes the confidence.</li>
+            <li><strong>Call #4 (conditional tiebreaker)</strong> - runs <em>only</em> when the samples split on
+              a criterion. It receives the split votes and the competing quotes and issues a final ruling.</li>
+            <li><strong>0 calls</strong> - papers the Tier-1 gate auto-excludes.</li>
+          </ul>
+          <div class="rationale">
+            <strong>Why three calls:</strong> three independent readings outvote single-sample errors and model
+            refusals (self-consistency, Wang et al. 2022). Voting gains are front-loaded in the first samples, which
+            is why v4.0.0 standardises on three instead of one - or six.
+          </div>
+        </div>
+
+        <div class="highlight-section">
+          <h3>The Life of a Paper - Extractor</h3>
+          <ol style="margin-left: 20px; line-height: 1.9;">
+            <li><strong>Fields.</strong> The user lists the fields to extract (e.g. Sample Size, Conclusion, Effect
+              Direction). "Paper Title" is added automatically if missing.
+              <em>Why: extraction is user-defined - ReviewAid extracts what your review needs, not a fixed
+              template.</em></li>
+            <li><strong>Prompt contract.</strong> Every field gets a description; the response is a single JSON
+              object (<span>extracted</span> + <span>confidence</span>) with "Not Found" for missing data, at
+              temperature 0.</li>
+            <li><strong>Effect Direction contract.</strong> The direction must be one closed label
+              (<span>significantly increases / significantly decreases / no significant difference / unclear</span>)
+              and <span>Effect Direction Evidence</span> must quote the paper verbatim.
+              <em>Why: free-text directions scored at chance in validation; labels make it strictly scoreable and the
+              evidence quote keeps it grounded.</em></li>
+            <li><strong>Tier-1 verification.</strong> Each extracted field is checked against the source text:
+              exact string match &rarr; token overlap for paraphrases &rarr; negation windows. Ungrounded fields drop
+              the confidence score.
+              <em>Why: this is the hallucination guard - in validation, 95&ndash;99.6% of ~26,000 extracted
+              fields were verifiably present in the source papers.</em></li>
+            <li><strong>Reliability accounting.</strong> Every regex-fallback use is counted
+              (<span>parser.fallback_uses()</span>) so a degraded model arm is visible instead of silent.</li>
+          </ol>
+        </div>
+
+        <div class="highlight-section">
+          <h3>Where Results Go</h3>
+          <ul style="line-height: 1.9;">
+            <li><strong>Include / Exclude / Maybe tables</strong> in the app - every row carries confidence,
+              priority score, reason and the criteria trail.</li>
+            <li><strong>Exports</strong> - each table downloads as DOCX, CSV or XLSX.</li>
+            <li><strong>System Terminal</strong> - per-call labels (<span>Paper N [LLM Call #k]</span>),
+              screening stage, usable samples, agreement, and every Tier-1 discarded keyword hit.</li>
+            <li><strong>Priority queue</strong> - sort the export by priority and work the review queue
+              highest-first; workload saved at a fixed recall is measurable from the export alone.</li>
+          </ul>
+        </div>
+
+        <div class="highlight-section">
+          <h3>Providers &amp; Privacy</h3>
+          <ul style="line-height: 1.9;">
+            <li><strong>Default mode</strong> uses ReviewAid's own GLM keys - nothing to configure.</li>
+            <li><strong>Bring your own key</strong> for OpenAI, Anthropic, Cohere, DeepSeek or GLM.</li>
+            <li><strong>Ollama (local)</strong> runs fully offline - paper text never leaves your machine. The
+              local context window defaults to 16,384 tokens (<span>OLLAMA_NUM_CTX</span> to tune) so long papers are
+              never silently truncated.</li>
+            <li>Paper text is sent <em>only</em> to the provider you select for that run.</li>
+          </ul>
+        </div>
+
+        <div class="rationale">
+          <strong>Why it is built this way:</strong> recall-first (weak evidence refers, never decides), grounding
+          everywhere (quotes and fields must exist in the source text), measured confidence (sample agreement, not
+          self-report), full auditability (every decision carries its evidence and every discarded hit is logged),
+          and permanent human oversight. ReviewAid is a <strong>third reference</strong> for reviewers - not a
+          replacement.
+        </div>
+      </div>
+
+
+      <div class="section reveal">
+        <h2>Workflow Diagrams</h2>
+        <div class="showcase-group">
+          <div class="grid-3">
+            <img src="figures/screener.png" alt="Screener Workflow Flowchart" class="showcase-img">
+            <img src="figures/extractor.png" alt="Extractor Workflow Flowchart" class="showcase-img">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-left">
+        <p>© 2025-26 Vihaan Sahu – Licensed under Apache 2.0</p>
+      </div>
+      <div class="footer-right">
+        <p><a href="https://github.com/aurumz-rgb/ReviewAid" target="_blank">GitHub Repository</a></p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="script.js"></script>
+
+</body>
+
+</html>

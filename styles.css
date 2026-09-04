@@ -118,14 +118,16 @@ html {
 }
 
 
-.reveal {
+/* Only hide .reveal elements when script.js has run (html.js); otherwise a JS
+   failure would leave whole sections permanently invisible. */
+html.js .reveal {
   position: relative;
   transform: translateY(30px);
   opacity: 0;
   transition: all 0.6s cubic-bezier(0.5, 0, 0, 1);
 }
 
-.reveal.active {
+html.js .reveal.active {
   transform: translateY(0);
   opacity: 1;
 }
@@ -989,72 +991,67 @@ footer a:hover {
 }
 
 
-.errors-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 24px;
-  margin-top: 30px;
-}
-
-.error-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 24px;
-  transition: all 0.3s ease;
-  border-left: 3px solid var(--border-highlight);
-}
-
-.error-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--text-muted);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.error-card h3 {
-  font-size: 1.1rem;
-  margin-top: 0;
-  margin-bottom: 20px;
+/* Errors & troubleshooting — plain documentation layout (no cards) */
+.doc-heading {
+  font-size: 1.3rem;
+  margin-top: 42px;
+  margin-bottom: 12px;
   color: var(--text-primary);
   font-weight: 700;
-  padding-right: 20px;
+  scroll-margin-top: 84px;
 }
 
-.error-label {
-  display: block;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 800;
-  margin-bottom: 6px;
-  margin-top: 16px;
+.section h2 + p + .doc-heading,
+.doc-heading:first-of-type {
+  margin-top: 28px;
 }
 
-.error-label:first-of-type {
-  margin-top: 0;
+.doc-figure {
+  margin: 14px 0 20px;
+  max-width: 760px;
 }
 
-.error-label.meaning {
+.doc-figure figcaption {
+  font-size: 0.85rem;
   color: var(--text-muted);
+  margin-top: 8px;
+  line-height: 1.5;
 }
 
-.error-label.fix {
-  color: var(--success);
-}
-
-.error-text {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  margin-bottom: 0;
-  line-height: 1.6;
-}
-
-.error-text img {
-  width: 100%;
-  border-radius: 8px;
-  margin-top: 10px;
+.doc-code {
+  background: var(--bg-body);
   border: 1px solid var(--border-color);
-  display: block;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  overflow-x: auto;
+  margin: 14px 0 18px;
+  line-height: 1.8;
+}
+
+.doc-code code {
+  background: none;
+  padding: 0;
+  color: inherit;
+  display: inline;
+}
+
+p code {
+  font-size: 0.85em;
+}
+
+.section p a,
+.section li a {
+  color: var(--primary-hover);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.section p a:hover,
+.section li a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 900px) {
@@ -1067,10 +1064,6 @@ footer a:hover {
   }
 
   .tiers-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .errors-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1128,8 +1121,57 @@ footer a:hover {
   .highlight-section {
     padding: 25px;
   }
+}
+/* v4.0.0 top navigation bar */
+html {
+  scroll-behavior: smooth;
+}
 
-  .errors-grid {
-    grid-template-columns: 1fr;
-  }
+.nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 24px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-bar a.nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.nav-bar a.nav-link:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.nav-bar a.nav-link.active {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.nav-bar .theme-toggle {
+  position: static;
+  margin-left: auto;
+}
+
+section[id],
+div[id] {
+  scroll-margin-top: 72px;
 }
