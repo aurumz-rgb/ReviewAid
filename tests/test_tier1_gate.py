@@ -1,5 +1,5 @@
 import pytest
-from tier1_gate import find_matches
+from tier1_gate import corroborated, find_matches
 
 # 1. Plain phrase match still fires (v3 behaviour preserved)
 def test_plain_phrase_match():
@@ -94,3 +94,31 @@ def test_study_design_mention_survives():
     text = ("Eligible patients were adults referred to physiotherapy. "
             "The follow-up survey was cross-sectional in design.")
     assert find_matches(text, ["cross-sectional"]) == ["cross-sectional"]
+
+# 17. A lone one-word criterion is too weak to decide a paper
+def test_lone_single_word_criterion_does_not_fire():
+    assert corroborated(["adults"]) is False
+
+# 18. A lone multi-word criterion still fires (v3 behaviour preserved)
+def test_lone_multiword_criterion_fires():
+    assert corroborated(["acute LBP"]) is True
+
+# 19. Any second qualifying criterion corroborates a one-word criterion
+def test_second_criterion_corroborates():
+    assert corroborated(["adults", "acute LBP"]) is True
+    assert corroborated(["adults", "children"]) is True
+
+# 20. Duplicates do not corroborate each other
+def test_duplicate_criteria_do_not_corroborate():
+    assert corroborated(["adults", "Adults"]) is False
+
+# 21. Nothing qualified never fires
+def test_empty_list_never_fires():
+    assert corroborated([]) is False
+
+# 22. End-to-end: 'adults' hits the text but must not decide on its own
+def test_lone_generic_keyword_end_to_end():
+    text = "Sixty adults completed the programme."
+    matches = find_matches(text, ["adults"])
+    assert matches == ["adults"]
+    assert corroborated(matches) is False
