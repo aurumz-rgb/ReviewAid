@@ -172,3 +172,14 @@ def test_background_acute_lbp_no_longer_excludes_chronic_trial():
             "supervised exercise or usual care for 12 months.")
     v = evaluate_tier1(text, ["acute LBP"], ["chronic LBP"])
     assert v["decision"] == "escalate"
+
+def test_contrastive_markers_demote():
+    text = ("Although earlier observational studies had shown large "
+            "effects for acupuncture, the effect sizes shrank in "
+            "registry-based comparisons.")
+    assert find_matches(text, ["observational studies"]) == []
+
+def test_past_tense_reporting_demoted():
+    text = ("The observational studies had shown benefit mainly in "
+            "younger cohorts, a pattern this trial did not replicate.")
+    assert find_matches(text, ["observational studies"]) == []
