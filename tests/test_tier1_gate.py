@@ -1,5 +1,5 @@
 import pytest
-from tier1_gate import corroborated, find_matches
+from tier1_gate import corroborated, evaluate_tier1, find_matches
 
 # 1. Plain phrase match still fires (v3 behaviour preserved)
 def test_plain_phrase_match():
@@ -122,3 +122,36 @@ def test_lone_generic_keyword_end_to_end():
     matches = find_matches(text, ["adults"])
     assert matches == ["adults"]
     assert corroborated(matches) is False
+
+# 23. Corroborated criteria exclude, with the v3-style reason string
+def test_evaluate_excludes():
+    text = ("We randomised 140 adults with acute LBP. Patients were "
+            "excluded if they were pregnant.")
+    v = evaluate_tier1(text, ["acute LBP", "pregnant"], ["chronic LBP"])
+    assert v["decision"] == "exclude"
+    assert v["qualified_exclusions"] == ["acute LBP", "pregnant"]
+    assert v["qualified_inclusions"] == []
+    assert v["reason"].startswith("Auto-excluded because 2")
+
+# 24. An inclusion hit blocks the gate (v3 contract preserved)
+def test_evaluate_inclusion_blocks():
+    text = "Adults with chronic LBP were enrolled."
+    v = evaluate_tier1(text, ["pregnant"], ["chronic LBP"])
+    assert v["decision"] == "escalate"
+    assert v["qualified_inclusions"] == ["chronic LBP"]
+
+# 25. Every hit a guard threw out is reported with its guard's name
+def test_evaluate_reports_discarded():
+    text = ("Background studies have described acute LBP as common. "
+            "No acute LBP cohort was available for the pilot.")
+    v = evaluate_tier1(text, ["acute LBP"], [])
+    assert v["decision"] == "escalate"
+    reasons = {d["reason"] for d in v["discarded"]}
+    assert reasons == {"background", "negated"}
+
+# 26. A lone generic keyword escalates through the verdict API
+def test_evaluate_lone_generic_escalates():
+    v = evaluate_tier1("Sixty adults completed the programme.",
+                       ["adults"], [])
+    assert v["decision"] == "escalate"
+    assert v["qualified_exclusions"] == ["adults"]
