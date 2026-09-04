@@ -92,3 +92,21 @@ def find_matches(text, criteria_list):
         if _qualifying_hits(c, t):
             found.append(criterion.strip())
     return found
+
+
+def corroborated(matches):
+    """Whether the qualified exclusion list is strong enough to auto-exclude.
+
+    One-word criteria ("adults", "children", "pregnant") occur somewhere in
+    nearly every paper's text, so a lone such word never decides a paper -
+    it needs any second qualifying criterion behind it. Multi-word phrases
+    ("acute LBP", "cross-sectional studies") keep deciding on their own, as
+    in v3. Distinctness is case-insensitive so a duplicated criterion
+    cannot corroborate itself.
+    """
+    distinct = {m.lower() for m in matches}
+    if len(distinct) >= 2:
+        return True
+    if len(distinct) == 1:
+        return len(next(iter(distinct)).split()) > 1
+    return False
