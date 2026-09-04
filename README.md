@@ -358,8 +358,10 @@ Explicit rules provide deterministic certainty and override probabilistic infere
 - The LLM no longer emits one holistic include/exclude verdict with a self-reported confidence. It judges **each criterion separately**, returning a verdict (`yes` / `no` / `unsure`) and a **verbatim supporting quote** per criterion.
 - Every quote is verified against the paper text; a quote that is not actually in the paper downgrades that judgment to `unsure` (grounding, applied to screening).
 - Each paper is judged **k = 3 independent samples** and the samples are majority-voted per criterion. The sample **agreement rate** is the confidence — a measurable property of the judgments, not a self-assessment.
-- **Title/abstract triage** runs before the full text: only a grounded abstract-stage *exclusion* can short-circuit a paper; an abstract can never decide an inclusion.
-- **Include** requires every inclusion criterion driving the decision to clear the agreement floor (0.67); **exclude** requires a grounded exclusion majority with no inclusion met; everything else — conflicts, shaky agreement, unusable samples — is referred as **Maybe** with the full per-criterion trail visible to the reviewer.
+- **Three API calls per screened paper, flat.** The paper's full text is judged three independent times (temperature 0) and the samples are majority-voted per criterion. Three is the accuracy-per-cost sweet spot: majority voting gains are front-loaded in the first samples, and the vote absorbs single-sample errors and refusals.
+- **Include** requires the driving inclusion criteria to clear the agreement floor (0.67) with no exclusion met; **exclude** fires only on exclusion evidence that is **unanimous across all samples and grounded in a quote** — weak evidence is referred, never decided. Everything else is a **Maybe** referral with the full per-criterion trail visible to the reviewer.
+- **Tiebreaker adjudication:** when the samples split on a criterion, one senior-reviewer call settles it against the competing quotes; the ruling is grounded like every other judgment.
+- **Priority queue:** every paper leaves with a priority score (inclusion strength, quote coverage, agreement) so the human review queue is worked highest-first — workload-saved at a fixed recall is measurable straight from the export.
 - **Override Logic (unchanged):** if the agreement-based confidence is high but the Tier 1 Deterministic Check fails, the confidence is overridden downward and the paper is flagged for human review.
 
 **Rationale:**  

@@ -7,7 +7,7 @@ SCREEN_PROMPT = """You are an expert systematic reviewer. Apply EACH criterion b
 
 For EVERY criterion return:
 - "verdict": "yes" or "no" or "unsure"
-- "quote": the exact sentence from the paper text the verdict is based on, copied verbatim ("" when unsure)
+- "quote": the sentence from the paper text the verdict is based on, in the paper's own words ("" when unsure)
 
 Meaning of "yes":
 - For an INCLUSION criterion: the paper clearly satisfies it.
@@ -35,6 +35,26 @@ Return ONLY a JSON object in this exact shape:
   ],
   "reason": "one short paragraph summarising the decision"
 }}"""
+
+ADJUDICATION_PROMPT = """You are the senior reviewer settling disagreements in a systematic review screening.
+
+For each disputed criterion below, the junior judgments did not agree. Read the paper text and give the FINAL verdict.
+
+Return ONLY a JSON object in this exact shape:
+{{
+  "rulings": [
+    {{"id": 1, "verdict": "yes" or "no" or "unsure", "quote": "the sentence from the paper that settles it"}}
+  ]
+}}
+
+**Disputed criteria:**
+{disputes}
+
+**Paper Text:**
+\"\"\"
+{text}
+\"\"\"
+"""
 
 _AGREEMENT_FLOOR = 0.67
 _ABSTRACT_LIMIT = 2500
@@ -116,57 +136,82 @@ def _majority(verdicts):
     return best, counts[best] / len(verdicts)
 
 
-def aggregate(samples, inclusions, exclusions):
-    """Majority-vote k samples into one screening decision.
-
-    Exclusion wins only on a grounded majority "yes" to an exclusion
-    criterion with no inclusion met; inclusion needs every sample stable
-    enough to clear the agreement floor; anything else refers as "maybe".
-    """
-    n_inc, n_exc = len(inclusions), len(exclusions)
+def _collect(samples, inclusions, exclusions):
+    """Per-criterion majority verdicts from the k samples."""
     per = []
-    for idx in range(n_inc + n_exc):
-        verdicts = [s["criteria"][idx]["verdict"] for s in samples
-                    if idx < len(s["criteria"])]
-        if not verdicts:
+    for idx in range(len(inclusions) + len(exclusions)):
+        entries = [s["criteria"][idx] for s in samples
+                   if idx < len(s["criteria"])]
+        if not entries:
             continue
+        verdicts = [e["verdict"] for e in entries]
         verdict, agreement = _majority(verdicts)
-        kind = "inc" if idx < n_inc else "exc"
-        label = inclusions[idx] if kind == "inc" else exclusions[idx - n_inc]
-        quote = next((s["criteria"][idx]["quote"] for s in samples
-                      if idx < len(s["criteria"]) and s["criteria"][idx]["quote"]), "")
-        per.append({"criterion": label, "kind": kind, "verdict": verdict,
-                    "agreement": round(agreement, 3), "quote": quote})
+        kind = "inc" if idx < len(inclusions) else "exc"
+        label = inclusions[idx] if kind == "inc" else exclusions[idx - len(inclusions)]
+        quote = next((e["quote"] for e in entries if e.get("quote")), "")
+        per.append({"id": idx, "criterion": label, "kind": kind,
+                    "verdict": verdict, "agreement": round(agreement, 3),
+                    "quote": quote,
+                    "grounded": any(e.get("grounded") for e in entries),
+                    "unanimous": len(set(verdicts)) == 1})
+    return per
+
+
+def decide(per, inclusions, reasons=()):
+    """Recall-first decision from per-criterion verdicts.
+
+    A paper is excluded only when an exclusion criterion is met
+    unanimously across all samples AND carries a grounded quote - weak
+    evidence can never take a study out. Include needs the driving
+    criteria above the agreement floor with no exclusion met. Everything
+    else is referred. The priority score ranks the human review queue:
+    highest first, so workload-saved at a given recall is measurable.
+    """
     if not per:
         return {"decision": "maybe", "reason": "no usable judgments",
-                "criteria": per, "agreement": 0.0}
+                "criteria": per, "agreement": 0.0, "priority": 0.0}
 
-    inc_met = [c for c in per if c["kind"] == "inc" and c["verdict"] == "yes"]
-    exc_met = [c for c in per if c["kind"] == "exc" and c["verdict"] == "yes"]
     agreement = round(sum(c["agreement"] for c in per) / len(per), 3)
-    reasons = [s.get("reason", "") for s in samples if s.get("reason")]
+    inc_met = [c for c in per if c["kind"] == "inc" and c["verdict"] == "yes"]
+    exc_any = [c for c in per if c["kind"] == "exc" and c["verdict"] == "yes"]
+    exc_fired = [c for c in exc_any if c["unanimous"] and c["grounded"]]
 
-    if exc_met and not inc_met:
+    if exc_fired and not inc_met:
         decision = "exclude"
         reason = "Excluded: met exclusion criteria " + \
-            ", ".join(c["criterion"] for c in exc_met) + "."
-    elif inc_met and not exc_met and \
+            ", ".join(c["criterion"] for c in exc_fired) + "."
+    elif inc_met and not exc_any and \
             min(c["agreement"] for c in inc_met) >= _AGREEMENT_FLOOR:
         decision = "include"
         reason = "Included: met inclusion criteria " + \
             ", ".join(c["criterion"] for c in inc_met) + "."
     else:
         decision = "maybe"
-        if inc_met and exc_met:
+        if inc_met and exc_any:
             reason = "Conflicting criteria met - referred for review."
         elif inc_met:
             reason = "Low judgment agreement - referred for review."
         else:
             reason = "Criteria not clearly met - referred for review."
+    reason = reason.strip()
     if reasons:
         reason += " " + reasons[0]
+
+    inc = [c for c in per if c["kind"] == "inc"]
+    inc_strength = (sum(c["agreement"] for c in inc if c["verdict"] == "yes")
+                    / len(inc)) if inc else 0.0
+    coverage = sum(1 for c in per if c["quote"]) / len(per)
+    priority = round(0.6 * inc_strength + 0.25 * coverage + 0.15 * agreement, 3)
+
     return {"decision": decision, "reason": reason.strip(), "criteria": per,
-            "agreement": agreement}
+            "agreement": agreement, "priority": priority}
+
+
+def aggregate(samples, inclusions, exclusions):
+    """Majority-vote k samples into one screening decision."""
+    per = _collect(samples, inclusions, exclusions)
+    reasons = [s.get("reason", "") for s in samples if s.get("reason")]
+    return decide(per, inclusions, reasons)
 
 
 def _title_abstract(text):
@@ -177,33 +222,121 @@ def _title_abstract(text):
     return abstract or text[:_ABSTRACT_LIMIT]
 
 
-def _run_stage(text, criteria_dict, query_fn, k):
+def _gather_samples(text, criteria_dict, query_fn, k):
     prompt = build_screen_prompt(text, criteria_dict)
     samples = []
     for _ in range(k):
         parsed = parse_screen_response(query_fn(prompt), text)
         if parsed:
             samples.append(parsed)
-    verdict = aggregate(samples, *split_criteria(criteria_dict))
-    return verdict, len(samples)
+    return samples
 
 
-def screen_paper(text, criteria_dict, query_fn, k=3, triage=True):
-    """Screen one paper with per-criterion judgments sampled k times.
+def _disputes(samples, inclusions, exclusions):
+    """Criteria on which the samples did not agree."""
+    out = []
+    for idx in range(len(inclusions) + len(exclusions)):
+        verdicts = [s["criteria"][idx]["verdict"] for s in samples
+                    if idx < len(s["criteria"])]
+        if len(set(verdicts)) > 1:
+            kind = "inclusion" if idx < len(inclusions) else "exclusion"
+            label = inclusions[idx] if idx < len(inclusions) \
+                else exclusions[idx - len(inclusions)]
+            quotes = [s["criteria"][idx]["quote"] for s in samples
+                      if idx < len(s["criteria"]) and s["criteria"][idx]["quote"]]
+            counts = {v: verdicts.count(v) for v in set(verdicts)}
+            out.append({"id": idx, "kind": kind, "criterion": label,
+                        "votes": counts, "quotes": quotes})
+    return out
 
-    With triage on, a cheap title/abstract pass runs first; only a
-    grounded abstract-stage exclusion short-circuits the paper, anything
-    else goes to the full text. Refusing to accept on the abstract alone
-    keeps recall on the safe side.
+
+def build_adjudication_prompt(disputes, text):
+    lines = []
+    for i, d in enumerate(disputes, 1):
+        votes = ", ".join(f"{n} {v}" for v, n in d["votes"].items())
+        entry = (f"{i}. [{d['kind']}] {d['criterion']} - votes: {votes}. "
+                 f"Quoted evidence so far: {' | '.join(d['quotes']) or 'none'}")
+        lines.append(entry)
+    return ADJUDICATION_PROMPT.format(disputes="\n".join(lines), text=text)
+
+
+def parse_adjudication(raw, text):
+    if not raw or not raw.strip():
+        return None
+    try:
+        data = json.loads(clean_json_response(raw), strict=False)
+    except (ValueError, TypeError):
+        return None
+    rulings = data.get("rulings") if isinstance(data, dict) else None
+    if not isinstance(rulings, list) or not rulings:
+        return None
+    t = _norm(text)
+    out = {}
+    for item in rulings:
+        if not isinstance(item, dict):
+            continue
+        try:
+            rid = int(item.get("id"))
+        except (TypeError, ValueError):
+            continue
+        verdict = str(item.get("verdict", "unsure")).strip().lower()
+        if verdict not in ("yes", "no", "unsure"):
+            verdict = "unsure"
+        quote = str(item.get("quote", "") or "").strip()
+        grounded = bool(quote) and _norm(quote) in t
+        out[rid] = (verdict, quote if grounded else "", grounded)
+    return out or None
+
+
+def _adjudicate(disputes, text, query_fn):
+    return parse_adjudication(
+        query_fn(build_adjudication_prompt(disputes, text)), text)
+
+
+def screen_paper(text, criteria_dict, query_fn, k=3, triage=False):
+    """Screen one paper: k per-criterion samples, majority-voted, with a
+    senior-reviewer tiebreaker call for split criteria.
+
+    Exclusion is recall-first: it fires only on unanimous, grounded
+    exclusion evidence - weak evidence refers instead of deciding. The
+    returned verdict carries a priority score for the human review queue.
     """
+    inclusions, exclusions = split_criteria(criteria_dict)
+
     if triage:
-        verdict, n = _run_stage(_title_abstract(text), criteria_dict,
-                                query_fn, k)
-        if verdict["decision"] == "exclude":
+        abstract = _title_abstract(text)
+        samples = _gather_samples(abstract, criteria_dict, query_fn, k)
+        if aggregate(samples, inclusions, exclusions)["decision"] == "exclude":
+            verdict = aggregate(samples, inclusions, exclusions)
             verdict["stage"] = "abstract"
-            verdict["samples_used"] = n
+            verdict["samples_used"] = len(samples)
             return verdict
-    verdict, n = _run_stage(text, criteria_dict, query_fn, k)
+
+    samples = _gather_samples(text, criteria_dict, query_fn, k)
+    per = _collect(samples, inclusions, exclusions)
+
+    adjudicated = False
+    disputes = _disputes(samples, inclusions, exclusions)
+    if disputes and samples:
+        rulings = _adjudicate(disputes, text, query_fn)
+        if rulings:
+            for d in disputes:
+                ruling = rulings.get(d["id"])
+                if not ruling:
+                    continue
+                verdict, quote, grounded = ruling
+                for c in per:
+                    if c["id"] == d["id"]:
+                        c["verdict"] = verdict
+                        c["quote"] = quote
+                        c["grounded"] = grounded
+                        c["unanimous"] = True
+                        c["agreement"] = 1.0 if grounded else 0.5
+                        adjudicated = True
+
+    reasons = [s.get("reason", "") for s in samples if s.get("reason")]
+    verdict = decide(per, inclusions, reasons)
     verdict["stage"] = "full_text" if triage else "single_stage"
-    verdict["samples_used"] = n
+    verdict["samples_used"] = len(samples)
+    verdict["adjudicated"] = adjudicated
     return verdict

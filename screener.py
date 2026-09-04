@@ -91,22 +91,25 @@ def run_screener():
         st.markdown("---")
 
 
+    st.caption("Write each criterion as a short sentence (around 5-6 words or more), separated by commas. "
+               "One or two-word criteria like 'adults' or 'children' match almost every paper and cause false decisions.")
     st.subheader("Population Criteria")
-    population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18–65 with MS")
-    population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases")
+    population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18-65 diagnosed with relapsing-remitting multiple sclerosis")
+    population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases other than MS")
 
     st.subheader("Intervention Criteria")
-    intervention_inclusion = st.text_area("Intervention Inclusion Criteria", placeholder="e.g. Natalizumab treatment ≥ 6 months")
-    intervention_exclusion = st.text_area("Intervention Exclusion Criteria", placeholder="e.g. Dose outside approved range")
+    intervention_inclusion = st.text_area("Intervention Inclusion Criteria", placeholder="e.g. Natalizumab treatment continued for at least six months")
+    intervention_exclusion = st.text_area("Intervention Exclusion Criteria", placeholder="e.g. Studies where the drug dose was outside the approved range")
 
     st.subheader("Comparison Criteria")
-    comparison_inclusion = st.text_area("Comparison Inclusion Criteria", placeholder="e.g. Placebo or no treatment")
-    comparison_exclusion = st.text_area("Comparison Exclusion Criteria", placeholder="e.g. Active comparator like interferon beta")
+    comparison_inclusion = st.text_area("Comparison Inclusion Criteria", placeholder="e.g. Placebo group or no active treatment comparison")
+    comparison_exclusion = st.text_area("Comparison Exclusion Criteria", placeholder="e.g. Trials using an active comparator like interferon beta")
 
     st.subheader("Outcome Criteria (Optional)")
-    outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
+    outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate and disability progression at two years")
 
-    uploaded_pdfs = st.file_uploader("Upload only PDF files (DOCX/HTML not supported). Limit: upto 20 papers per batch.", accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Upload only PDF files (DOCX/HTML not supported). Limit: upto 10 papers per batch.", accept_multiple_files=True)
+    st.caption("To bypass this restriction, clone the repo and run it locally without any restrictions.")
     
     fields_list = []
 
@@ -177,7 +180,7 @@ def run_screener():
             update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 2000)}", "INFO")
             update_terminal_log("Allocating resources...", "DEBUG")
 
-        max_papers = 21 
+        max_papers = 10
         total_pdfs = min(len(uploaded_pdfs), max_papers)
         
         status_placeholder = st.empty()
@@ -346,7 +349,7 @@ def run_screener():
                             time.sleep(2)
                     return raw
 
-                verdict = screen_paper(text, criteria_dict, query_fn, k=3)
+                verdict = screen_paper(text, criteria_dict, query_fn, k=3, triage=False)
                 samples_used = verdict.get("samples_used", 0)
 
                 result = {
@@ -354,6 +357,7 @@ def run_screener():
                     "status": verdict["decision"].capitalize(),
                     "reason": verdict["reason"],
                     "confidence": verdict["agreement"],
+                    "priority": verdict.get("priority", 0.0),
                     "criteria_trail": verdict["criteria"],
                     "title": title,
                     "author": author,
