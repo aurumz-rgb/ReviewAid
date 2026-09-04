@@ -51,6 +51,15 @@ self-reported confidence. `pico_screen.py` (new module):
   judgments of the full text, majority-voted per criterion) - the
   accuracy-per-cost sweet spot; the optional abstract-triage stage remains
   available in `pico_screen.screen_paper` but is off in the default path.
+- Exclusion is **recall-first**: it fires only on exclusion evidence that is
+  unanimous across all samples and grounded in a quote; split votes and
+  quoteless verdicts are referred, never decided.
+- A senior-reviewer **tiebreaker call** settles criteria on which the
+  samples split (one extra call, only on disagreement); the ruling is
+  grounded like every other judgment.
+- Every paper leaves with a **priority score** (inclusion strength, quote
+  coverage, agreement) so the human review queue is worked highest-first
+  and workload-saved at fixed recall is measurable from the export.
 - Screener batch limit lowered from 20 to 10 papers per batch (extractor
   unchanged); running a local clone removes the restriction.
 - Include requires the driving inclusion criteria to individually clear
