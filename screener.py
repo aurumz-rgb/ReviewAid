@@ -91,20 +91,22 @@ def run_screener():
         st.markdown("---")
 
 
+    st.caption("Write each criterion as a short sentence (around 5-6 words or more), separated by commas. "
+               "One or two-word criteria like 'adults' or 'children' match almost every paper and cause false decisions.")
     st.subheader("Population Criteria")
-    population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18–65 with MS")
-    population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases")
+    population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18-65 diagnosed with relapsing-remitting multiple sclerosis")
+    population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases other than MS")
 
     st.subheader("Intervention Criteria")
-    intervention_inclusion = st.text_area("Intervention Inclusion Criteria", placeholder="e.g. Natalizumab treatment ≥ 6 months")
-    intervention_exclusion = st.text_area("Intervention Exclusion Criteria", placeholder="e.g. Dose outside approved range")
+    intervention_inclusion = st.text_area("Intervention Inclusion Criteria", placeholder="e.g. Natalizumab treatment continued for at least six months")
+    intervention_exclusion = st.text_area("Intervention Exclusion Criteria", placeholder="e.g. Studies where the drug dose was outside the approved range")
 
     st.subheader("Comparison Criteria")
-    comparison_inclusion = st.text_area("Comparison Inclusion Criteria", placeholder="e.g. Placebo or no treatment")
-    comparison_exclusion = st.text_area("Comparison Exclusion Criteria", placeholder="e.g. Active comparator like interferon beta")
+    comparison_inclusion = st.text_area("Comparison Inclusion Criteria", placeholder="e.g. Placebo group or no active treatment comparison")
+    comparison_exclusion = st.text_area("Comparison Exclusion Criteria", placeholder="e.g. Trials using an active comparator like interferon beta")
 
     st.subheader("Outcome Criteria (Optional)")
-    outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate, disability progression")
+    outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate and disability progression at two years")
 
     uploaded_pdfs = st.file_uploader("Upload only PDF files (DOCX/HTML not supported). Limit: upto 20 papers per batch.", accept_multiple_files=True)
     
