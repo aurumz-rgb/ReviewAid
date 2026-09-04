@@ -155,3 +155,20 @@ def test_evaluate_lone_generic_escalates():
                        ["adults"], [])
     assert v["decision"] == "escalate"
     assert v["qualified_exclusions"] == ["adults"]
+
+# 27. Inclusion criteria keep v3 substring semantics: a mention the
+#     word-boundary guard would reject still blocks the gate
+def test_inclusion_match_stays_loose():
+    text = "Enrolment was restricted to noninstitutionalised adults."
+    v = evaluate_tier1(text, ["surgery"], ["institutionalised adults"])
+    assert v["decision"] == "escalate"
+    assert v["qualified_inclusions"] == ["institutionalised adults"]
+
+# 28. A negated inclusion mention still blocks the gate - deferral is the
+#     safe direction, so the inclusion side is never guarded
+def test_negated_inclusion_mention_still_blocks():
+    text = "No acute LBP cohort was available; all patients had chronic pain."
+    v = evaluate_tier1(text, ["chronic pain"], ["acute LBP"])
+    assert v["decision"] == "escalate"
+    assert v["qualified_exclusions"] == ["chronic pain"]
+    assert v["qualified_inclusions"] == ["acute LBP"]
