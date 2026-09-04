@@ -6,8 +6,12 @@ from parser import clean_json_response
 SCREEN_PROMPT = """You are an expert systematic reviewer. Apply EACH criterion below to the paper separately and strictly.
 
 For EVERY criterion return:
-- "verdict": "yes" (the paper meets the criterion), "no" (it does not), or "unsure" (the text does not let you decide)
+- "verdict": "yes" or "no" or "unsure"
 - "quote": the exact sentence from the paper text the verdict is based on, copied verbatim ("" when unsure)
+
+Meaning of "yes":
+- For an INCLUSION criterion: the paper clearly satisfies it.
+- For an EXCLUSION criterion: the paper's own study has the excluded property, so the paper must be excluded. If the paper merely mentions the topic in passing, answer "no".
 
 Judge only what the text says about THE PAPER ITSELF - its own participants, methods and results. Ignore background mentions, related work, other studies and category definitions.
 
@@ -33,6 +37,10 @@ Return ONLY a JSON object in this exact shape:
 }}"""
 
 _AGREEMENT_FLOOR = 0.67
+_ABSTRACT_LIMIT = 2500
+_SECTION_HEADING = re.compile(
+    r"\n\s*(introduction|background|methods?|materials and methods)\s*\n",
+    re.IGNORECASE)
 
 
 def split_criteria(criteria_dict):
@@ -159,3 +167,43 @@ def aggregate(samples, inclusions, exclusions):
         reason += " " + reasons[0]
     return {"decision": decision, "reason": reason.strip(), "criteria": per,
             "agreement": agreement}
+
+
+def _title_abstract(text):
+    """The text before the first section heading, capped at a budget."""
+    m = _SECTION_HEADING.search(text)
+    cut = m.start() if m else min(len(text), _ABSTRACT_LIMIT)
+    abstract = text[:cut].strip()
+    return abstract or text[:_ABSTRACT_LIMIT]
+
+
+def _run_stage(text, criteria_dict, query_fn, k):
+    prompt = build_screen_prompt(text, criteria_dict)
+    samples = []
+    for _ in range(k):
+        parsed = parse_screen_response(query_fn(prompt), text)
+        if parsed:
+            samples.append(parsed)
+    verdict = aggregate(samples, *split_criteria(criteria_dict))
+    return verdict, len(samples)
+
+
+def screen_paper(text, criteria_dict, query_fn, k=3, triage=True):
+    """Screen one paper with per-criterion judgments sampled k times.
+
+    With triage on, a cheap title/abstract pass runs first; only a
+    grounded abstract-stage exclusion short-circuits the paper, anything
+    else goes to the full text. Refusing to accept on the abstract alone
+    keeps recall on the safe side.
+    """
+    if triage:
+        verdict, n = _run_stage(_title_abstract(text), criteria_dict,
+                                query_fn, k)
+        if verdict["decision"] == "exclude":
+            verdict["stage"] = "abstract"
+            verdict["samples_used"] = n
+            return verdict
+    verdict, n = _run_stage(text, criteria_dict, query_fn, k)
+    verdict["stage"] = "full_text" if triage else "single_stage"
+    verdict["samples_used"] = n
+    return verdict
