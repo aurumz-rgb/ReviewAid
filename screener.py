@@ -108,7 +108,8 @@ def run_screener():
     st.subheader("Outcome Criteria (Optional)")
     outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate and disability progression at two years")
 
-    uploaded_pdfs = st.file_uploader("Upload only PDF files (DOCX/HTML not supported). Limit: upto 20 papers per batch.", accept_multiple_files=True)
+    uploaded_pdfs = st.file_uploader("Upload only PDF files (DOCX/HTML not supported). Limit: upto 10 papers per batch.", accept_multiple_files=True)
+    st.caption("To bypass this restriction, clone the repo and run it locally without any restrictions.")
     
     fields_list = []
 
@@ -179,7 +180,7 @@ def run_screener():
             update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 2000)}", "INFO")
             update_terminal_log("Allocating resources...", "DEBUG")
 
-        max_papers = 21 
+        max_papers = 10
         total_pdfs = min(len(uploaded_pdfs), max_papers)
         
         status_placeholder = st.empty()
@@ -348,7 +349,7 @@ def run_screener():
                             time.sleep(2)
                     return raw
 
-                verdict = screen_paper(text, criteria_dict, query_fn, k=3)
+                verdict = screen_paper(text, criteria_dict, query_fn, k=3, triage=False)
                 samples_used = verdict.get("samples_used", 0)
 
                 result = {
