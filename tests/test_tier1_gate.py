@@ -44,3 +44,27 @@ def test_blank_inputs():
 def test_case_insensitive():
     text = "Patients were excluded if they were PREGNANT."
     assert find_matches(text, ["Pregnant"]) == ["Pregnant"]
+
+# 9. Negation guard: "no acute LBP" is not a population hit
+def test_negated_phrase_does_not_match():
+    text = "Patients with no acute LBP were not recruited."
+    assert find_matches(text, ["acute LBP"]) == []
+
+# 10. Prefixed negation forms are vetoed too
+def test_negation_prefixes():
+    text = "The cohort consisted of non-pregnant adults."
+    assert find_matches(text, ["pregnant"]) == []
+    text2 = "Participants were free of acute LBP at baseline."
+    assert find_matches(text2, ["acute LBP"]) == []
+
+# 11. A negated mention does not hide a clean mention elsewhere
+def test_clean_mention_survives_negated_mention():
+    text = ("Background: no acute LBP cohort has been reported. "
+            "Methods: we enrolled 120 adults with acute LBP.")
+    assert find_matches(text, ["acute LBP"]) == ["acute LBP"]
+
+# 12. A criterion that is itself a negated phrase is not vetoed by its
+#     own wording
+def test_negated_criterion_wording_is_not_self_vetoed():
+    text = "We excluded studies of patients with no dementia."
+    assert find_matches(text, ["no dementia"]) == ["no dementia"]
