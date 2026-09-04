@@ -329,19 +329,25 @@ Each tier is only activated if the previous tier fails to produce a valid and re
 
 **Purpose:** Eliminate ambiguity using explicit mathematical rules and verify AI outputs against the source text.
 
-**Screener Logic:**
+**Screener Logic (v4.0.0 gate, `tier1_gate.py`):**
 - The system performs a preliminary scan for **exclusion** and **inclusion** keywords.
-- If **exclusion keywords are detected without any corresponding inclusion keywords**, the paper is:
+- An exclusion keyword only counts when its mention survives deterministic guards:
+  - **Word-boundary matching** - "men" no longer matches inside "women", "rat" no longer matches "ratio".
+  - **Negation guard** - "no acute LBP", "non-pregnant" or "free of ..." mentions are not population hits.
+  - **Background-context guard** - mentions sitting in background/related-work discourse, far from any eligibility language, are ignored.
+- A lone **single-word** exclusion criterion ("adults", "children", "pregnant") can never decide a paper on its own; it needs a **second qualifying exclusion criterion** behind it (corroboration). Multi-word phrases ("acute LBP", "cross-sectional studies") still decide alone.
+- If **qualifying exclusion keywords** are detected **without any corresponding inclusion keywords**, the paper is:
   - Automatically classified as **Excluded**
   - Assigned a **confidence score of 1.0 (100%)**
-- If **both exclusion and inclusion keywords** are present, this tier is **bypassed** to avoid false positives, delegating the decision to the AI.
+- Everything else - including any paper where **both exclusion and inclusion keywords** are present - is **deferred to the AI**, exactly as before. Inclusion keywords are deliberately matched loosely (raw substring), because they only ever defer a paper, never exclude one.
+- Every keyword mention a guard throws out is reported in the System Terminal (`negated` / `background` mention), so each auto-exclusion stays fully auditable after the fact.
 
 **Extractor Logic:**
 - The system deterministically verifies the AI's extracted data against the source text using **Exact String Matching** and **Token Overlap** for paraphrased text.
 - **Negation Detection** is applied to ensure the AI didn't miss a "not" or "failed" that changes the meaning of the extracted data.
 
 **Rationale:**  
-Explicit rules provide deterministic certainty and override probabilistic inference when applicable. Mathematical verification ensures the AI actually saw what it claimed to see.
+Explicit rules provide deterministic certainty and override probabilistic inference when applicable. Mathematical verification ensures the AI actually saw what it claimed to see. Since v4.0.0, the gate also refuses to decide on *incidental* keyword mentions: the architecture validation against human gold standards showed unguarded substring matching was the single largest error source, so borderline papers are deferred to the LLM tier instead.
 
 
 ## ✔️ Tier 2: LLM Self-Assessment (With Override Logic)
