@@ -1,6 +1,8 @@
 
 import pytest
-from parser import clean_json_response, _regex_extract_fallback, parse_result, df_from_results, df_from_extracted_results
+from parser import (clean_json_response, fallback_uses,
+                    _regex_extract_fallback, parse_result, df_from_results,
+                    df_from_extracted_results)
 from unittest.mock import patch
 
 # 1. Test JSON Cleaning
@@ -78,3 +80,8 @@ def test_df_from_extracted_results_coerces_values_to_string():
     df = df_from_extracted_results(results)
     assert list(df["Sample Size"]) == ["120", "120"]
     assert list(df["Year"]) == ["", "2021"]
+
+def test_fallback_counter_increments():
+    before = fallback_uses()
+    _regex_extract_fallback("some paper text", "screener", [])
+    assert fallback_uses() == before + 1
