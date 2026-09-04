@@ -315,7 +315,7 @@ def df_from_results(results):
             "Filename": r.get("filename", ""),
             "Title": r.get("title", ""),
             "Author": r.get("author", ""),
-            "Year": r.get("year", ""),
+            "Year": str(r.get("year", "")),
             "Confidence": r.get("confidence", "")
         }
         
@@ -338,7 +338,8 @@ def df_from_extracted_results(results):
             "Filename": r.get("filename", ""),
             "Confidence": r.get("confidence", "")
         }
-        row.update(r.get("extracted", {}))
+        row.update({k: ("" if v is None else str(v))
+                    for k, v in r.get("extracted", {}).items()})
         rows.append(row)
     import pandas as pd
     return pd.DataFrame(rows)

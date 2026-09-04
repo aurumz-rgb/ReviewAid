@@ -1,19 +1,11 @@
 import re
 
 
-
-
-# Same negation vocabulary as the Check E windows in confidence.py, plus a
-# few population forms ("non-pregnant", "free of acute LBP").
 _NEGATORS = ("not ", "no ", "non-", "without ", "failed", "unable", "cannot",
              "never", "nor ", "absence of", "free of")
 
-# A negator this many chars before a hit vetoes it.
 _NEGATION_WINDOW = 48
 
-# A hit sitting in background/related-work discourse is demoted, but only
-# when no eligibility language surrounds it. Conservative on purpose: with
-# neither kind of marker nearby, the hit stays.
 _ELIGIBILITY_MARKERS = ("inclusion", "exclusion", "eligible", "eligibility",
                         "criteria", "included", "excluded", "enrolled",
                         "recruited", "randomised", "randomized", "allocated",
@@ -34,8 +26,6 @@ _BACKGROUND_AFTER = 60
 
 
 def _match_pattern(criterion):
-    # Anchor at word boundaries so "men" cannot match inside "women", but
-    # let phrases that start/end in punctuation (e.g. "18-65 years") pass.
     head = r"\b" if re.match(r"\w", criterion[0]) else ""
     tail = r"\b" if re.search(r"\w$", criterion[-1]) else ""
     return head + re.escape(criterion) + tail

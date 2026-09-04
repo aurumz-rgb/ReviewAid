@@ -2,25 +2,19 @@ import pytest
 import screener
 from tier1_gate import evaluate_tier1
 
-# 1. The screener's exclusion matcher now runs the guarded gate
 def test_find_exclusion_matches_uses_gate():
     # 'men' inside 'women' is no longer a match (v3 substring bug)
     assert screener.find_exclusion_matches(
         "Eighty women were enrolled.", ["men"]) == []
 
-# 2. Negated mentions do not match through the screener wrapper either
 def test_find_exclusion_matches_skips_negated():
     text = "Patients with no acute LBP were not recruited."
     assert screener.find_exclusion_matches(text, ["acute LBP"]) == []
 
-# 3. Real matches still come back with their original spelling
 def test_find_exclusion_matches_returns_original_spelling():
     text = "Exclusion criteria: Pregnant women, prisoners."
     assert screener.find_exclusion_matches(text, ["pregnant"]) == ["pregnant"]
 
-# 4. The full verdict the screener branch consumes, end to end: an
-#    exclusion phrase that only occurs in background prose is discarded,
-#    and the inclusion hit escalates the paper to the LLM tier
 def test_evaluate_tier1_screening_contract():
     pop_inc = "adults with chronic low back pain"
     pop_exc = "acute LBP, pregnant"
