@@ -357,6 +357,7 @@ def run_screener():
                     "status": verdict["decision"].capitalize(),
                     "reason": verdict["reason"],
                     "confidence": verdict["agreement"],
+                    "priority": verdict.get("priority", 0.0),
                     "criteria_trail": verdict["criteria"],
                     "title": title,
                     "author": author,
