@@ -1,6 +1,6 @@
 import pytest
 from pico_screen import (aggregate, build_screen_prompt, parse_screen_response,
-                        split_criteria)
+                        screen_paper, split_criteria)
 
 PAPER = ("We randomised 60 adults with chronic low back pain. "
          "Patients with cancer were excluded from the cohort.")
@@ -82,3 +82,71 @@ def test_no_usable_samples_refers():
     out = aggregate([], ["adults"], ["cancer"])
     assert out["decision"] == "maybe"
     assert out["criteria"] == []
+
+# screen_paper: triage + self-consistency through a query callback
+import json as _json
+
+FULL_PAPER = ("We screened 60 adolescents aged 12-15 with chronic low "
+              "back pain.\n"
+              "Introduction\nPrior work on rehabilitation is long.\n"
+              "Methods\nPatients were adults with chronic low back pain "
+              "allocated to exercise or usual care.")
+TRIAGE_CRITERIA = {"pop_inc": "adults with chronic low back pain",
+                   "pop_exc": "adolescents",
+                   "int_inc": "", "int_exc": "",
+                   "comp_inc": "", "comp_exc": "", "outcome": ""}
+
+
+def resp(*pairs):
+    """A canned model response judging every criterion in order."""
+    return _json.dumps({"criteria": [{"id": i + 1, "verdict": v, "quote": q}
+                                     for i, (v, q) in enumerate(pairs)],
+                        "reason": "r"})
+
+
+INC_YES = ("yes", "Patients were adults with chronic low back pain "
+           "allocated to exercise or usual care.")
+EXC_YES = ("yes", "We screened 60 adolescents aged 12-15 with chronic low "
+           "back pain.")
+
+
+class FakeLLM:
+    def __init__(self, abstract_reply, full_reply):
+        self.calls = []
+        self.abstract_reply = abstract_reply
+        self.full_reply = full_reply
+
+    def __call__(self, prompt):
+        self.calls.append(prompt)
+        if "Introduction" in prompt:
+            return self.full_reply
+        return self.abstract_reply
+
+
+def test_abstract_stage_excludes_without_reading_full_text():
+    llm = FakeLLM(resp(("no", ""), EXC_YES), resp(("no", ""), ("no", "")))
+    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, llm, k=2)
+    assert out["decision"] == "exclude"
+    assert out["stage"] == "abstract"
+    assert len(llm.calls) == 2
+
+def test_undecided_abstract_falls_through_to_full_text():
+    llm = FakeLLM("", resp(INC_YES, ("no", "")))
+    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, llm, k=2)
+    assert out["decision"] == "include"
+    assert out["stage"] == "full_text"
+    assert len(llm.calls) == 4
+    assert any("allocated to exercise" in p for p in llm.calls)
+
+def test_triage_off_runs_single_stage():
+    llm = FakeLLM("", resp(INC_YES, ("no", "")))
+    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, llm, k=3, triage=False)
+    assert out["stage"] == "single_stage"
+    assert len(llm.calls) == 3
+
+def test_unusable_samples_are_dropped_not_counted():
+    replies = iter(["", "not json", resp(INC_YES, ("no", ""))])
+    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, lambda p: next(replies),
+                       k=3, triage=False)
+    assert out["decision"] == "include"
+    assert out["samples_used"] == 1
