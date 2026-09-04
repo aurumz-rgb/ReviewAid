@@ -15,6 +15,7 @@ from utils import (
 from parser import parse_result, df_from_results
 from confidence import estimate_confidence
 from tier1_gate import evaluate_tier1, find_matches
+from pico_screen import screen_paper
 
 def find_exclusion_matches(text, exclusion_lists):
     """Compatibility wrapper: the v4 gate matcher applies word boundaries
@@ -329,134 +330,47 @@ def run_screener():
                     continue
                 
 
-                time.sleep(1) 
-                
-                prompt = f"""
-You are an expert systematic reviewer. Your task is to screen a research paper based on specific PICO criteria.
+                time.sleep(1)
 
-**CRITICAL INSTRUCTION:**
-Return your response as a SINGLE valid JSON object. Do not include markdown formatting (like ```json), do not add comments, and do not include conversational filler text.
-
-**Population**
-Inclusion: {population_inclusion}
-Exclusion: {population_exclusion}
-
-**Intervention**
-Inclusion: {intervention_inclusion}
-Exclusion: {intervention_exclusion}
-
-**Comparison**
-Inclusion: {comparison_inclusion}
-Exclusion: {comparison_exclusion}
-
-**Outcomes**: {outcome_criteria}
-
-**Paper Text:**
-\"\"\"
-{text}
-\"\"\"
-
-**Task:**
-1. Classify paper as "Include", "Exclude", or "Maybe" based strictly on the criteria.
-2. Provide a detailed reason for the classification.
-3. Extract the Paper Title, Main Author, and Publication Year.
-4. If a value is not found, use "Not Found".
-5. **CONFIDENCE SCORE**: Rate your confidence (0.0 to 1.0). 
-   - 1.0 = The paper perfectly matches or perfectly violates the criteria with explicit evidence.
-   - 0.8 - 0.9 = High confidence based on strong evidence.
-   - 0.5 - 0.7 = Moderate confidence (Some ambiguity in criteria or text).
-   - < 0.5 = Low confidence (Guessing, criteria vague, or text unclear).
-
-**JSON Format Required:**
-{{
-  "status": "Include",
-  "reason": "Detailed classification reason explaining why it fits or fails the criteria.",
-  "title": "Full paper title extracted from text",
-  "author": "Main author name",
-  "year": "2023",
-  "confidence": 0.95
-}}
-"""
-                
-       
-                max_api_attempts = 3 
-                retries_per_api_attempt = 3
-                
-                for api_attempt in range(max_api_attempts):
-                    if api_attempt > 0:
-                        try:
-                            update_terminal_log("Previous attempt failed after retries. Initiating NEW API call for this paper...", "WARN")
-                        except:
-                            pass
-                    
-                    for retry_idx in range(retries_per_api_attempt):
-                        raw_result = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.1, max_tokens=8192)
-        
-                        if raw_result is None:
+                def query_fn(prompt):
+                    raw = None
+                    for retry_idx in range(3):
+                        raw = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.0, max_tokens=8192)
+                        if raw and raw.strip():
+                            break
+                        if retry_idx < 2:
                             try:
-                                update_terminal_log("API returned None after exhaustive retries. Falling back to Regex.", "ERROR")
+                                update_terminal_log(f"Empty API response. Retry {retry_idx + 2}/3...", "ERROR")
                             except:
                                 pass
-                            processing_successful = False
-                            break 
-                        
-                        if raw_result and raw_result.strip():
-                            processing_successful = True
-                            break 
-                        
-                        if retry_idx < retries_per_api_attempt - 1:
-                             try:
-                                 update_terminal_log(f"API returned empty response. Retry {retry_idx + 2}/{retries_per_api_attempt}...", "ERROR")
-                             except:
-                                 pass
-                             time.sleep(2)
-                    
-                    if processing_successful:
-                        break
-                
-       
-                del prompt 
-                
-                
-                if not processing_successful:
+                            time.sleep(2)
+                    return raw
+
+                verdict = screen_paper(text, criteria_dict, query_fn, k=3)
+                samples_used = verdict.get("samples_used", 0)
+
+                result = {
+                    "filename": pdf.name,
+                    "status": verdict["decision"].capitalize(),
+                    "reason": verdict["reason"],
+                    "confidence": verdict["agreement"],
+                    "criteria_trail": verdict["criteria"],
+                    "title": title,
+                    "author": author,
+                    "year": year
+                }
+
+                try:
+                    update_terminal_log(f"Screening stage: {verdict['stage']}, usable samples: {samples_used}/3, agreement: {verdict['agreement']:.2f}.", "INFO")
+                except:
+                    pass
+                if samples_used == 0:
                     try:
-                        update_terminal_log("AI processing failed. Switching to Regex Fallback (Local Processing) to ensure result is generated.", "WARN")
+                        update_terminal_log("All screening samples failed - the paper is referred for manual review.", "WARN")
                     except:
                         pass
 
-                if raw_result:
-                     try:
-                         update_terminal_log(f"API response received. Length: {len(raw_result)} chars.", "SUCCESS")
-                     except:
-                         pass
-                     try:
-                         update_terminal_log("Parsing JSON response...", "INFO")
-                     except:
-                         pass
-                else:
-                     try:
-                         update_terminal_log("Using Fallback Strategy for parsing...", "WARN")
-                     except:
-                         pass
-
-        
-                result = parse_result(raw_result, provider_for_call, api_key, model_name, mode="screener", original_text=full_text_backup, fields_list=fields_list)
-                    
                 if result:
-                    processing_successful = True
-                    
-                    if "filename" not in result:
-                        result["filename"] = pdf.name
-                
-     
-                if raw_result:
-                    del raw_result
-
-                if result and processing_successful:
-                    try:
-                        update_terminal_log("Result generation completed (AI or Fallback).", "SUCCESS")
-                    except:
-                        pass
 
                     deterministic_confidence = estimate_confidence(
                         full_text_backup, 
