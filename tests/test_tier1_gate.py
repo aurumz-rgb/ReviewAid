@@ -172,3 +172,41 @@ def test_negated_inclusion_mention_still_blocks():
     assert v["decision"] == "escalate"
     assert v["qualified_exclusions"] == ["chronic pain"]
     assert v["qualified_inclusions"] == ["acute LBP"]
+
+# 29. Structural guarantee over the deposited-corpus failure modes: when
+#     the v4 gate fires, the v3 substring gate would have fired too. The
+#     guards may only defer papers to the LLM tier, never add exclusions.
+def test_gate_never_expands_v3_decisions():
+    texts = [
+        # background-only exclusion mention, inclusion present (v3 fired)
+        ("Previous studies of acute LBP are contradictory. We enrolled "
+         "adults with chronic LBP and gave exercise therapy."),
+        # lone generic keyword (v3 fired)
+        ("Sixty adults completed the eight-week programme."),
+        # negated mention plus a real hit (v3 fired on the real one)
+        ("No acute LBP was seen at baseline. We randomised 90 adults "
+         "with acute LBP to physiotherapy."),
+        # clean corroborated exclusions (v3 fired)
+        ("We excluded pregnant women and current smokers from the "
+         "cohort of adults with asthma."),
+    ]
+    exclusions = ["acute LBP", "adults", "pregnant", "current smokers"]
+    inclusions = ["chronic LBP", "adults with asthma"]
+    for text in texts:
+        v = evaluate_tier1(text, exclusions, inclusions)
+        if v["decision"] != "exclude":
+            continue
+        tl = text.lower()
+        v3_exc = any(c.lower() in tl for c in exclusions)
+        v3_inc = any(c.lower() in tl for c in inclusions)
+        assert v3_exc and not v3_inc, f"gate expanded on: {text[:50]}"
+
+# 30. The corpus's headline failure mode must escalate, not auto-exclude:
+#     'acute LBP' only in background, trial population is chronic
+def test_background_acute_lbp_no_longer_excludes_chronic_trial():
+    text = ("Introduction. Acute LBP is common and usually self-limiting. "
+            "Previous studies of acute LBP shaped our outcome choice. "
+            "Methods. We randomised 180 adults with chronic LBP to "
+            "supervised exercise or usual care for 12 months.")
+    v = evaluate_tier1(text, ["acute LBP"], ["chronic LBP"])
+    assert v["decision"] == "escalate"
