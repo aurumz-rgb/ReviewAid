@@ -14,28 +14,12 @@ from utils import (
 )
 from parser import parse_result, df_from_results
 from confidence import estimate_confidence
+from tier1_gate import evaluate_tier1, find_matches
 
 def find_exclusion_matches(text, exclusion_lists):
-    matches = []
-    try:
-        update_terminal_log("Scanning text for exclusion keywords...", "DEBUG")
-    except:
-        pass
-    for criteria in exclusion_lists:
-        criteria = criteria.strip()
-        if criteria:
-            if criteria.lower() in text.lower():
-                try:
-                    update_terminal_log(f"Match found for exclusion criteria: '{criteria}'", "INFO")
-                except:
-                    pass
-                matches.append(criteria)
-            else:
-                try:
-                    update_terminal_log(f"No match for exclusion criteria: '{criteria}'", "DEBUG")
-                except:
-                    pass
-    return matches
+    """Compatibility wrapper: the v4 gate matcher applies word boundaries
+    and the negation/background guards instead of raw substring scans."""
+    return find_matches(text, exclusion_lists)
 
 def run_screener():
     st.markdown("## Full-text Paper Screener")
@@ -294,31 +278,30 @@ def run_screener():
                 for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
                     if block.strip():
                         all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
-                
-       
-                matches_exc = find_exclusion_matches(text, all_exclusions)
 
                 all_inclusions = []
                 for block in [population_inclusion, intervention_inclusion, comparison_inclusion]:
                     if block.strip():
                         all_inclusions.extend([c.strip() for c in block.split(",") if c.strip()])
-                
-        
-                matches_inc = []
-                for criteria in all_inclusions:
-                    if criteria.strip() and criteria.lower() in text.lower():
-                        try:
-                            update_terminal_log(f"Match found for inclusion criteria: '{criteria}'", "INFO")
-                        except:
-                            pass
-                        matches_inc.append(criteria)
-            
-    
-                if len(matches_exc) >= 1 and len(matches_inc) == 0:
-                    exclusion_reason = (
-                        f"Auto-excluded because {len(matches_exc)} exclusion criteria matched: {', '.join(matches_exc)}"
-                    )
-                    confidence = 1.0 
+
+                verdict = evaluate_tier1(text, all_exclusions, all_inclusions)
+                matches_exc = verdict["qualified_exclusions"]
+                matches_inc = verdict["qualified_inclusions"]
+
+                for hit in verdict["discarded"]:
+                    try:
+                        update_terminal_log(f"Tier-1 ignored '{hit['criterion']}' ({hit['reason']} mention)", "DEBUG")
+                    except:
+                        pass
+                if matches_exc:
+                    try:
+                        update_terminal_log(f"Tier-1: {len(matches_exc)} exclusion criteria qualified: {', '.join(matches_exc)}", "INFO")
+                    except:
+                        pass
+
+                if verdict["decision"] == "exclude":
+                    exclusion_reason = verdict["reason"]
+                    confidence = 1.0
                     
                     result = {
                         "filename": pdf.name,
