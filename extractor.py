@@ -30,7 +30,7 @@ FIELD_DESCRIPTIONS = {
     "Funding": "Information about who funded the research",
     "Conflicts of Interest": "Any declared conflicts of interest by the authors",
     "Effect Direction": "The direction of the effect of the intervention on the main outcome versus the comparison. Use exactly one label: 'significantly increases', 'significantly decreases', 'no significant difference', 'unclear'",
-    "Effect Direction Evidence": "The exact sentence from the paper that supports the Effect Direction, copied verbatim"
+    "Effect Direction Evidence": "The sentence from the paper that supports the Effect Direction, in the paper's own words"
 }
 
 def effect_direction_rule(fields_list):
@@ -40,7 +40,7 @@ def effect_direction_rule(fields_list):
     return ("Effect Direction rules: use exactly one label - 'significantly "
             "increases', 'significantly decreases', 'no significant "
             "difference', 'unclear'. 'Effect Direction Evidence' must be the "
-            "supporting sentence copied verbatim from the paper.\n")
+            "supporting sentence quoted from the paper.\n")
 
 def run_extractor():
     st.markdown("## Full-text Data Extractor")

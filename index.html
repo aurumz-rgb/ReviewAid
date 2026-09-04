@@ -357,10 +357,20 @@
           <p style="margin-bottom: 0;">The system operates in the following order:</p>
           <ul class="confidence-overview-list">
             <li><strong>Deterministic Rule-Based Classification & Verification (Screener & Extractor)</strong></li>
-            <li><strong>LLM Self-Assessment (With Override Logic)</strong></li>
+            <li><strong>Per-Criterion LLM Screening with Evidence Quotes (v4.0.0)</strong></li>
             <li><strong>Heuristic Keyword Estimation</strong></li>
             <li><strong>Low-Confidence Default</strong></li>
           </ul>
+
+          <div class="rationale" style="margin-top: 20px;">
+            <strong>Screening: 3 API calls per paper (v4.0.0)</strong><br>
+            Each screened paper is judged <strong>three independent times</strong> at temperature 0. Every call
+            evaluates <em>all criteria</em> on the full text and returns a verdict plus a verbatim supporting quote
+            for each criterion. The three samples are <strong>majority-voted per criterion</strong>, and the
+            agreement rate across samples becomes the paper's confidence score. A fourth
+            <strong>tiebreaker call</strong> runs only when the samples disagree on a criterion. Papers the Tier-1
+            gate auto-excludes cost <strong>0 API calls</strong>.
+          </div>
           <p style="margin-top: 15px; font-size: 0.95rem; color: var(--text-muted);">Each tier is only activated if the
             previous tier fails to produce a valid and reliable result.</p>
         </div>
@@ -381,15 +391,20 @@
             <h3>Tier 1: Deterministic Rule-Based & Verification</h3>
             <h4>Highest Priority</h4>
             <p><strong>Purpose:</strong> Eliminate ambiguity using explicit user-defined rules and verify AI outputs against source text.</p>
-            <p><strong>Screener Logic:</strong></p>
+            <p><strong>Screener Logic (v4.0.0 guarded gate):</strong></p>
             <ul>
-              <li>The system performs a preliminary scan for <strong>exclusion</strong> and <strong>inclusion</strong>
-                keywords.</li>
-              <li>If <strong>exclusion keywords are detected without any corresponding inclusion keywords</strong>, the
-                paper is automatically classified as <strong>Excluded</strong> with a confidence score of <strong>1.0
-                  (100%)</strong>.</li>
-              <li>If <strong>both exclusion and inclusion keywords</strong> are present, this tier is
-                <strong>bypassed</strong> to avoid false positives, delegating the decision to the AI.</li>
+              <li>The system scans for <strong>exclusion</strong> and <strong>inclusion</strong> keywords, but a keyword
+                only counts when it survives deterministic guards: <strong>word-boundary matching</strong> ("men" no
+                longer matches "women"), a <strong>negation guard</strong> ("no acute LBP" is not a population hit), and
+                a <strong>background-context guard</strong> (mentions in background prose, far from eligibility
+                language, are ignored).</li>
+              <li>A lone <strong>single-word</strong> exclusion criterion never decides a paper on its own &mdash; it
+                needs a second qualifying criterion.</li>
+              <li>If <strong>qualifying exclusion keywords</strong> are detected <strong>without any corresponding
+                inclusion keywords</strong>, the paper is automatically classified as <strong>Excluded</strong> with a
+                confidence score of <strong>1.0 (100%)</strong>.</li>
+              <li>Everything else &mdash; including papers where both exclusion and inclusion keywords are present
+                &mdash; is <strong>deferred to the AI</strong>, and every discarded keyword hit is logged for audit.</li>
             </ul>
             <p><strong>Extractor Logic:</strong></p>
             <ul>
@@ -404,12 +419,16 @@
 
 
           <div class="tier-card">
-            <h3>Tier 2: LLM Self-Assessment (With Override Logic)</h3>
+            <h3>Tier 2: Per-Criterion LLM Screening (With Override Logic)</h3>
             <h4>Primary Mechanism</h4>
             <p><strong>Purpose:</strong> Leverage the model’s internal reasoning and evidence-based judgment.</p>
             <p><strong>Logic:</strong></p>
             <ul>
-              <li>The Large Language Model (LLM) evaluates its own screening or extraction decision and assigns a <strong>confidence score between 0.0 and 1.0</strong>.</li>
+              <li>The LLM judges <strong>each criterion separately</strong> and must cite the supporting sentence from the paper. Every quote is verified against the paper text &mdash; an unfindable quote downgrades the judgment.</li>
+              <li>Each paper is judged <strong>three independent times (3 API calls per paper)</strong> and the samples are majority-voted per criterion. The <strong>sample agreement rate</strong> is the confidence score &mdash; a measured property of the judgments, not a self-assessment.</li>
+              <li><strong>Recall-first exclusion:</strong> a paper is only auto-excluded when exclusion evidence is unanimous across samples and grounded in a quote. Split votes and weak evidence are <strong>referred</strong>, never decided.</li>
+              <li><strong>Tiebreaker adjudication:</strong> when samples disagree on a criterion, a senior-reviewer call settles it against the competing quotes.</li>
+              <li>Every paper leaves with a <strong>priority score</strong> so the human review queue is worked highest-first.</li>
               <li><strong>Override Logic:</strong> If the AI claims high confidence (> 0.5) but the Tier 1 Deterministic Check fails (score < 0.5), the system <strong>overrides</strong> the AI's confidence score downward and flags the paper for human review. This prevents the AI from being confidently wrong (hallucinating).</li>
             </ul>
             <div class="rationale">
@@ -479,13 +498,13 @@
                 <tr>
                   <td><strong>0.9 – 1.0</strong></td>
                   <td><span class="confidence-badge">Deterministic Match</span></td>
-                  <td>Extracted data was verified via exact string match or near-perfect token overlap against the source text.</td>
+                  <td>Extracted data verified via exact string match or near-perfect token overlap. For screening: all three samples agreed and the driving criteria carry grounded quotes.</td>
                   <td>Safe to accept</td>
                 </tr>
                 <tr>
                   <td><strong>0.6 – 0.89</strong></td>
                   <td><span class="confidence-badge">High Confidence</span></td>
-                  <td>AI output verified via strong semantic token overlap. Paraphrasing detected and grounded in source.</td>
+                  <td>AI output grounded in source (extractor), or a solid voting majority with minor dissent (screening).</td>
                   <td>Review optional</td>
                 </tr>
                 <tr>
@@ -497,7 +516,7 @@
                 <tr>
                   <td><strong>0.1 – 0.39</strong></td>
                   <td><span class="confidence-badge">Low Confidence</span></td>
-                  <td>Poor textual overlap or negation detected. AI score overridden by Tier 1 math due to likely hallucination.</td>
+                  <td>Poor textual overlap, negation detected, or low sample agreement. AI score overridden by Tier 1 math due to likely hallucination.</td>
                   <td>High risk of error</td>
                 </tr>
                 <tr>
@@ -531,7 +550,8 @@
           <h3>Flow</h3>
           <ol style="margin-left: 20px; color: var(--text-secondary); line-height: 1.8;">
             <li><strong>If <code>raw_result</code> is <code>None</code></strong><br>
-              &rarr; Use regex to extract data locally.</li>
+              &rarr; Use regex to extract data locally (extractor only; every fallback use is counted via
+              <code>parser.fallback_uses()</code>).</li>
             <li><strong>Clean the response</strong><br>
               &rarr; Remove Markdown, comments, and trailing commas.</li>
             <li><strong>Try standard JSON parsing</strong><br>
@@ -539,7 +559,9 @@
             <li><strong>If that fails, use AI repair</strong><br>
               &rarr; Ask AI to fix the JSON syntax.</li>
             <li><strong>Final fallback</strong><br>
-              &rarr; Extract known keys using regex.</li>
+              &rarr; Extract known keys using regex. Note: the v4.0.0 screener never uses this fallback &mdash;
+              unusable screening samples are dropped, and a paper with no usable samples is <strong>referred</strong>
+              as "Maybe" instead of being decided by regex.</li>
           </ol>
         </div>
 
@@ -839,7 +861,7 @@
             <h3>Abrupt Stopping</h3>
             <span class="error-label meaning">Meaning</span>
             <p class="error-text">Streamlit abruptly stops in order to conserve its resources and hence the user should
-              follow our request to upload a maximum of 20 papers in one time.</p>
+              follow our request to upload a maximum of 10 papers in one batch (screener; the extractor is unaffected).</p>
             <span class="error-label fix">Fix</span>
             <p class="error-text">However, if issue persists for papers below this number in one session, please do open
               an issue on Github.</p>
