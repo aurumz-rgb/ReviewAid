@@ -7,7 +7,7 @@ SCREEN_PROMPT = """You are an expert systematic reviewer. Apply EACH criterion b
 
 For EVERY criterion return:
 - "verdict": "yes" or "no" or "unsure"
-- "quote": the exact sentence from the paper text the verdict is based on, copied verbatim ("" when unsure)
+- "quote": the sentence from the paper text the verdict is based on, in the paper's own words ("" when unsure)
 
 Meaning of "yes":
 - For an INCLUSION criterion: the paper clearly satisfies it.

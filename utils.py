@@ -892,7 +892,8 @@ class OllamaProvider(BaseLLMProvider):
             messages=messages,
             options={
                 'temperature': temperature,
-                'num_predict': max_tokens
+                'num_predict': max_tokens,
+                'num_ctx': int(os.getenv("OLLAMA_NUM_CTX", "16384"))
             }
         )
         return response['message']['content']
