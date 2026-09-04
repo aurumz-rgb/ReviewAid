@@ -47,9 +47,12 @@ self-reported confidence. `pico_screen.py` (new module):
 - Each paper is judged **k = 3 independent samples**, majority-voted per
   criterion; the **sample agreement rate** replaces the self-reported
   confidence scalar.
-- **Title/abstract triage** runs first, but only a grounded
-  abstract-stage exclusion can short-circuit a paper - an abstract can
-  never decide an inclusion, so recall stays on the safe side.
+- Each screened paper costs exactly **three API calls** (three independent
+  judgments of the full text, majority-voted per criterion) - the
+  accuracy-per-cost sweet spot; the optional abstract-triage stage remains
+  available in `pico_screen.screen_paper` but is off in the default path.
+- Screener batch limit lowered from 20 to 10 papers per batch (extractor
+  unchanged); running a local clone removes the restriction.
 - Include requires the driving inclusion criteria to individually clear
   an agreement floor (0.67). Conflicts, shaky agreement and unusable
   samples are referred as `Maybe` with the full per-criterion trail;
