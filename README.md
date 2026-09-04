@@ -193,11 +193,11 @@ No `.env`, YAML, or JSON configuration files are required.
 - **Privacy-first approach:** Your uploaded documents and API keys stay private and are never stored or shared.  
 - **Open-source and extensible:** Built on Python and Streamlit for easy customization and community contributions.  
 
-- **NOTE ‼️:** 
+**NOTE ‼️:** 
 
 1. ReviewAid is used as a supplementary tool alongside manual screening and data extraction to minimise errors and improve research accuracy, without replacing human judgment. 
   
-2. Please restrict each submission to a maximum of **20 articles**. Submissions exceeding this limit will result in processing of only the first 20 articles, after which the process will **terminate** prematurely. Kindly adhere to this restriction. **Please respect this limit.**
+2. Please restrict each submission to a maximum of **20 articles** for data extraction and **10 articles** for full-text screener. 
 
 ---
 
@@ -206,8 +206,6 @@ No `.env`, YAML, or JSON configuration files are required.
 
 - **Performance:**  
   Depending on the number and size of PDFs uploaded and your internet connection, AI processing can take some time. Please be patient - progress indicators and terminal will keep you updated. 
-
-
 - **Limitations:**  
   The web is hosted on Streamlit and hence users may face **cold starts** when the user has to wait **30 seconds** for the web to initialise. 
   As per tool usage, the developer may decide to host it on better sources to avoid such **cold starts**.
@@ -303,46 +301,54 @@ This makes Ollama the **most privacy-preserving configuration** supported by Rev
 ---
 
 <details>
-<summary> Confidence Scoring System</summary>
+<summary> How ReviewAid Works </summary>
 
-This system implements a **hierarchical four-tier confidence model** designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes **deterministic rule-based decisions** before progressively falling back to algorithmic and heuristic estimation only when necessary.
+This system implements a **hierarchical four-tier  model** designed to maximize precision and minimize false classifications during automated paper screening and data extraction. The logic prioritizes **deterministic rule-based decisions** before progressively falling back to algorithmic and heuristic estimation only when necessary.
 
 
 ## 🔄 How ReviewAid Works (v4.0.0)
 
 End-to-end walkthrough of both engines - what happens at every step, what goes where, and why.
 The decision architecture is: **Tier-1 deterministic gate → Tier-2 LLM screening → deterministic
-confidence override**. Humans stay in the loop throughout.
+ override**. Humans stay in the loop throughout.
 
 ### The Life of a Paper - Screener
 
 1. **Upload & deduplicate.** Every PDF is hashed (SHA-256); an identical file reuses the cached
    decision from earlier in the batch - no repeated API calls. *Why: same paper, same answer, zero cost.*
+   
 2. **Text extraction.** PyMuPDF pulls the full text plus candidate title, author and year; the text is
    cleaned and token-capped before any AI call. *Why: models see a bounded, clean input, and evidence
    quotes are checked against this exact text so they stay verifiable.*
+   
 3. **Tier-1 guarded gate - 0 API calls.** Keyword scanning with the v4.0.0 guards (word-boundary
    matching, negation guard, background-context guard, corroboration for one-word criteria). Fires only
    on exclusion evidence that is unanimous across its own checks and grounded.
    *Why: obvious exclusions cost nothing; weak keyword evidence refers instead of deciding - the v3.0.0 lesson.*
+   
 4. **Per-criterion LLM stage - 3 API calls.** Each call sees every criterion plus the full text and
    returns, per criterion, a verdict (`yes`/`no`/`unsure`) plus a **verbatim supporting quote**. Quotes are
    verified against the text: an unfindable quote downgrades the judgment to `unsure`.
    *Why: judging criteria one-by-one beats one holistic verdict, and quotes make every decision checkable
    in seconds.*
+   
 5. **Majority vote + agreement.** The three samples are majority-voted per criterion; the agreement rate
-   across samples becomes the paper's **confidence score**. *Why: three independent readings outvote
+   across samples becomes the paper's **score**. *Why: three independent readings outvote
    single-sample errors and model refusals; agreement is a measured property instead of a self-reported guess.*
+   
 6. **Recall-first decision.** Exclude only on exclusion evidence that is **unanimous and grounded**, with
    no inclusion criterion met. Include only when the driving inclusion criteria clear the agreement floor
    (0.67) with no exclusion met. Everything else - conflicts, shaky agreement, unusable samples - is a
    **Maybe referral**. *Why: wrongly excluding a study is the cardinal sin; weak evidence must refer, never decide.*
+   
 7. **Tiebreaker adjudication.** If the samples split on a criterion, one extra senior-reviewer call sees the
    competing votes and quotes and issues a grounded ruling. *Why: contested papers deserve a second
    opinion, not a coin flip.*
-8. **Confidence override (unchanged from v3).** If confidence is high but the Tier-1 deterministic score is
+   
+8. **override (unchanged from v3).** If confidence is high but the Tier-1 deterministic score is
    low, confidence is overridden downward and the paper is flagged. *Why: the deterministic layer catches
    confident hallucination.*
+   
 9. **Decision routing.** Papers land in the Include / Exclude / Maybe tables, each row carrying confidence,
    a priority score, the reason and the full per-criterion trail.
 
@@ -351,8 +357,10 @@ confidence override**. Humans stay in the loop throughout.
 - **Call #1, #2, #3** - the same prompt shape (all criteria + full text, temperature 0): three
   **independent readings** of the paper, each returning per-criterion verdicts with verbatim quotes.
   Majority vote per criterion; agreement across the three becomes the confidence.
+  
 - **Call #4 (conditional tiebreaker)** - runs *only* when the samples split on a criterion; it receives the
   split votes and competing quotes and issues a final ruling.
+  
 - **0 calls** - papers the Tier-1 gate auto-excludes.
 
 *Why three calls: three independent readings outvote single-sample errors and model refusals
@@ -363,16 +371,20 @@ v4.0.0 standardises on three instead of one, or six.*
 
 1. **Fields.** The user lists the fields to extract; "Paper Title" is added automatically if missing.
    *Why: extraction is user-defined - ReviewAid extracts what your review needs.*
+   
 2. **Prompt contract.** Every field gets a description; the response is a single JSON object
    (`extracted` + `confidence`) with "Not Found" for missing data, at temperature 0.
+   
 3. **Effect Direction contract.** The direction must be one closed label (`significantly increases` /
    `significantly decreases` / `no significant difference` / `unclear`) and `Effect Direction Evidence`
    must quote the paper verbatim. *Why: free-text directions scored at chance in validation; labels make
    it strictly scoreable and the evidence quote keeps it grounded.*
+   
 4. **Tier-1 verification.** Each extracted field is checked against the source text: exact string match →
    token overlap for paraphrases → negation windows. Ungrounded fields drop the confidence score.
    *Why: this is the hallucination guard - in validation, 95–99.6% of ~26,000 extracted fields were
    verifiably present in the source papers.*
+   
 5. **Reliability accounting.** Every regex-fallback use is counted (`parser.fallback_uses()`) so a
    degraded model arm is visible instead of silent.
 
@@ -426,19 +438,26 @@ Each tier is only activated if the previous tier fails to produce a valid and re
 
 **Screener Logic (v4.0.0 gate, `tier1_gate.py`):**
 - The system performs a preliminary scan for **exclusion** and **inclusion** keywords.
+
 - An exclusion keyword only counts when its mention survives deterministic guards:
   - **Word-boundary matching** - "men" no longer matches inside "women", "rat" no longer matches "ratio".
   - **Negation guard** - "no acute LBP", "non-pregnant" or "free of ..." mentions are not population hits.
   - **Background-context guard** - mentions sitting in background/related-work discourse, far from any eligibility language, are ignored.
+
 - A lone **single-word** exclusion criterion ("adults", "children", "pregnant") can never decide a paper on its own; it needs a **second qualifying exclusion criterion** behind it (corroboration). Multi-word phrases ("acute LBP", "cross-sectional studies") still decide alone.
+
 - If **qualifying exclusion keywords** are detected **without any corresponding inclusion keywords**, the paper is:
   - Automatically classified as **Excluded**
   - Assigned a **confidence score of 1.0 (100%)**
+
 - Everything else - including any paper where **both exclusion and inclusion keywords** are present - is **deferred to the AI**, exactly as before. Inclusion keywords are deliberately matched loosely (raw substring), because they only ever defer a paper, never exclude one.
+
 - Every keyword mention a guard throws out is reported in the System Terminal (`negated` / `background` mention), so each auto-exclusion stays fully auditable after the fact.
+
 
 **Extractor Logic:**
 - The system deterministically verifies the AI's extracted data against the source text using **Exact String Matching** and **Token Overlap** for paraphrased text.
+
 - **Negation Detection** is applied to ensure the AI didn't miss a "not" or "failed" that changes the meaning of the extracted data.
 
 **Rationale:**  
@@ -451,12 +470,19 @@ Explicit rules provide deterministic certainty and override probabilistic infere
 
 **Logic (v4.0.0 per-criterion pipeline, `pico_screen.py`):**
 - The LLM no longer emits one holistic include/exclude verdict with a self-reported confidence. It judges **each criterion separately**, returning a verdict (`yes` / `no` / `unsure`) and a **verbatim supporting quote** per criterion.
+
 - Every quote is verified against the paper text; a quote that is not actually in the paper downgrades that judgment to `unsure` (grounding, applied to screening).
+
 - Each paper is judged **k = 3 independent samples** and the samples are majority-voted per criterion. The sample **agreement rate** is the confidence - a measurable property of the judgments, not a self-assessment.
+
 - **Three API calls per screened paper, flat.** The paper's full text is judged three independent times (temperature 0) and the samples are majority-voted per criterion. Three is the accuracy-per-cost sweet spot: majority voting gains are front-loaded in the first samples, and the vote absorbs single-sample errors and refusals.
+
 - **Include** requires the driving inclusion criteria to clear the agreement floor (0.67) with no exclusion met; **exclude** fires only on exclusion evidence that is **unanimous across all samples and grounded in a quote** - weak evidence is referred, never decided. Everything else is a **Maybe** referral with the full per-criterion trail visible to the reviewer.
+
 - **Tiebreaker adjudication:** when the samples split on a criterion, one senior-reviewer call settles it against the competing quotes; the ruling is grounded like every other judgment.
+
 - **Priority queue:** every paper leaves with a priority score (inclusion strength, quote coverage, agreement) so the human review queue is worked highest-first - workload-saved at a fixed recall is measurable straight from the export.
+
 - **Override Logic (unchanged):** if the agreement-based confidence is high but the Tier 1 Deterministic Check fails, the confidence is overridden downward and the paper is flagged for human review.
 
 **Rationale:**  
