@@ -68,3 +68,29 @@ def test_clean_mention_survives_negated_mention():
 def test_negated_criterion_wording_is_not_self_vetoed():
     text = "We excluded studies of patients with no dementia."
     assert find_matches(text, ["no dementia"]) == ["no dementia"]
+
+# 13. Background demotion: the phrase appears only in intro discourse,
+#     far from any eligibility language
+def test_background_mention_demoted():
+    text = ("Introduction: Low back pain is a major problem. Previous "
+            "studies have shown that acute LBP is usually self-limiting. "
+            "Outcomes were measured at 12 months.")
+    assert find_matches(text, ["acute LBP"]) == []
+
+# 14. Eligibility language nearby protects the same phrase
+def test_eligibility_context_protects_hit():
+    text = ("Previous research on acute LBP is mixed. We randomised 140 "
+            "adults with acute LBP to exercise or usual care.")
+    assert find_matches(text, ["acute LBP"]) == ["acute LBP"]
+
+# 15. A demoted background mention does not hide a methods mention
+def test_methods_mention_survives_background_mention():
+    text = ("Background: acute LBP is common in primary care. "
+            "Methods: we recruited adults with acute LBP from 4 clinics.")
+    assert find_matches(text, ["acute LBP"]) == ["acute LBP"]
+
+# 16. Study-design self-descriptions are not background discourse
+def test_study_design_mention_survives():
+    text = ("Eligible patients were adults referred to physiotherapy. "
+            "The follow-up survey was cross-sectional in design.")
+    assert find_matches(text, ["cross-sectional"]) == ["cross-sectional"]
