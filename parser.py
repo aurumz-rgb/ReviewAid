@@ -11,12 +11,20 @@ except ImportError:
     def query_llm(*args, **kwargs): return None
     MAX_INPUT_TOKENS_SCREENER = 128000
 
+fallback_stats = {"count": 0}
+
+
+def fallback_uses():
+    """How many times the regex fallback had to decide instead of the LLM."""
+    return fallback_stats["count"]
+
 def clean_json_response(raw_str):
     """
     Bulletproof JSON cleaning pipeline.
     Handles Markdown, Trailing Commas, Comments, and Control Characters.
     (Optimized to prevent Regex Catastrophic Backtracking / Hanging)
     """
+
     if not raw_str:
         return ""
 
@@ -138,6 +146,7 @@ def _regex_extract_fallback(text, mode, fields_list):
     Extracts specific key-value pairs from unstructured text using Regex.
     Used when JSON parsing fails completely. Improved to handle non-JSON formats.
     """
+    fallback_stats["count"] += 1
     try:
         update_terminal_log("Running Regex Fallback extraction...", "DEBUG")
     except:

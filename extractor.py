@@ -13,6 +13,35 @@ from utils import (
 from parser import parse_result, df_from_extracted_results
 from confidence import estimate_confidence
 
+FIELD_DESCRIPTIONS = {
+    "Paper Title": "The full title of the research paper",
+    "Author": "The main author(s) of the paper",
+    "Year": "The publication year of the paper",
+    "Journal": "The journal where the paper was published",
+    "DOI": "The Digital Object Identifier of the paper",
+    "Abstract": "A brief summary of the paper's content",
+    "Keywords": "Key terms associated with the paper",
+    "Study Design": "The methodology used in the study (e.g. randomized controlled trial, cohort study)",
+    "Sample Size": "The number of participants in the study",
+    "Intervention": "The treatment or intervention being studied",
+    "Comparison": "The control or comparison group",
+    "Outcome": "The main results or findings of the study",
+    "Conclusion": "The authors' conclusion based on the findings",
+    "Funding": "Information about who funded the research",
+    "Conflicts of Interest": "Any declared conflicts of interest by the authors",
+    "Effect Direction": "The direction of the effect of the intervention on the main outcome versus the comparison. Use exactly one label: 'significantly increases', 'significantly decreases', 'no significant difference', 'unclear'",
+    "Effect Direction Evidence": "The exact sentence from the paper that supports the Effect Direction, copied verbatim"
+}
+
+def effect_direction_rule(fields_list):
+    """The categorical labelling contract for effect-direction fields."""
+    if "Effect Direction" not in fields_list:
+        return ""
+    return ("Effect Direction rules: use exactly one label - 'significantly "
+            "increases', 'significantly decreases', 'no significant "
+            "difference', 'unclear'. 'Effect Direction Evidence' must be the "
+            "supporting sentence copied verbatim from the paper.\n")
+
 def run_extractor():
     st.markdown("## Full-text Data Extractor")
     
@@ -258,28 +287,11 @@ def run_extractor():
                         update_terminal_log(f"Preparing extraction fields: {', '.join(fields_list)}", "INFO")
                     except:
                         pass
-                    field_descriptions = {
-                        "Paper Title": "The full title of the research paper",
-                        "Author": "The main author(s) of the paper",
-                        "Year": "The publication year of the paper",
-                        "Journal": "The journal where the paper was published",
-                        "DOI": "The Digital Object Identifier of the paper",
-                        "Abstract": "A brief summary of the paper's content",
-                        "Keywords": "Key terms associated with the paper",
-                        "Study Design": "The methodology used in the study (e.g. randomized controlled trial, cohort study)",
-                        "Sample Size": "The number of participants in the study",
-                        "Intervention": "The treatment or intervention being studied",
-                        "Comparison": "The control or comparison group",
-                        "Outcome": "The main results or findings of the study",
-                        "Conclusion": "The authors' conclusion based on the findings",
-                        "Funding": "Information about who funded the research",
-                        "Conflicts of Interest": "Any declared conflicts of interest by the authors"
-                    }
-                    
                     prompt = "Extract the following information from the research paper:\n\n"
                     for field in fields_list:
-                        description = field_descriptions.get(field, f"Information about {field}")
+                        description = FIELD_DESCRIPTIONS.get(field, f"Information about {field}")
                         prompt += f"- {field}: {description}\n"
+                    prompt += effect_direction_rule(fields_list)
                     
                     time.sleep(1)
                     
@@ -321,7 +333,7 @@ If a field is not found in the text, use the value "Not Found".
                                 pass
                         
                         for retry_idx in range(retries_per_api_attempt):
-                            raw_result = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.1, max_tokens=MAX_OUTPUT_TOKENS)
+                            raw_result = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.0, max_tokens=MAX_OUTPUT_TOKENS)
             
                             if raw_result is None:
                                 try:

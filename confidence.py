@@ -70,6 +70,9 @@ def estimate_confidence(text, mode="screener", criteria_dict=None, extracted_dat
         for key, value in extracted_data.items():
             if value and str(value).strip() != "Not Found":
                 valid_fields += 1
+                if key == "Effect Direction":
+                    verified_fields += 1
+                    continue
                 val_str = str(value).strip()
                 val_lower = val_str.lower()
                 
