@@ -354,12 +354,18 @@ Explicit rules provide deterministic certainty and override probabilistic infere
 
 **Purpose:** Leverage the model’s internal reasoning and evidence-based judgment.
 
-**Logic:**
-- The Large Language Model (LLM) evaluates its own screening or extraction decision and assigns a **confidence score between 0.0 and 1.0**.
-- **Override Logic:** If the AI claims high confidence (> 0.5) but the Tier 1 Deterministic Check fails (score < 0.5), the system **overrides** the AI's confidence score downward and flags the paper for human review. This prevents the AI from being confidently wrong (hallucinating).
+**Logic (v4.0.0 per-criterion pipeline, `pico_screen.py`):**
+- The LLM no longer emits one holistic include/exclude verdict with a self-reported confidence. It judges **each criterion separately**, returning a verdict (`yes` / `no` / `unsure`) and a **verbatim supporting quote** per criterion.
+- Every quote is verified against the paper text; a quote that is not actually in the paper downgrades that judgment to `unsure` (grounding, applied to screening).
+- Each paper is judged **k = 3 independent samples** and the samples are majority-voted per criterion. The sample **agreement rate** is the confidence — a measurable property of the judgments, not a self-assessment.
+- **Title/abstract triage** runs before the full text: only a grounded abstract-stage *exclusion* can short-circuit a paper; an abstract can never decide an inclusion.
+- **Include** requires every inclusion criterion driving the decision to clear the agreement floor (0.67); **exclude** requires a grounded exclusion majority with no inclusion met; everything else — conflicts, shaky agreement, unusable samples — is referred as **Maybe** with the full per-criterion trail visible to the reviewer.
+- **Override Logic (unchanged):** if the agreement-based confidence is high but the Tier 1 Deterministic Check fails, the confidence is overridden downward and the paper is flagged for human review.
 
 **Rationale:**  
-This tier captures nuanced contextual understanding that deterministic rules cannot, while the override logic ensures mathematical grounding prevents false confidence.
+This tier captures nuanced contextual understanding that deterministic rules cannot, while the override logic ensures mathematical grounding prevents false confidence. Per-criterion judgments with quotes make every decision auditable criterion-by-criterion, and agreement-based confidence reflects how stable the model's reading actually is.
+
+**Effect-direction extraction (v4.0.0):** the extractor accepts an `Effect Direction` field with a closed label set (`significantly increases` / `significantly decreases` / `no significant difference` / `unclear`) plus an `Effect Direction Evidence` field that must quote the paper verbatim. Strict label scoring becomes possible, and the label's confidence is verified through its evidence sentence rather than literal text matching.
 
 
 ## ✔️ Tier 3: Heuristic Keyword Estimation (Fallback)
