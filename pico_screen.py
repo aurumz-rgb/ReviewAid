@@ -225,8 +225,8 @@ def _title_abstract(text):
 def _gather_samples(text, criteria_dict, query_fn, k):
     prompt = build_screen_prompt(text, criteria_dict)
     samples = []
-    for _ in range(k):
-        parsed = parse_screen_response(query_fn(prompt), text)
+    for i in range(k):
+        parsed = parse_screen_response(query_fn(prompt, i + 1), text)
         if parsed:
             samples.append(parsed)
     return samples
@@ -288,9 +288,9 @@ def parse_adjudication(raw, text):
     return out or None
 
 
-def _adjudicate(disputes, text, query_fn):
+def _adjudicate(disputes, text, query_fn, k):
     return parse_adjudication(
-        query_fn(build_adjudication_prompt(disputes, text)), text)
+        query_fn(build_adjudication_prompt(disputes, text), k + 1), text)
 
 
 def screen_paper(text, criteria_dict, query_fn, k=3, triage=False):
@@ -318,7 +318,7 @@ def screen_paper(text, criteria_dict, query_fn, k=3, triage=False):
     adjudicated = False
     disputes = _disputes(samples, inclusions, exclusions)
     if disputes and samples:
-        rulings = _adjudicate(disputes, text, query_fn)
+        rulings = _adjudicate(disputes, text, query_fn, k)
         if rulings:
             for d in disputes:
                 ruling = rulings.get(d["id"])

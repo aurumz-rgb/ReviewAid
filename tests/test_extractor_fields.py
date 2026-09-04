@@ -5,14 +5,14 @@ from confidence import estimate_confidence
 # 1. The effect-direction fields exist with their labelling contract
 def test_effect_direction_field_descriptions():
     assert "significantly increases" in FIELD_DESCRIPTIONS["Effect Direction"]
-    assert "copied verbatim" in FIELD_DESCRIPTIONS["Effect Direction Evidence"]
+    assert "own words" in FIELD_DESCRIPTIONS["Effect Direction Evidence"]
 
 def test_effect_direction_rule_only_for_direction_fields():
     assert effect_direction_rule(["Intervention", "Outcome"]) == ""
     rule = effect_direction_rule(["Effect Direction",
                                   "Effect Direction Evidence"])
     assert "significantly decreases" in rule
-    assert "copied verbatim" in rule
+    assert "quoted from the paper" in rule
 
 # 2. The categorical direction label is verified through its Evidence
 #    sentence, not through literal text matching

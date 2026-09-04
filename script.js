@@ -1,15 +1,34 @@
+window.__pageErrors = [];
+window.addEventListener("error", function (e) {
+  window.__pageErrors.push(String(e.message));
+});
+window.addEventListener("unhandledrejection", function (e) {
+  window.__pageErrors.push(String(e.reason));
+});
+
+// Marks the document as JS-enabled; .reveal elements are only hidden when this
+// class is present, so content stays visible if this script ever fails to load.
+document.documentElement.classList.add('js');
+
 const toggleBtn = document.getElementById('theme-toggle');
 const htmlElement = document.documentElement;
 
-const currentTheme = localStorage.getItem('theme') || 'dark';
-htmlElement.setAttribute('data-theme', currentTheme);
+let storedTheme = null;
+try {
+  storedTheme = localStorage.getItem('theme');
+} catch (e) {
+  // Storage can be unavailable (e.g. file:// or blocked cookies) — fall back to dark.
+}
+htmlElement.setAttribute('data-theme', storedTheme || 'dark');
 
-toggleBtn.addEventListener('click', () => {
+if (toggleBtn) toggleBtn.addEventListener('click', () => {
   const existingTheme = htmlElement.getAttribute('data-theme');
   const newTheme = existingTheme === 'dark' ? 'light' : 'dark';
 
   htmlElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('theme', newTheme);
+  try {
+    localStorage.setItem('theme', newTheme);
+  } catch (e) { /* ignore */ }
 });
 
 
@@ -36,43 +55,41 @@ reveal();
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 const closeBtn = document.getElementsByClassName('close-lightbox')[0];
-const showcaseImages = document.querySelectorAll('.showcase-img');
 
-
-showcaseImages.forEach(img => {
-  img.addEventListener('click', function () {
-    lightbox.style.display = 'flex';
-
-    setTimeout(() => {
-      lightbox.classList.add('show');
-    }, 10);
-    lightboxImg.src = this.src;
-    document.body.style.overflow = 'hidden';
-  });
+// Delegated so zoom works for every figure (and any added later), even if an
+// earlier error on the page stopped per-element listeners from attaching.
+document.addEventListener('click', function (e) {
+  if (!lightbox || !lightboxImg) return;
+  const img = e.target.closest('.showcase-img');
+  if (!img) return;
+  lightboxImg.src = img.currentSrc || img.src;
+  lightbox.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => {
+    lightbox.classList.add('show');
+  }, 10);
 });
 
-
 function hideLightbox() {
+  if (!lightbox) return;
   lightbox.classList.remove('show');
   setTimeout(() => {
     lightbox.style.display = 'none';
-    lightboxImg.src = '';
+    if (lightboxImg) lightboxImg.src = '';
     document.body.style.overflow = 'auto';
   }, 300);
 }
 
-closeBtn.addEventListener('click', hideLightbox);
+if (closeBtn) closeBtn.addEventListener('click', hideLightbox);
 
-
-lightbox.addEventListener('click', function (e) {
+if (lightbox) lightbox.addEventListener('click', function (e) {
   if (e.target === lightbox) {
     hideLightbox();
   }
 });
 
-
 document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+  if (e.key === 'Escape' && lightbox && lightbox.style.display === 'flex') {
     hideLightbox();
   }
 });
@@ -93,11 +110,11 @@ const citationText = document.getElementById("citationText");
 const copyButton = document.getElementById("copyButton");
 
 
-citationText.innerHTML = "<em>" + citations['apa'] + "</em>";
+if (citationText) citationText.innerHTML = "<em>" + citations['apa'] + "</em>";
 
-citationSelect.addEventListener("change", () => {
+if (citationSelect) citationSelect.addEventListener("change", () => {
   const selected = citationSelect.value;
-  citationText.innerHTML = "<em>" + citations[selected] + "</em>";
+  if (citationText) citationText.innerHTML = "<em>" + citations[selected] + "</em>";
 });
 
 function copyCitation() {
@@ -115,7 +132,7 @@ function copyCitation() {
   });
 }
 
-copyButton.addEventListener("click", copyCitation);
+if (copyButton) copyButton.addEventListener("click", copyCitation);
 
 function downloadCitation(format) {
   let content = "";

@@ -137,7 +137,7 @@ class FakeLLM:
         self.abstract_reply = abstract_reply
         self.full_reply = full_reply
 
-    def __call__(self, prompt):
+    def __call__(self, prompt, call_no=1):
         self.calls.append(prompt)
         if "Introduction" in prompt:
             return self.full_reply
@@ -167,7 +167,7 @@ def test_triage_off_runs_single_stage():
 
 def test_unusable_samples_are_dropped_not_counted():
     replies = iter(["", "not json", resp(INC_YES, ("no", ""))])
-    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, lambda p: next(replies),
+    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, lambda p, n=1: next(replies),
                        k=3, triage=False)
     assert out["decision"] == "include"
     assert out["samples_used"] == 1
@@ -197,7 +197,7 @@ def test_disagreement_triggers_tiebreaker_call():
                  for i, v in enumerate(inc + exc)]
         return _json.dumps({"criteria": crits, "reason": "r"})
     replies = iter([raw_sample(["yes"], ["no"]), raw_sample(["no"], ["no"]), ruling])
-    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, lambda p: next(replies), k=2)
+    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, lambda p, n=1: next(replies), k=2)
     assert out["decision"] == "include"
     assert out["adjudicated"] is True
     assert out["samples_used"] == 2
@@ -208,5 +208,5 @@ def test_no_disagreement_skips_tiebreaker():
                  for i, v in enumerate(inc + exc)]
         return _json.dumps({"criteria": crits, "reason": "r"})
     replies = iter([raw_sample(["yes"], ["no"]), raw_sample(["yes"], ["no"])])
-    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, lambda p: next(replies), k=2)
+    out = screen_paper(FULL_PAPER, TRIAGE_CRITERIA, lambda p, n=1: next(replies), k=2)
     assert out["adjudicated"] is False

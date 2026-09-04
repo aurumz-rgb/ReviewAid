@@ -91,22 +91,24 @@ def run_screener():
         st.markdown("---")
 
 
-    st.caption("Write each criterion as a short sentence (around 5-6 words or more), separated by commas. "
-               "One or two-word criteria like 'adults' or 'children' match almost every paper and cause false decisions.")
+    st.caption("Write each criterion as a short phrase (around 3-6 words) that makes sense on its own, "
+               "separated by commas. Avoid single words an AI could misread - e.g. 'Blood pressure' is ambiguous "
+               "(systolic or diastolic? high or low?), while 'Systolic blood pressure reduction' is clear. "
+               "Full sentences are not needed.")
     st.subheader("Population Criteria")
-    population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18-65 diagnosed with relapsing-remitting multiple sclerosis")
-    population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Patients with comorbid autoimmune diseases other than MS")
+    population_inclusion = st.text_area("Population Inclusion Criteria", placeholder="e.g. Adults aged 18-65, Older people, Adolescents")
+    population_exclusion = st.text_area("Population Exclusion Criteria", placeholder="e.g. Pregnant women, Children under 12, Professional athletes")
 
     st.subheader("Intervention Criteria")
-    intervention_inclusion = st.text_area("Intervention Inclusion Criteria", placeholder="e.g. Natalizumab treatment continued for at least six months")
-    intervention_exclusion = st.text_area("Intervention Exclusion Criteria", placeholder="e.g. Studies where the drug dose was outside the approved range")
+    intervention_inclusion = st.text_area("Intervention Inclusion Criteria", placeholder="e.g. Natalizumab treatment, Exercise therapy programmes")
+    intervention_exclusion = st.text_area("Intervention Exclusion Criteria", placeholder="e.g. Surgical interventions, Dose escalation studies")
 
     st.subheader("Comparison Criteria")
-    comparison_inclusion = st.text_area("Comparison Inclusion Criteria", placeholder="e.g. Placebo group or no active treatment comparison")
-    comparison_exclusion = st.text_area("Comparison Exclusion Criteria", placeholder="e.g. Trials using an active comparator like interferon beta")
+    comparison_inclusion = st.text_area("Comparison Inclusion Criteria", placeholder="e.g. Placebo comparison, Usual care control")
+    comparison_exclusion = st.text_area("Comparison Exclusion Criteria", placeholder="e.g. Active drug comparators, Head-to-head trials only")
 
     st.subheader("Outcome Criteria (Optional)")
-    outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Annualized relapse rate and disability progression at two years")
+    outcome_criteria = st.text_area("Outcome Criteria", placeholder="e.g. Systolic blood pressure change, Relapse rate at 12 months")
 
     uploaded_pdfs = st.file_uploader("Upload only PDF files (DOCX/HTML not supported). Limit: upto 10 papers per batch.", accept_multiple_files=True)
     st.caption("To bypass this restriction, clone the repo and run it locally without any restrictions.")
@@ -335,7 +337,11 @@ def run_screener():
 
                 time.sleep(1)
 
-                def query_fn(prompt):
+                def query_fn(prompt, call_no=1):
+                    try:
+                        update_terminal_log(f"Paper {idx} [LLM Call #{call_no}] - per-criterion screening sample", "INFO")
+                    except:
+                        pass
                     raw = None
                     for retry_idx in range(3):
                         raw = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.0, max_tokens=8192)
