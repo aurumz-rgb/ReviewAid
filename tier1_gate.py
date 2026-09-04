@@ -101,25 +101,35 @@ def evaluate_tier1(text, exclusion_criteria, inclusion_criteria):
     criteria with no qualifying inclusion criterion - with the guards
     applied before counting. Every hit a guard threw out is reported in
     "discarded" so an exclusion can be audited after the fact.
+
+    Guards live on the exclusion side only. Inclusion criteria keep v3's
+    raw substring match on purpose: they never decide a paper, they only
+    defer it, so the loose match is the safe direction. Guarding them too
+    let papers lose their protective inclusion hit and fired the gate on
+    papers v3 would have deferred (seen in the corpus replay).
     """
     t = (text or "").lower()
     qualified_exclusions, qualified_inclusions, discarded = [], [], []
 
-    for criterion, is_exclusion in (
-            [(c, True) for c in exclusion_criteria] +
-            [(c, False) for c in inclusion_criteria]):
+    for criterion in exclusion_criteria:
         c = (criterion or "").strip().lower()
         if not c:
             continue
         verdicts = _hit_verdicts(c, t)
         if any(v[2] == "clean" for v in verdicts):
-            (qualified_exclusions if is_exclusion
-             else qualified_inclusions).append(criterion.strip())
+            qualified_exclusions.append(criterion.strip())
         for start, end, status in verdicts:
             if status != "clean":
                 entry = {"criterion": criterion.strip(), "reason": status}
                 if entry not in discarded:
                     discarded.append(entry)
+
+    for criterion in inclusion_criteria:
+        c = (criterion or "").strip().lower()
+        if not c:
+            continue
+        if c in t:
+            qualified_inclusions.append(criterion.strip())
 
     fire = corroborated(qualified_exclusions) and not qualified_inclusions
     if fire:
