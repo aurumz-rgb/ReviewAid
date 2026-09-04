@@ -1,6 +1,6 @@
 
 import pytest
-from parser import clean_json_response, _regex_extract_fallback, parse_result
+from parser import clean_json_response, _regex_extract_fallback, parse_result, df_from_results, df_from_extracted_results
 from unittest.mock import patch
 
 # 1. Test JSON Cleaning
@@ -57,3 +57,24 @@ def test_parse_result_with_unescaped_newlines(mock_log, mock_query):
     assert result["reason"] == "This is a multi-line\nreason."
     assert result["confidence"] == 0.8
     assert not mock_query.called
+def test_df_from_results_year_stays_string():
+    """Mixed int/str years made pyarrow crash the results table."""
+    results = [
+        {"filename": "a.pdf", "title": "T1", "author": "A1", "year": 2015,
+         "status": "include", "reason": "fits", "confidence": 0.9},
+        {"filename": "b.pdf", "title": "T2", "author": "A2", "year": "2015",
+         "status": "exclude", "reason": "wrong population", "confidence": 1.0},
+    ]
+    df = df_from_results(results)
+    assert list(df["Year"]) == ["2015", "2015"]
+
+def test_df_from_extracted_results_coerces_values_to_string():
+    results = [
+        {"filename": "a.pdf", "confidence": 0.8,
+         "extracted": {"Sample Size": 120, "Year": None}},
+        {"filename": "b.pdf", "confidence": 0.9,
+         "extracted": {"Sample Size": "120", "Year": "2021"}},
+    ]
+    df = df_from_extracted_results(results)
+    assert list(df["Sample Size"]) == ["120", "120"]
+    assert list(df["Year"]) == ["", "2021"]

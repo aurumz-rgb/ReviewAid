@@ -734,7 +734,7 @@ if st.session_state.app_mode is not None:
     display_citation_section()
     st.markdown("</div>", unsafe_allow_html=True)
 
-version = "3.0.0"
+version = "4.0.0"
 try:
     current_file = __file__
     last_modified_timestamp = os.path.getmtime(current_file)
