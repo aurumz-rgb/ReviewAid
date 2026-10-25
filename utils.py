@@ -938,6 +938,10 @@ def get_provider_instance(provider_name: str, api_key: str, model_name: str, **k
     
     return provider_class(api_key=api_key, model_name=model_name, **kwargs)
 
+@st.cache_resource
+def get_cached_provider(provider_name, api_key, model_name, base_url=None):
+    return get_provider_instance(provider_name, api_key, model_name, base_url=base_url)
+
 def query_llm(prompt, provider_name, api_key, model_name, temperature=0.1, max_tokens=8192):
     """
     Generic query function replacing query_zai.
@@ -964,13 +968,12 @@ def query_llm(prompt, provider_name, api_key, model_name, temperature=0.1, max_t
             except: pass
             
           
-            provider = get_provider_instance(provider_name, api_key, model_name, **extra_args)
+            provider = get_cached_provider(provider_name, api_key, model_name, extra_args.get('base_url'))
             
             messages = [{"role": "user", "content": prompt}]
             
             result_content = provider.generate(messages, temperature, max_tokens)
             
-            del provider 
             try: update_terminal_log("Response received successfully.", "SUCCESS")
             except: pass
             return result_content
