@@ -281,6 +281,7 @@ def run_extractor():
                     
        
                     raw_result = None
+                    processing_successful = False
                     prompt = ""
 
                     try:
