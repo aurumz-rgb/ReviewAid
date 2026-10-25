@@ -238,9 +238,7 @@ def run_screener():
                     else:
                         st.session_state.excluded_results.append(cached_result)
                     
-                    update_processing_stats("screener", 1)
-                    
-  
+
                     percent = int((idx / total_pdfs) * 100)
                     status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span> (Cached)</h4>", unsafe_allow_html=True)
                     progress_bar.progress(idx / total_pdfs)

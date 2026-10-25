@@ -249,20 +249,20 @@ def init_analytics():
     pass
 
 
-def increment_firebase_counter(field):
+def increment_firebase_counter(field, count=1):
     if db is None: return
     try:
         doc_ref = db.collection("ReviewAidAnalytics").document("counters")
-        doc_ref.set({field: firestore.Increment(1)}, merge=True)
+        doc_ref.set({field: firestore.Increment(count)}, merge=True)
     except Exception as e:
         st.error(f"Firebase Increment Error: {e}")
 
 def update_processing_stats(mode, count=1):
     if db is None: return
     if mode == "screener":
-        for _ in range(count): increment_firebase_counter("papers_screened")
+        increment_firebase_counter("papers_screened", count)
     elif mode == "extractor":
-        for _ in range(count): increment_firebase_counter("papers_extracted")
+        increment_firebase_counter("papers_extracted", count)
 
 def update_terminal_log(msg, level="INFO"):
     if "terminal_logs" not in st.session_state or "terminal_placeholder" not in st.session_state:

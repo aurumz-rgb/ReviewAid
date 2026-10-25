@@ -232,8 +232,7 @@ def run_extractor():
                         
                         st.session_state.extracted_results.append(cached_result)
                         
-                        update_processing_stats("extractor", 1)
-                        
+
                         papers_processed_in_batch += 1
                         
          
