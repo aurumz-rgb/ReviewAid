@@ -269,11 +269,11 @@ def update_processing_stats(mode, count=1):
 _LOG_QUEUE = queue.Queue()
 
 def update_terminal_log(msg, level="INFO"):
-    if "terminal_logs" not in st.session_state or "terminal_placeholder" not in st.session_state:
-        return
-
     if threading.current_thread() is not threading.main_thread():
         _LOG_QUEUE.put((msg, level))
+        return
+
+    if "terminal_logs" not in st.session_state or "terminal_placeholder" not in st.session_state:
         return
 
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3] 
