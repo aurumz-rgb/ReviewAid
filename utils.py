@@ -931,7 +931,7 @@ def query_llm(prompt, provider_name, api_key, model_name, temperature=0.1, max_t
         update_terminal_log(f"Initializing {provider_name} Client...", "DEBUG")
     except: pass
 
-    max_retries = 10 
+    max_retries = 5
     provider = None
 
     for attempt in range(max_retries):
@@ -965,7 +965,7 @@ def query_llm(prompt, provider_name, api_key, model_name, temperature=0.1, max_t
                 try: update_terminal_log(f"Rate Limit / Quota Exceeded detected.", "WARN")
                 except: pass
                 
-                wait_time = 15 * (2 ** attempt)
+                wait_time = min(15 * (2 ** attempt), 60)
                 if attempt < max_retries - 1:
                     try: update_terminal_log(f"Rate limit hit. Waiting {wait_time} seconds before retry...", "WARN")
                     except: pass
