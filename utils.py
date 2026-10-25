@@ -938,9 +938,15 @@ def get_provider_instance(provider_name: str, api_key: str, model_name: str, **k
     
     return provider_class(api_key=api_key, model_name=model_name, **kwargs)
 
-@st.cache_resource
+_PROVIDER_CACHE = {}
+_PROVIDER_LOCK = threading.Lock()
+
 def get_cached_provider(provider_name, api_key, model_name, base_url=None):
-    return get_provider_instance(provider_name, api_key, model_name, base_url=base_url)
+    cache_key = (provider_name, model_name, api_key, base_url)
+    with _PROVIDER_LOCK:
+        if cache_key not in _PROVIDER_CACHE:
+            _PROVIDER_CACHE[cache_key] = get_provider_instance(provider_name, api_key, model_name, base_url=base_url)
+        return _PROVIDER_CACHE[cache_key]
 
 def query_llm(prompt, provider_name, api_key, model_name, temperature=0.1, max_tokens=8192):
     """
