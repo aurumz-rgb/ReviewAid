@@ -4,7 +4,7 @@
 Thank you for your interest in contributing to **ReviewAid**!
 This project is an open-source AI-powered tool designed to assist researchers in **full-text screening and data extraction for systematic reviews and evidence synthesis**.
 
-Contributions help improve reliability, usability, and transparency — all critical for research tools.
+Contributions help improve reliability, usability, and transparency - all critical for research tools.
 
 ---
 
@@ -111,7 +111,7 @@ Since ReviewAid relies on LLMs:
 ## UI / Streamlit Contributions
 
 * Keep UI simple and research-focused
-* Avoid clutter — prioritize usability
+* Avoid clutter - prioritize usability
 * Ensure a clear workflow (Upload → Process → Output)
 * Provide helpful logs or feedback to users
 

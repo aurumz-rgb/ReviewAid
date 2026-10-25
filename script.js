@@ -17,7 +17,7 @@ let storedTheme = null;
 try {
   storedTheme = localStorage.getItem('theme');
 } catch (e) {
-  // Storage can be unavailable (e.g. file:// or blocked cookies) — fall back to dark.
+  // Storage can be unavailable (e.g. file:// or blocked cookies) - fall back to dark.
 }
 htmlElement.setAttribute('data-theme', storedTheme || 'dark');
 

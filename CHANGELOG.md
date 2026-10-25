@@ -3,8 +3,8 @@
 ## v4.1.0 (2026-10-25)
 
 A throughput and robustness release. The decision architecture is exactly
-v4.0.0's — Tier-1 deterministic gate → per-criterion Tier-2 screening with
-grounded quotes and agreement scoring → deterministic confidence override —
+v4.0.0's - Tier-1 deterministic gate → per-criterion Tier-2 screening with
+grounded quotes and agreement scoring → deterministic confidence override -
 and no screening logic changed. What changed is everything around it, driven
 by what real batches on the free default key actually looked like: papers
 processed strictly one at a time, no way to stop a batch, results appearing
@@ -31,14 +31,14 @@ only after the last paper, and two bugs that could silently lose papers.
 - **Live results**: each paper's decision (and confidence) appears as it
   finishes instead of after the whole batch.
 - Papers that error are no longer swallowed by a bare `except` at the loop
-  level — they are reported in the terminal and as an end-of-batch warning
+  level - they are reported in the terminal and as an end-of-batch warning
   listing exactly which files failed.
 
 ### Screening quality mechanics (not the logic)
 
 - The three screening samples now run at temperature 0.7, not 0.0. At
   temperature 0 the three samples were near-identical, so the majority
-  vote and the agreement score — the whole point of the k = 3 design —
+  vote and the agreement score - the whole point of the k = 3 design -
   were measuring nothing. This restores actual self-consistency sampling.
   (The extractor stays at 0.0; there a single deterministic extraction is
   correct.)
@@ -53,7 +53,7 @@ only after the last paper, and two bugs that could silently lose papers.
 
 - Fixed an `UnboundLocalError` in the extractor that crashed a paper's
   processing when the API returned empty (but not `None`) responses on
-  every retry — the paper was silently lost to the outer handler.
+  every retry - the paper was silently lost to the outer handler.
 - Rate-limit backoff is capped at 60 s with 5 attempts; the previous
   schedule could park a batch for over two hours on a single call
   (15 × 2^9 s ≈ 2.1 h).
@@ -73,7 +73,7 @@ only after the last paper, and two bugs that could silently lose papers.
 - Concurrency multiplies request rate, and the shared free default key is
   the bottleneck under it: on a congested key, 3 workers means 3x the
   429s. Bring your own key for large batches. None of the above changes
-  screening accuracy — that is deliberate; v4.0.0's measurement story
+  screening accuracy - that is deliberate; v4.0.0's measurement story
   stands as published.
 
 ## v4.0.0 (2026-09-04)

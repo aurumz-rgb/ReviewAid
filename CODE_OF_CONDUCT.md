@@ -51,7 +51,7 @@ This Code of Conduct applies to all interactions involving **ReviewAid**, includ
 
 ## Acknowledgment
 
-By participating in ReviewAid—whether using the tool, contributing code, validating data, or providing feedback—you agree to follow this Code of Conduct.
+By participating in ReviewAid - whether using the tool, contributing code, validating data, or providing feedback - you agree to follow this Code of Conduct.
 
 ---
 
