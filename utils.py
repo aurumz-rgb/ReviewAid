@@ -945,7 +945,8 @@ def get_cached_provider(provider_name, api_key, model_name, base_url=None):
     cache_key = (provider_name, model_name, api_key, base_url)
     with _PROVIDER_LOCK:
         if cache_key not in _PROVIDER_CACHE:
-            _PROVIDER_CACHE[cache_key] = get_provider_instance(provider_name, api_key, model_name, base_url=base_url)
+            kwargs = {'base_url': base_url} if base_url else {}
+            _PROVIDER_CACHE[cache_key] = get_provider_instance(provider_name, api_key, model_name, **kwargs)
         return _PROVIDER_CACHE[cache_key]
 
 def query_llm(prompt, provider_name, api_key, model_name, temperature=0.1, max_tokens=8192):
