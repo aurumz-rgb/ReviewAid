@@ -189,6 +189,7 @@ def run_screener():
         progress_bar = st.progress(0)
         
         papers_processed_in_batch = 0
+        st.session_state.batch_start = time.time()
         
 
         for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
@@ -519,7 +520,10 @@ def run_screener():
     maybe = len(st.session_state.maybe_results)
     total = included + excluded + maybe
 
-    session_duration = time.time() - st.session_state.start_time
+    if total > 0 and 'batch_start' in st.session_state:
+        session_duration = time.time() - st.session_state.batch_start
+    else:
+        session_duration = time.time() - st.session_state.start_time
     avg_speed = session_duration / total if total > 0 else 0
 
     with st.expander("Screening Dashboard", expanded=False):
