@@ -188,6 +188,8 @@ def run_screener():
 
         status_placeholder = st.empty()
         progress_bar = st.progress(0)
+        st.session_state.cancel_batch = False
+        st.checkbox("Cancel remaining papers (papers already being processed will still finish)", key="cancel_batch")
 
         papers_processed_in_batch = 0
         failed_papers = []
@@ -404,9 +406,16 @@ def run_screener():
                 futures[pool.submit(process_paper, idx, pdf.name, pdf_bytes)] = (pdf.name, pdf_hash)
 
             pending = set(futures)
+            skipped = 0
             while pending:
                 finished, pending = wait(pending, timeout=0.5, return_when=FIRST_COMPLETED)
                 drain_terminal_logs()
+                if st.session_state.get("cancel_batch"):
+                    update_terminal_log("Cancellation requested. Finishing papers already in flight...", "WARN")
+                    for fut in pending:
+                        fut.cancel()
+                    skipped = len(pending)
+                    break
                 for fut in finished:
                     pdf_name, pdf_hash = futures[fut]
                     outcome = fut.result()
@@ -446,6 +455,8 @@ def run_screener():
         drain_terminal_logs()
         try:
             update_terminal_log("=== Batch processing complete ===", "SYSTEM")
+            if skipped:
+                update_terminal_log(f"Batch cancelled by user. {skipped} paper(s) skipped.", "WARN")
             update_terminal_log(f"Processed {papers_processed_in_batch} papers in this session.", "SUCCESS")
             if failed_papers:
                 update_terminal_log(f"Papers that failed and were skipped: {', '.join(failed_papers)}", "WARN")
