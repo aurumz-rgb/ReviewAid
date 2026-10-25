@@ -270,15 +270,6 @@ def run_screener():
                     "outcome": outcome_criteria
                 }
                 
-                confidence = estimate_confidence(
-                    text, 
-                    mode="screener", 
-                    criteria_dict=criteria_dict, 
-                    extracted_data=None, 
-                    fields_list=fields_list
-                )
-                
-              
                 all_exclusions = []
                 for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
                     if block.strip():
