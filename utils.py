@@ -522,7 +522,12 @@ def preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_SCREENER):
             update_terminal_log(f"Text exceeds token limit ({len(text)} > {char_limit}). Truncating...", "WARN")
         except:
             pass
-        text = text[:char_limit]
+        head = text[:char_limit]
+        cut = max(head.rfind(". "), head.rfind(".\n"))
+        if cut > char_limit // 2:
+            text = head[:cut + 1]
+        else:
+            text = head
     
     return text
 
