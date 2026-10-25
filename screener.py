@@ -344,7 +344,7 @@ def run_screener():
                         pass
                     raw = None
                     for retry_idx in range(3):
-                        raw = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.0, max_tokens=8192)
+                        raw = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.7, max_tokens=8192)
                         if raw and raw.strip():
                             break
                         if retry_idx < 2:
