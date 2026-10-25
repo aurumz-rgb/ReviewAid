@@ -5,10 +5,11 @@ import time
 import gc
 import hashlib
 import os
+from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 
 
 from utils import (
-    update_terminal_log, extract_pdf_content, preprocess_text_for_ai, 
+    update_terminal_log, drain_terminal_logs, extract_pdf_content, preprocess_text_for_ai, 
     MAX_INPUT_TOKENS_SCREENER, MAX_OUTPUT_TOKENS, MAX_PAPERS, update_processing_stats,
     to_docx, to_csv, to_excel, display_citation_section, query_llm
 )
@@ -184,105 +185,51 @@ def run_screener():
 
         max_papers = MAX_PAPERS
         total_pdfs = min(len(uploaded_pdfs), max_papers)
-        
+
         status_placeholder = st.empty()
         progress_bar = st.progress(0)
-        
-        papers_processed_in_batch = 0
-        st.session_state.batch_start = time.time()
-        
 
-        for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
-            
-   
-            if pdf is None:
-                continue
-            print(f"\n--- [SCREENER] Processing PDF {idx}/{total_pdfs}: {pdf.name} ---", flush=True)
-            
-  
-            title, author, year = "", "", ""
-            result = None
-            text = ""
-            full_text_backup = ""
-            
-       
+        papers_processed_in_batch = 0
+        failed_papers = []
+        st.session_state.batch_start = time.time()
+
+        criteria_dict = {
+            "pop_inc": population_inclusion,
+            "pop_exc": population_exclusion,
+            "int_inc": intervention_inclusion,
+            "int_exc": intervention_exclusion,
+            "comp_inc": comparison_inclusion,
+            "comp_exc": comparison_exclusion,
+            "outcome": outcome_criteria
+        }
+
+        all_exclusions = []
+        for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
+            if block.strip():
+                all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
+
+        all_inclusions = []
+        for block in [population_inclusion, intervention_inclusion, comparison_inclusion]:
+            if block.strip():
+                all_inclusions.extend([c.strip() for c in block.split(",") if c.strip()])
+
+        def process_paper(idx, pdf_name, pdf_bytes):
+            print(f"\n--- [SCREENER] Processing PDF {idx}/{total_pdfs}: {pdf_name} ---", flush=True)
             try:
                 start_time_file = time.time()
-                
 
-                try:
-                    pdf.seek(0)
-                    pdf_bytes = pdf.read()
-                except Exception as e:
-                    update_terminal_log(f"File read error for {pdf.name}: {str(e)}", "ERROR")
-                  
-                    progress_bar.progress(idx / total_pdfs)
-                    continue
-                
-        
-                pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
-                
-                if pdf_hash in st.session_state.batch_file_hashes:
-       
-                    update_terminal_log(f"Duplicate detected (Hash match). Using cached result.", "INFO")
-                    cached_result = st.session_state.batch_file_hashes[pdf_hash]
-                    cached_result["filename"] = pdf.name
-                    
-                    status = cached_result.get("status", "").lower()
-                    if "include" in status:
-                        st.session_state.included_results.append(cached_result)
-                    elif "exclude" in status:
-                        st.session_state.excluded_results.append(cached_result)
-                    elif "maybe" in status:
-                        st.session_state.maybe_results.append(cached_result)
-                    else:
-                        st.session_state.excluded_results.append(cached_result)
-                    
-
-                    percent = int((idx / total_pdfs) * 100)
-                    status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span> (Cached)</h4>", unsafe_allow_html=True)
-                    progress_bar.progress(idx / total_pdfs)
-                    
-          
-                    del pdf_bytes 
-                    continue
-                
-      
                 text, title, author, year = extract_pdf_content(pdf_bytes)
-                del pdf_bytes 
+                del pdf_bytes
 
                 if not text.strip():
-                    update_terminal_log(f"PDF '{pdf.name}' appears empty or unreadable.", "WARN")
-                    progress_bar.progress(idx / total_pdfs)
-                    continue
-                
+                    update_terminal_log(f"PDF '{pdf_name}' appears empty or unreadable.", "WARN")
+                    return {"kind": "empty"}
+
                 full_text_backup = text
                 text = preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_SCREENER)
 
-       
-                criteria_dict = {
-                    "pop_inc": population_inclusion,
-                    "pop_exc": population_exclusion,
-                    "int_inc": intervention_inclusion,
-                    "int_exc": intervention_exclusion,
-                    "comp_inc": comparison_inclusion,
-                    "comp_exc": comparison_exclusion,
-                    "outcome": outcome_criteria
-                }
-                
-                all_exclusions = []
-                for block in [population_exclusion, intervention_exclusion, comparison_exclusion]:
-                    if block.strip():
-                        all_exclusions.extend([c.strip() for c in block.split(",") if c.strip()])
-
-                all_inclusions = []
-                for block in [population_inclusion, intervention_inclusion, comparison_inclusion]:
-                    if block.strip():
-                        all_inclusions.extend([c.strip() for c in block.split(",") if c.strip()])
-
                 verdict = evaluate_tier1(text, all_exclusions, all_inclusions)
                 matches_exc = verdict["qualified_exclusions"]
-                matches_inc = verdict["qualified_inclusions"]
 
                 for hit in verdict["discarded"]:
                     try:
@@ -296,34 +243,16 @@ def run_screener():
                         pass
 
                 if verdict["decision"] == "exclude":
-                    exclusion_reason = verdict["reason"]
-                    confidence = 1.0
-                    
                     result = {
-                        "filename": pdf.name,
+                        "filename": pdf_name,
                         "status": "Exclude",
-                        "reason": exclusion_reason[:500], 
-                        "confidence": confidence,
+                        "reason": verdict["reason"][:500],
+                        "confidence": 1.0,
                         "title": title,
                         "author": author,
                         "year": year
                     }
-                    
-                    st.session_state.batch_file_hashes[pdf_hash] = result
-                    st.session_state.excluded_results.append(result)
-                    
-                    update_processing_stats("screener", 1)
-                    papers_processed_in_batch += 1
-
-               
-                    percent = int((idx / total_pdfs) * 100)
-                    status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span></h4>", unsafe_allow_html=True)
-                    progress_bar.progress(idx / total_pdfs)
-                    
-        
-                    del text, full_text_backup, matches_exc, matches_inc, title, author, year, all_exclusions, all_inclusions
-                    continue
-                
+                    return {"kind": "exclude", "result": result}
 
                 time.sleep(1)
 
@@ -349,7 +278,7 @@ def run_screener():
                 samples_used = verdict.get("samples_used", 0)
 
                 result = {
-                    "filename": pdf.name,
+                    "filename": pdf_name,
                     "status": verdict["decision"].capitalize(),
                     "reason": verdict["reason"],
                     "confidence": verdict["agreement"],
@@ -370,140 +299,158 @@ def run_screener():
                     except:
                         pass
 
-                if result:
+                deterministic_confidence = estimate_confidence(
+                    full_text_backup,
+                    mode="screener",
+                    criteria_dict=criteria_dict,
+                    extracted_data=None,
+                    fields_list=fields_list
+                )
 
-                    deterministic_confidence = estimate_confidence(
-                        full_text_backup, 
-                        mode="screener", 
-                        criteria_dict=criteria_dict, 
-                        extracted_data=None,
-                        fields_list=fields_list
-                    )
-                    
+                del full_text_backup
 
-                    del full_text_backup
-                    gc.collect()
-                    
-                    ai_confidence = result.get("confidence", None)
-                    if ai_confidence is not None:
+                ai_confidence = result.get("confidence", None)
+                if ai_confidence is not None:
+                    try:
+                        ai_confidence = max(0.0, min(1.0, float(ai_confidence)))
+                    except ValueError:
+                        ai_confidence = 0.0
+
+                    if deterministic_confidence < 0.5 and ai_confidence > 0.5:
                         try:
-                            ai_confidence = max(0.0, min(1.0, float(ai_confidence)))
-                        except ValueError:
-                            ai_confidence = 0.0
-                        
-
-                        if deterministic_confidence < 0.5 and ai_confidence > 0.5:
-                            try:
-                                update_terminal_log(f"AI reported {ai_confidence}, but Tier 1 verification found {deterministic_confidence}. Overriding to flag for review.", "WARN")
-                            except: pass
-                            confidence = deterministic_confidence
-                        else:
-                            confidence = min(ai_confidence, 0.95)
-                            try:
-                                update_terminal_log(f"Tier 1 verified. Using AI reported confidence: {confidence}", "INFO")
-                            except: pass
-                    else:
-                        try:
-                            update_terminal_log(f"Confidence missing. Using Tier 1 deterministic score: {deterministic_confidence}", "WARN")
+                            update_terminal_log(f"AI reported {ai_confidence}, but Tier 1 verification found {deterministic_confidence}. Overriding to flag for review.", "WARN")
                         except: pass
                         confidence = deterministic_confidence
-
-                    result["confidence"] = confidence
-                    
-                    if confidence < 0.5:
-                        result["flags"] = ["low_confidence"]
-                        try:
-                            update_terminal_log("Flagged: Low confidence score.", "WARN")
-                        except:
-                            pass
-
-                    if "title" not in result or not result["title"] or result["title"] == "":
-                        result["title"] = title
-                    if "author" not in result or not result["author"] or result["author"] == "":
-                        result["author"] = author
-                    if "year" not in result or not result["year"] or result["year"] == "":
-                        result["year"] = year
-                    
-                    
-                    del title, author, year
-
-                    status = result.get("status", "").strip().lower() 
-                    if "include" in status:
-                        status = "include"
-                    elif "exclude" in status:
-                        status = "exclude"
-                    elif "maybe" in status:
-                        status = "maybe"
                     else:
-                         status = "exclude"
-                    
-                    if len(result.get("reason", "")) > 500:
-                        result["reason"] = result["reason"][:500] + "..."
+                        confidence = min(ai_confidence, 0.95)
+                        try:
+                            update_terminal_log(f"Tier 1 verified. Using AI reported confidence: {confidence}", "INFO")
+                        except: pass
+                else:
+                    try:
+                        update_terminal_log(f"Confidence missing. Using Tier 1 deterministic score: {deterministic_confidence}", "WARN")
+                    except: pass
+                    confidence = deterministic_confidence
 
-                    if status == "include":
-                        st.session_state.included_results.append(result)
-                        try:
-                            update_terminal_log(f"Final Decision: INCLUDE", "SUCCESS")
-                        except:
-                            pass
-                    elif status == "exclude":
-                        st.session_state.excluded_results.append(result)
-                        try:
-                            update_terminal_log(f"Final Decision: EXCLUDE", "SUCCESS")
-                        except:
-                            pass
-                    elif status == "maybe":
-                        st.session_state.maybe_results.append(result)
-                        try:
-                            update_terminal_log(f"Final Decision: MAYBE", "SUCCESS")
-                        except:
-                            pass
-                    else:
-                        st.session_state.excluded_results.append(result)
-                        try:
-                            update_terminal_log(f"Final Decision: EXCLUDE (Default)", "INFO")
-                        except:
-                            pass
-                    
-                    update_processing_stats("screener", 1)
-                    print(f"--- [SCREENER] Result generated for: {pdf.name} (Decision: {status.upper()}) ---", flush=True)
-                    papers_processed_in_batch += 1
+                result["confidence"] = confidence
 
-                    st.session_state.batch_file_hashes[pdf_hash] = result
-                
-             
+                if confidence < 0.5:
+                    result["flags"] = ["low_confidence"]
+                    try:
+                        update_terminal_log("Flagged: Low confidence score.", "WARN")
+                    except:
+                        pass
+
+                status = result.get("status", "").strip().lower()
+                if "include" in status:
+                    status = "include"
+                elif "exclude" in status:
+                    status = "exclude"
+                elif "maybe" in status:
+                    status = "maybe"
+                else:
+                    status = "exclude"
+
+                if len(result.get("reason", "")) > 500:
+                    result["reason"] = result["reason"][:500] + "..."
+
                 elapsed = time.time() - start_time_file
                 try:
                     update_terminal_log(f"File processed in {elapsed:.2f}s.", "SYSTEM")
                 except:
                     pass
-                    
-                percent = int((idx / total_pdfs) * 100)
-                status_placeholder.markdown(f"<h6 style='text-align: center; color: 'white';'>Processed {percent}% of papers... Processing <span style='color: #4189DC'> {pdf.name}</span></h6>", unsafe_allow_html=True)
-                progress_bar.progress(idx / total_pdfs)
 
-            except Exception as e:               
+                return {"kind": status, "result": result}
+
+            except Exception as e:
+                import traceback
+                return {"kind": "error", "error": str(e), "traceback": traceback.format_exc()}
+
+        done_count = 0
+
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            futures = {}
+
+            for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
+
+                if pdf is None:
+                    continue
+
                 try:
-                    update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
-                except:
-                    pass
-                try:
-                    import traceback
-                    update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
-                except:
-                    pass
-        
-        
-                gc.collect()
+                    pdf.seek(0)
+                    pdf_bytes = pdf.read()
+                except Exception as e:
+                    update_terminal_log(f"File read error for {pdf.name}: {str(e)}", "ERROR")
+                    continue
 
+                pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
 
+                if pdf_hash in st.session_state.batch_file_hashes:
+                    update_terminal_log(f"Duplicate detected (Hash match). Using cached result.", "INFO")
+                    cached_result = st.session_state.batch_file_hashes[pdf_hash]
+                    cached_result["filename"] = pdf.name
+
+                    cached_status = cached_result.get("status", "").lower()
+                    if "include" in cached_status:
+                        st.session_state.included_results.append(cached_result)
+                    elif "maybe" in cached_status:
+                        st.session_state.maybe_results.append(cached_result)
+                    else:
+                        st.session_state.excluded_results.append(cached_result)
+
+                    del pdf_bytes
+                    continue
+
+                futures[pool.submit(process_paper, idx, pdf.name, pdf_bytes)] = (pdf.name, pdf_hash)
+
+            pending = set(futures)
+            while pending:
+                finished, pending = wait(pending, timeout=0.5, return_when=FIRST_COMPLETED)
+                drain_terminal_logs()
+                for fut in finished:
+                    pdf_name, pdf_hash = futures[fut]
+                    outcome = fut.result()
+
+                    if outcome["kind"] == "error":
+                        update_terminal_log(f"CRITICAL ERROR processing {pdf_name}: {outcome['error']}", "ERROR")
+                        update_terminal_log(f"Traceback: {outcome['traceback']}", "ERROR")
+                        failed_papers.append(pdf_name)
+                    elif outcome["kind"] == "empty":
+                        pass
+                    else:
+                        result = outcome["result"]
+                        st.session_state.batch_file_hashes[pdf_hash] = result
+
+                        if outcome["kind"] == "include":
+                            st.session_state.included_results.append(result)
+                            update_terminal_log(f"Final Decision: INCLUDE", "SUCCESS")
+                        elif outcome["kind"] == "maybe":
+                            st.session_state.maybe_results.append(result)
+                            update_terminal_log(f"Final Decision: MAYBE", "SUCCESS")
+                        else:
+                            st.session_state.excluded_results.append(result)
+                            update_terminal_log(f"Final Decision: EXCLUDE", "SUCCESS")
+
+                        update_processing_stats("screener", 1)
+                        print(f"--- [SCREENER] Result generated for: {pdf_name} (Decision: {outcome['kind'].upper()}) ---", flush=True)
+                        papers_processed_in_batch += 1
+
+                    done_count += 1
+                    percent = int((done_count / total_pdfs) * 100)
+                    status_placeholder.markdown(f"<h6 style='text-align: center;'>Processed {percent}% of papers... {done_count}/{total_pdfs} done</h6>", unsafe_allow_html=True)
+                    progress_bar.progress(min(done_count / total_pdfs, 1.0))
+                    gc.collect()
+
+        progress_bar.progress(1.0)
         status_placeholder.empty()
+        drain_terminal_logs()
         try:
             update_terminal_log("=== Batch processing complete ===", "SYSTEM")
             update_terminal_log(f"Processed {papers_processed_in_batch} papers in this session.", "SUCCESS")
+            if failed_papers:
+                update_terminal_log(f"Papers that failed and were skipped: {', '.join(failed_papers)}", "WARN")
         except:
             pass
-
     included = len(st.session_state.included_results)
     excluded = len(st.session_state.excluded_results)
     maybe = len(st.session_state.maybe_results)

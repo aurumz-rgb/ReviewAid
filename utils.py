@@ -21,6 +21,8 @@ from streamlit_lottie import st_lottie
 import streamlit.components.v1 as components
 import base64
 import pytesseract
+import threading
+import queue
 from PIL import Image
 
 try:
@@ -264,8 +266,14 @@ def update_processing_stats(mode, count=1):
     elif mode == "extractor":
         increment_firebase_counter("papers_extracted", count)
 
+_LOG_QUEUE = queue.Queue()
+
 def update_terminal_log(msg, level="INFO"):
     if "terminal_logs" not in st.session_state or "terminal_placeholder" not in st.session_state:
+        return
+
+    if threading.current_thread() is not threading.main_thread():
+        _LOG_QUEUE.put((msg, level))
         return
 
     timestamp = datetime.now().strftime("%H:%M:%S.%f")[:-3] 
@@ -310,6 +318,15 @@ def update_terminal_log(msg, level="INFO"):
         except Exception:
             pass
         st.session_state.last_log_update_time = current_time
+
+def drain_terminal_logs():
+    """Flush log lines queued by worker threads onto the main thread."""
+    while True:
+        try:
+            msg, level = _LOG_QUEUE.get_nowait()
+        except queue.Empty:
+            return
+        update_terminal_log(msg, level)
 
 def extract_pdf_content(pdf_bytes, enable_ocr=False):
     try:

@@ -3,10 +3,11 @@ import pandas as pd
 import time
 import gc
 import hashlib
+from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
 
 
 from utils import (
-    update_terminal_log, extract_pdf_content, preprocess_text_for_ai, 
+    update_terminal_log, drain_terminal_logs, extract_pdf_content, preprocess_text_for_ai, 
     MAX_INPUT_TOKENS_EXTRACTOR, MAX_OUTPUT_TOKENS, MAX_PAPERS, update_processing_stats,
     to_docx, to_csv, to_excel, display_citation_section, query_llm
 )
@@ -185,117 +186,52 @@ def run_extractor():
 
         max_papers = MAX_PAPERS
         total_pdfs = min(len(uploaded_pdfs), max_papers)
-        
+
         status_placeholder = st.empty()
         progress_bar = st.progress(0)
-        
-        if "last_log_update_time" not in st.session_state:
-            st.session_state.last_log_update_time = 0.0
-        
+
         papers_processed_in_batch = 0
-        
-       
-        try:
-            for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
-                gc.collect()
-                
-                result = None
-                text = ""
-                full_text_backup = ""
-                title, author, year = "", "", "" 
-                
-                if pdf is None:
-                    continue
-                print(f"\n--- [EXTRACTOR] Processing PDF {idx}/{total_pdfs}: {pdf.name} ---", flush=True)
+        failed_papers = []
+        st.session_state.batch_start = time.time()
+
+        criteria_dict = {}
+
+        def process_paper(idx, pdf_name, pdf_bytes):
+            print(f"\n--- [EXTRACTOR] Processing PDF {idx}/{total_pdfs}: {pdf_name} ---", flush=True)
+            gc.collect()
+            try:
+                start_time_file = time.time()
+
+                if enable_ocr:
+                    update_terminal_log("OCR Mode Enabled. Scanning pages for images...", "INFO")
+
+                text, title, author, year = extract_pdf_content(pdf_bytes, enable_ocr=enable_ocr)
+                del pdf_bytes
+
+                if not text.strip():
+                    update_terminal_log(f"PDF '{pdf_name}' appears empty or unreadable.", "WARN")
+                    return {"kind": "empty"}
+
+                full_text_backup = text
+                text = preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_EXTRACTOR)
+
+                raw_result = None
+                processing_successful = False
+                prompt = ""
 
                 try:
-                    start_time_file = time.time()
-                    
-            
-                    try:
-                        pdf.seek(0)
-                        pdf_bytes = pdf.read()
-                    except Exception as e:
-                        update_terminal_log(f"File read error for {pdf.name}: {str(e)}", "ERROR")
-                     
-                        progress_bar.progress(idx / total_pdfs)
-                        continue
-                    
-    
-                    pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
-                    
-                    if pdf_hash in st.session_state.batch_file_hashes:
-          
-                        update_terminal_log(f"Duplicate file detected (Hash match). Using cached result.", "INFO")
-                        cached_result = st.session_state.batch_file_hashes[pdf_hash]
-                        cached_result["filename"] = pdf.name
-                        
-                        st.session_state.extracted_results.append(cached_result)
-                        
+                    update_terminal_log(f"Preparing extraction fields: {', '.join(fields_list)}", "INFO")
+                except:
+                    pass
+                prompt = "Extract the following information from the research paper:\n\n"
+                for field in fields_list:
+                    description = FIELD_DESCRIPTIONS.get(field, f"Information about {field}")
+                    prompt += f"- {field}: {description}\n"
+                prompt += effect_direction_rule(fields_list)
 
-                        papers_processed_in_batch += 1
-                        
-         
-                        try:
-                            percent = int((idx / total_pdfs) * 100)
-                            status_placeholder.markdown(f"<h4 style='text-align: center; color: #4189DC;'>{percent}% Work Done... Processing <span style='color: white'>{pdf.name}</span> (Cached)</h4>", unsafe_allow_html=True)
-                            progress_bar.progress(idx / total_pdfs)
-                            update_terminal_log("Skipped API call. Using cached data.", "SUCCESS")
-                        except:
-                            pass
-                        
-               
-                        del pdf_bytes 
-                        continue
-                    
-       
-                    if enable_ocr:
-                         update_terminal_log("OCR Mode Enabled. Scanning pages for images...", "INFO")
-                    
-                    text, title, author, year = extract_pdf_content(pdf_bytes, enable_ocr=enable_ocr)
-                    
-                    del pdf_bytes 
+                time.sleep(1)
 
-                    if not text.strip():
-                        update_terminal_log(f"PDF '{pdf.name}' appears empty or unreadable.", "WARN")
-                        try:
-                            progress_bar.progress(idx / total_pdfs)
-                        except:
-                            pass
-                        continue
-                    
-                    full_text_backup = text
-                    text = preprocess_text_for_ai(text, max_tokens=MAX_INPUT_TOKENS_EXTRACTOR)
-
-         
-                    criteria_dict = {} 
-                    
-                    confidence = estimate_confidence(
-                        text, 
-                        mode="extractor", 
-                        criteria_dict=criteria_dict, 
-                        extracted_data=None, 
-                        fields_list=fields_list
-                    )
-                    
-       
-                    raw_result = None
-                    processing_successful = False
-                    prompt = ""
-
-                    try:
-                        update_terminal_log(f"Preparing extraction fields: {', '.join(fields_list)}", "INFO")
-                    except:
-                        pass
-                    prompt = "Extract the following information from the research paper:\n\n"
-                    for field in fields_list:
-                        description = FIELD_DESCRIPTIONS.get(field, f"Information about {field}")
-                        prompt += f"- {field}: {description}\n"
-                    prompt += effect_direction_rule(fields_list)
-                    
-                    time.sleep(1)
-                    
-                    prompt += f"""
+                prompt += f"""
 **Paper Text:**
 \"\"\"
 {text}
@@ -314,214 +250,241 @@ If a field is not found in the text, use the value "Not Found".
 {{
   "extracted": {{
 """
-                    for field in fields_list:
-                        prompt += f'    "{field}": "",\n'
-                    
-                    prompt = prompt.rstrip(",\n") + "\n  },\n"
-                    prompt += '  "confidence": 0.0\n}'
-                    prompt += "\nEnsure that JSON is valid. Use 'Not Found' for missing data.\n"
-                
-         
-                    max_api_attempts = 3 
-                    retries_per_api_attempt = 3
-                    
-                    for api_attempt in range(max_api_attempts):
-                        if api_attempt > 0:
+                for field in fields_list:
+                    prompt += f'    "{field}": "",\n'
+
+                prompt = prompt.rstrip(",\n") + "\n  },\n"
+                prompt += '  "confidence": 0.0\n}'
+                prompt += "\nEnsure that JSON is valid. Use 'Not Found' for missing data.\n"
+
+                max_api_attempts = 3
+                retries_per_api_attempt = 3
+
+                for api_attempt in range(max_api_attempts):
+                    if api_attempt > 0:
+                        try:
+                            update_terminal_log("Previous attempt failed after retries. Initiating NEW API call for this paper...", "WARN")
+                        except:
+                            pass
+
+                    for retry_idx in range(retries_per_api_attempt):
+                        raw_result = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.0, max_tokens=MAX_OUTPUT_TOKENS)
+
+                        if raw_result is None:
                             try:
-                                update_terminal_log("Previous attempt failed after retries. Initiating NEW API call for this paper...", "WARN")
+                                update_terminal_log("API returned None after exhaustive retries. Falling back to Regex.", "ERROR")
                             except:
                                 pass
-                        
-                        for retry_idx in range(retries_per_api_attempt):
-                            raw_result = query_llm(prompt, provider_for_call, api_key, model_name, temperature=0.0, max_tokens=MAX_OUTPUT_TOKENS)
-            
-                            if raw_result is None:
-                                try:
-                                    update_terminal_log("API returned None after exhaustive retries. Falling back to Regex.", "ERROR")
-                                except:
-                                    pass
-                                processing_successful = False
-                                break 
-                            
-                            if raw_result and raw_result.strip():
-                                processing_successful = True
-                                break 
-                            
-                            if retry_idx < retries_per_api_attempt - 1:
-                                 try:
-                                     update_terminal_log(f"API returned empty response. Retry {retry_idx + 2}/{retries_per_api_attempt}...", "ERROR")
-                                 except:
-                                     pass
-                                 time.sleep(2)
-                        
-                        if processing_successful:
+                            processing_successful = False
                             break
-                    
-                    
-                    del prompt 
-                    del text
 
-                
-                    if not processing_successful:
-                        try:
-                            update_terminal_log("AI processing failed. Switching to Regex Fallback (Local Processing) to ensure result is generated.", "WARN")
-                        except:
-                            pass
+                        if raw_result and raw_result.strip():
+                            processing_successful = True
+                            break
 
-                    if raw_result:
-                         try:
-                             update_terminal_log(f"API response received. Length: {len(raw_result)} chars.", "SUCCESS")
-                         except:
-                             pass
-                         try:
-                             update_terminal_log("Parsing JSON response...", "INFO")
-                         except:
-                             pass
-                    else:
-                         try:
-                             update_terminal_log("Using Fallback Strategy for parsing...", "WARN")
-                         except:
-                             pass
-
-                    result = parse_result(raw_result, provider_for_call, api_key, model_name, mode="extractor", fields_list=fields_list, original_text=full_text_backup)
-                    
-                    if "extracted" not in result:
-                        result["extracted"] = {}
-                    
-                    for field in fields_list:
-                        if field not in result["extracted"]:
-                            result["extracted"][field] = "Not Found"
-                    
-                    if result:
-                        processing_successful = True
-                        
-                        if "filename" not in result:
-                            result["filename"] = pdf.name
-                    
-                    
-                    
-                    
-                    if raw_result:
-                        del raw_result
-
-                    if result and processing_successful:
-                        try:
-                            update_terminal_log("Result generation completed (AI or Fallback).", "SUCCESS")
-                        except:
-                            pass
-
-         
-                        deterministic_confidence = estimate_confidence(
-                            full_text_backup, 
-                            mode="extractor", 
-                            criteria_dict=criteria_dict, 
-                            extracted_data=result.get("extracted"),
-                            fields_list=fields_list
-                        )
-                        
-          
-                        del full_text_backup
-                        gc.collect()
-                        
-                        ai_confidence = result.get("confidence", None)
-                        if ai_confidence is not None:
+                        if retry_idx < retries_per_api_attempt - 1:
                             try:
-                                ai_confidence = max(0.0, min(1.0, float(ai_confidence)))
-                            except ValueError:
-                                ai_confidence = 0.0
-                            
+                                update_terminal_log(f"API returned empty response. Retry {retry_idx + 2}/{retries_per_api_attempt}...", "ERROR")
+                            except:
+                                pass
+                            time.sleep(2)
 
-                            if deterministic_confidence < 0.5 and ai_confidence > 0.5:
-                                try:
-                                    update_terminal_log(f"AI reported {ai_confidence}, but Tier 1 verification found {deterministic_confidence}. Overriding to flag for review.", "WARN")
-                                except: pass
-                                confidence = deterministic_confidence
-                            else:
-                                confidence = min(ai_confidence, 0.95)
-                                try:
-                                    update_terminal_log(f"Tier 1 verified. Using AI reported confidence: {confidence}", "INFO")
-                                except: pass
-                        else:
+                    if processing_successful:
+                        break
+
+                del prompt
+                del text
+
+                if not processing_successful:
+                    try:
+                        update_terminal_log("AI processing failed. Switching to Regex Fallback (Local Processing) to ensure result is generated.", "WARN")
+                    except:
+                        pass
+
+                if raw_result:
+                    try:
+                        update_terminal_log(f"API response received. Length: {len(raw_result)} chars.", "SUCCESS")
+                    except:
+                        pass
+                    try:
+                        update_terminal_log("Parsing JSON response...", "INFO")
+                    except:
+                        pass
+                else:
+                    try:
+                        update_terminal_log("Using Fallback Strategy for parsing...", "WARN")
+                    except:
+                        pass
+
+                result = parse_result(raw_result, provider_for_call, api_key, model_name, mode="extractor", fields_list=fields_list, original_text=full_text_backup)
+
+                if "extracted" not in result:
+                    result["extracted"] = {}
+
+                for field in fields_list:
+                    if field not in result["extracted"]:
+                        result["extracted"][field] = "Not Found"
+
+                if result:
+                    processing_successful = True
+
+                    if "filename" not in result:
+                        result["filename"] = pdf_name
+
+                if raw_result:
+                    del raw_result
+
+                if result and processing_successful:
+                    try:
+                        update_terminal_log("Result generation completed (AI or Fallback).", "SUCCESS")
+                    except:
+                        pass
+
+                    deterministic_confidence = estimate_confidence(
+                        full_text_backup,
+                        mode="extractor",
+                        criteria_dict=criteria_dict,
+                        extracted_data=result.get("extracted"),
+                        fields_list=fields_list
+                    )
+
+                    del full_text_backup
+
+                    ai_confidence = result.get("confidence", None)
+                    if ai_confidence is not None:
+                        try:
+                            ai_confidence = max(0.0, min(1.0, float(ai_confidence)))
+                        except ValueError:
+                            ai_confidence = 0.0
+
+                        if deterministic_confidence < 0.5 and ai_confidence > 0.5:
                             try:
-                                update_terminal_log(f"Confidence missing. Using Tier 1 deterministic score: {deterministic_confidence}", "WARN")
+                                update_terminal_log(f"AI reported {ai_confidence}, but Tier 1 verification found {deterministic_confidence}. Overriding to flag for review.", "WARN")
                             except: pass
                             confidence = deterministic_confidence
-
-                        result["confidence"] = confidence
-                        
-                        if confidence < 0.5:
-                            result["flags"] = ["low_confidence"]
+                        else:
+                            confidence = min(ai_confidence, 0.95)
                             try:
-                                update_terminal_log("Flagged: Low confidence score.", "WARN")
-                            except:
-                                pass
-                             
-                        if "Paper Title" in result["extracted"]:
-                            if result["extracted"]["Paper Title"] == "Not Found" or not result["extracted"]["Paper Title"]:
-                                result["extracted"]["Paper Title"] = title
-                        
-                        for key in result["extracted"]:
-                            if isinstance(result["extracted"][key], str) and len(result["extracted"][key]) > 10000:
-                                result["extracted"][key] = result["extracted"][key][:10000] + "..."
-
-                        st.session_state.extracted_results.append(result)
+                                update_terminal_log(f"Tier 1 verified. Using AI reported confidence: {confidence}", "INFO")
+                            except: pass
+                    else:
                         try:
-                            update_terminal_log("Data extraction completed.", "SUCCESS")
+                            update_terminal_log(f"Confidence missing. Using Tier 1 deterministic score: {deterministic_confidence}", "WARN")
+                        except: pass
+                        confidence = deterministic_confidence
+
+                    result["confidence"] = confidence
+
+                    if confidence < 0.5:
+                        result["flags"] = ["low_confidence"]
+                        try:
+                            update_terminal_log("Flagged: Low confidence score.", "WARN")
                         except:
                             pass
-                        print(f"--- [EXTRACTOR] Result generated for: {pdf.name} ---", flush=True)
+
+                    if "Paper Title" in result["extracted"]:
+                        if result["extracted"]["Paper Title"] == "Not Found" or not result["extracted"]["Paper Title"]:
+                            result["extracted"]["Paper Title"] = title
+
+                    for key in result["extracted"]:
+                        if isinstance(result["extracted"][key], str) and len(result["extracted"][key]) > 10000:
+                            result["extracted"][key] = result["extracted"][key][:10000] + "..."
+
+                    try:
+                        update_terminal_log("Data extraction completed.", "SUCCESS")
+                    except:
+                        pass
+                    print(f"--- [EXTRACTOR] Result generated for: {pdf_name} ---", flush=True)
+
+                    elapsed = time.time() - start_time_file
+                    try:
+                        update_terminal_log(f"File processed in {elapsed:.2f}s.", "SYSTEM")
+                    except:
+                        pass
+
+                    return {"kind": "ok", "result": result}
+
+                return {"kind": "error", "error": "Extraction produced no result", "traceback": ""}
+
+            except Exception as e:
+                import traceback
+                return {"kind": "error", "error": str(e), "traceback": traceback.format_exc()}
+
+        done_count = 0
+
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            futures = {}
+
+            for idx, pdf in enumerate(uploaded_pdfs[:max_papers], 1):
+
+                if pdf is None:
+                    continue
+
+                try:
+                    pdf.seek(0)
+                    pdf_bytes = pdf.read()
+                except Exception as e:
+                    update_terminal_log(f"File read error for {pdf.name}: {str(e)}", "ERROR")
+                    continue
+
+                pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
+
+                if pdf_hash in st.session_state.batch_file_hashes:
+                    update_terminal_log(f"Duplicate file detected (Hash match). Using cached result.", "INFO")
+                    cached_result = st.session_state.batch_file_hashes[pdf_hash]
+                    cached_result["filename"] = pdf.name
+
+                    st.session_state.extracted_results.append(cached_result)
+                    papers_processed_in_batch += 1
+                    update_terminal_log("Skipped API call. Using cached data.", "SUCCESS")
+
+                    del pdf_bytes
+                    continue
+
+                futures[pool.submit(process_paper, idx, pdf.name, pdf_bytes)] = (pdf.name, pdf_hash)
+
+            pending = set(futures)
+            while pending:
+                finished, pending = wait(pending, timeout=0.5, return_when=FIRST_COMPLETED)
+                drain_terminal_logs()
+                for fut in finished:
+                    pdf_name, pdf_hash = futures[fut]
+                    outcome = fut.result()
+
+                    if outcome["kind"] == "error":
+                        update_terminal_log(f"CRITICAL ERROR processing {pdf_name}: {outcome['error']}", "ERROR")
+                        if outcome.get("traceback"):
+                            update_terminal_log(f"Traceback: {outcome['traceback']}", "ERROR")
+                        failed_papers.append(pdf_name)
+                    elif outcome["kind"] == "empty":
+                        pass
+                    else:
+                        result = outcome["result"]
+                        st.session_state.batch_file_hashes[pdf_hash] = result
+                        st.session_state.extracted_results.append(result)
+
                         try:
                             update_processing_stats("extractor", 1)
                         except:
                             pass
                         papers_processed_in_batch += 1
 
-                        st.session_state.batch_file_hashes[pdf_hash] = result
-                    
-              
-                    elapsed = time.time() - start_time_file
-                    try:
-                        update_terminal_log(f"File processed in {elapsed:.2f}s.", "SYSTEM")
-                    except:
-                        pass
-                        
-                    percent = int((idx / total_pdfs) * 100)
-                    status_placeholder.markdown(f"<h6 style='text-align: center; color: 'white';'>Processed {percent}% of papers... Processing <span style='color: #4189DC'> {pdf.name}</span></h6>", unsafe_allow_html=True)
-                    progress_bar.progress(idx / total_pdfs)
-
-                except Exception as e:               
-                    try:
-                        update_terminal_log(f"CRITICAL ERROR processing {pdf.name}: {str(e)}", "ERROR")
-                    except:
-                        pass
-                    try:
-                        import traceback
-                        update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
-                    except:
-                        pass
-        
-                   
+                    done_count += 1
+                    percent = int((done_count / total_pdfs) * 100)
+                    status_placeholder.markdown(f"<h6 style='text-align: center;'>Processed {percent}% of papers... {done_count}/{total_pdfs} done</h6>", unsafe_allow_html=True)
+                    progress_bar.progress(min(done_count / total_pdfs, 1.0))
                     gc.collect()
-                    
 
-        except Exception as e:
-            try:
-                update_terminal_log(f"CRITICAL BATCH ERROR: {str(e)}", "ERROR")
-            except:
-                pass
-            try:
-                import traceback
-                update_terminal_log(f"Traceback: {traceback.format_exc()}", "ERROR")
-            except:
-                pass
-
+        progress_bar.progress(1.0)
         status_placeholder.empty()
+        drain_terminal_logs()
         try:
             update_terminal_log("=== Batch processing complete ===", "SYSTEM")
             update_terminal_log(f"Processed {papers_processed_in_batch} papers in this session.", "SUCCESS")
+            if failed_papers:
+                update_terminal_log(f"Papers that failed and were skipped: {', '.join(failed_papers)}", "WARN")
         except:
             pass
-
     extracted_results = st.session_state.extracted_results
     total = len(extracted_results)
 
