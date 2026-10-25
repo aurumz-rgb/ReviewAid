@@ -660,6 +660,13 @@ If you use ReviewAid, please cite:
 
 > **Sahu, V. and Balakrishnan, M. (2026) ‘ReviewAid: An Open-Source Tool for Efficient PICO-Based Screening and Data Extraction in Systematic Reviews’, Journal of Open Research Software, 14(1), p. 21.** Available at: [https://doi.org/10.5334/jors.672](https://doi.org/10.5334/jors.672)
 
+
+---
+
+## 🗂️ Others
+
+ReviewAid was also presented at the **FORRT AI in Metascience** conference (September 2026):
+
 > **Sahu, V. (2026) ‘ReviewAid: confidence-scored, locally runnable LLM screening and extraction’, paper presented at the FORRT AI in Metascience conference, September 2026.** Available at: [https://doi.org/10.5281/zenodo.23018090](https://doi.org/10.5281/zenodo.23018090)
 
 
