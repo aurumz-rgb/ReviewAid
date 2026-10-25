@@ -192,6 +192,7 @@ def run_screener():
         progress_bar = st.progress(0)
         st.session_state.cancel_batch = False
         st.checkbox("Cancel remaining papers (papers already being processed will still finish)", key="cancel_batch")
+        live_results = st.container()
 
         papers_processed_in_batch = 0
         failed_papers = []
@@ -446,6 +447,13 @@ def run_screener():
                         print(f"--- [SCREENER] Result generated for: {pdf_name} (Decision: {outcome['kind'].upper()}) ---", flush=True)
                         papers_processed_in_batch += 1
 
+                        decision_color = {"include": "#3fb950", "maybe": "#d29922"}.get(outcome["kind"], "#f85149")
+                        live_results.markdown(
+                            f"<span style='color:{decision_color}; font-weight:bold;'>{outcome['kind'].upper()}</span>"
+                            f"<span style='color:#F0F4F8;'> - {pdf_name}</span>"
+                            f"<span style='color:#8b949e;'> (confidence {result.get('confidence') or 0:.2f})</span>",
+                            unsafe_allow_html=True)
+
                     done_count += 1
                     percent = int((done_count / total_pdfs) * 100)
                     status_placeholder.markdown(f"<h6 style='text-align: center;'>Processed {percent}% of papers... {done_count}/{total_pdfs} done</h6>", unsafe_allow_html=True)
@@ -455,6 +463,8 @@ def run_screener():
         progress_bar.progress(1.0)
         status_placeholder.empty()
         drain_terminal_logs()
+        if failed_papers:
+            st.warning(f"{len(failed_papers)} paper(s) failed to process and were skipped: {', '.join(failed_papers)}")
         try:
             update_terminal_log("=== Batch processing complete ===", "SYSTEM")
             if skipped:

@@ -191,6 +191,7 @@ def run_extractor():
         progress_bar = st.progress(0)
         st.session_state.cancel_batch = False
         st.checkbox("Cancel remaining papers (papers already being processed will still finish)", key="cancel_batch")
+        live_results = st.container()
 
         papers_processed_in_batch = 0
         failed_papers = []
@@ -478,6 +479,12 @@ If a field is not found in the text, use the value "Not Found".
                             pass
                         papers_processed_in_batch += 1
 
+                        live_results.markdown(
+                            f"<span style='color:#3fb950; font-weight:bold;'>DONE</span>"
+                            f"<span style='color:#F0F4F8;'> - {pdf_name}</span>"
+                            f"<span style='color:#8b949e;'> (confidence {result.get('confidence') or 0:.2f})</span>",
+                            unsafe_allow_html=True)
+
                     done_count += 1
                     percent = int((done_count / total_pdfs) * 100)
                     status_placeholder.markdown(f"<h6 style='text-align: center;'>Processed {percent}% of papers... {done_count}/{total_pdfs} done</h6>", unsafe_allow_html=True)
@@ -487,6 +494,8 @@ If a field is not found in the text, use the value "Not Found".
         progress_bar.progress(1.0)
         status_placeholder.empty()
         drain_terminal_logs()
+        if failed_papers:
+            st.warning(f"{len(failed_papers)} paper(s) failed to process and were skipped: {', '.join(failed_papers)}")
         try:
             update_terminal_log("=== Batch processing complete ===", "SYSTEM")
             if skipped:
