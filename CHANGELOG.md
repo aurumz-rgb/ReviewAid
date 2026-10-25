@@ -1,5 +1,81 @@
 # Changelog
 
+## v4.1.0 (2026-10-25)
+
+A throughput and robustness release. The decision architecture is exactly
+v4.0.0's — Tier-1 deterministic gate → per-criterion Tier-2 screening with
+grounded quotes and agreement scoring → deterministic confidence override —
+and no screening logic changed. What changed is everything around it, driven
+by what real batches on the free default key actually looked like: papers
+processed strictly one at a time, no way to stop a batch, results appearing
+only after the last paper, and two bugs that could silently lose papers.
+
+### Parallel batch processing (`screener.py`, `extractor.py`)
+
+- Papers are processed by a small thread pool (3 workers) instead of a
+  serial loop. The pipeline is I/O-bound on API calls, so this multiplies
+  throughput roughly 3x with no change to what each paper sees. Per-paper
+  results are applied on the main thread only; session state is never
+  touched from workers.
+- Terminal logging is thread-safe: worker threads push log lines onto a
+  queue that the main thread drains into the System Terminal, so log order
+  and Streamlit session state stay consistent.
+- LLM provider clients are cached per (provider, model, key, base URL) in
+  a lock-guarded registry instead of being rebuilt on every call and every
+  retry.
+
+### Batch control and visibility
+
+- **Cancel** checkbox during a batch: papers already in flight finish,
+  everything not yet started is dropped and reported.
+- **Live results**: each paper's decision (and confidence) appears as it
+  finishes instead of after the whole batch.
+- Papers that error are no longer swallowed by a bare `except` at the loop
+  level — they are reported in the terminal and as an end-of-batch warning
+  listing exactly which files failed.
+
+### Screening quality mechanics (not the logic)
+
+- The three screening samples now run at temperature 0.7, not 0.0. At
+  temperature 0 the three samples were near-identical, so the majority
+  vote and the agreement score — the whole point of the k = 3 design —
+  were measuring nothing. This restores actual self-consistency sampling.
+  (The extractor stays at 0.0; there a single deterministic extraction is
+  correct.)
+- `preprocess_text_for_ai` truncates at a sentence boundary instead of
+  slicing mid-word at a character guess.
+- A "Fast mode" checkbox exposes the abstract-triage path that
+  `screen_paper()` has supported since v4.0.0: title/abstract is screened
+  first and the full text is only sent when the abstract stage does not
+  decide. Obvious excludes cost a fraction of the calls.
+
+### Bug fixes
+
+- Fixed an `UnboundLocalError` in the extractor that crashed a paper's
+  processing when the API returned empty (but not `None`) responses on
+  every retry — the paper was silently lost to the outer handler.
+- Rate-limit backoff is capped at 60 s with 5 attempts; the previous
+  schedule could park a batch for over two hours on a single call
+  (15 × 2^9 s ≈ 2.1 h).
+- The batch limit is one constant (`MAX_PAPERS = 20`) used by both modes;
+  the UI, the IMPORTANT notice and the log previously disagreed (10 / 20
+  / 2000).
+- The screener's average-speed metric now measures the batch itself, not
+  time since the app was opened.
+- Global stats counters increment once per paper (`Increment(count)`)
+  instead of once per unit in a loop, and cached duplicate files no longer
+  re-increment them.
+- Removed a dead `estimate_confidence` call in the screener whose result
+  was always overwritten.
+
+### Known limits
+
+- Concurrency multiplies request rate, and the shared free default key is
+  the bottleneck under it: on a congested key, 3 workers means 3x the
+  429s. Bring your own key for large batches. None of the above changes
+  screening accuracy — that is deliberate; v4.0.0's measurement story
+  stands as published.
+
 ## v4.0.0 (2026-09-04)
 
 The decision architecture is unchanged from v3.0.0: Tier-1 deterministic
