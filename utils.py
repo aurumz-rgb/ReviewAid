@@ -93,6 +93,7 @@ except Exception as e:
         print(f"Error initializing Firebase: {e}")
 
 MAX_LOG_ENTRIES = 200
+MAX_PAPERS = 20
 MAX_INPUT_TOKENS_SCREENER = 128000 
 MAX_INPUT_TOKENS_EXTRACTOR = 128000 
 MAX_OUTPUT_TOKENS = 8192

@@ -7,7 +7,7 @@ import hashlib
 
 from utils import (
     update_terminal_log, extract_pdf_content, preprocess_text_for_ai, 
-    MAX_INPUT_TOKENS_EXTRACTOR, MAX_OUTPUT_TOKENS, update_processing_stats,
+    MAX_INPUT_TOKENS_EXTRACTOR, MAX_OUTPUT_TOKENS, MAX_PAPERS, update_processing_stats,
     to_docx, to_csv, to_excel, display_citation_section, query_llm
 )
 from parser import parse_result, df_from_extracted_results
@@ -180,10 +180,10 @@ def run_extractor():
             update_terminal_log(f"Using Default Provider ({model_name}) with Env Key.", "INFO")
             update_terminal_log(f"Mode detected: {st.session_state.app_mode}", "INFO")
             update_terminal_log(f"Provider: {provider_for_call} | Model: {model_name}", "INFO")
-            update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), 2000)}", "INFO")
+            update_terminal_log(f"Files to process: {min(len(uploaded_pdfs), MAX_PAPERS)}", "INFO")
             update_terminal_log("Allocating resources...", "DEBUG")
 
-        max_papers = 21 
+        max_papers = MAX_PAPERS
         total_pdfs = min(len(uploaded_pdfs), max_papers)
         
         status_placeholder = st.empty()
